@@ -17,6 +17,8 @@ const LAYERS: { key: 'ir' | 'vis'; label: string; hosts: Host[] }[] = [
     { url: 'https://alaskybis.cds.unistra.fr/SPHEREx/color', name: 'SPHEREx', probe: '/Norder3/Allsky.png', credit: 'SPHEREx QR2 colour (NASA/JPL-Caltech, IRSA; HiPS by CDS)' },
     { url: 'https://irsa.ipac.caltech.edu/data/hips/CDS/2MASS/Color', name: '2MASS', probe: '/Norder3/Allsky.jpg', credit: '2MASS colour (UMass/IPAC-Caltech; HiPS by CDS, mirrored by IRSA)' },
   ] },
+  // DSS2 is stitched from about 900 photographic plates with different exposures, so zoomed out its plate edges
+  // show as a checkerboard. Mellinger is a smooth all-sky mosaic but low resolution, so it is used only when wide.
   { key: 'vis', label: 'Visible light', hosts: [
     { url: 'https://casda.csiro.au/hips/DSS2/color', name: 'DSS2', probe: '/Norder3/Allsky.jpg', credit: 'DSS2 colour (STScI/AURA; HiPS by CDS, mirrored by CSIRO)' },
     { url: 'https://alasky.cds.unistra.fr/DSS/DSSColor', name: 'DSS2', probe: '/Norder3/Allsky.jpg', credit: 'DSS2 colour (STScI/AURA; HiPS by CDS)' },
@@ -32,9 +34,18 @@ function probe(h: Host, ms = 8000) {
     img.src = h.url + h.probe
   })
 }
+// Visible light when zoomed out (wider than WIDE_FOV degrees): Mellinger, if CDS answers.
+const MELLINGER: Host[] = [
+  { url: 'https://alasky.cds.unistra.fr/MellingerRGB', name: 'Mellinger', probe: '/Norder3/Allsky.jpg', credit: 'Mellinger colour optical survey (Axel Mellinger; HiPS by CDS)' },
+  { url: 'https://alaskybis.cds.unistra.fr/MellingerRGB', name: 'Mellinger', probe: '/Norder3/Allsky.jpg', credit: 'Mellinger colour optical survey (Axel Mellinger; HiPS by CDS)' },
+]
+const WIDE_FOV = 15
+
+// Probe every host at once and keep the most preferred one that answered, so a dead server costs one
+// timeout (5 s) instead of one per host in turn.
 async function pick(hosts: Host[]) {
-  for (const h of hosts) if (await probe(h)) return h
-  return null
+  const ok = await Promise.all(hosts.map(h => probe(h, 5000)))
+  return hosts.find((_, i) => ok[i]) ?? null
 }
 
 // Where a star is in a given year, from Gaia's position and drift (proper motion only; parallax is under 1").
@@ -51,7 +62,7 @@ const accent = () => getComputedStyle(document.documentElement).getPropertyValue
 
 const STEPS = ['Finding a sky image server', 'Loading the sky map', 'Placing the five test stars']
 
-const WHOLE_SKY_FOV = 180
+const WHOLE_SKY_FOV = 175
 const TARGET_FOV = 0.25
 const CUTOUT_DEG = 2 / 60
 const DRIFT_YEARS = 1000
@@ -77,6 +88,9 @@ export default function Sky({ params, onReady }: PageProps) {
   const [state, setState] = useState<'loading' | 'ready' | 'failed'>('loading')
   const [layer, setLayer] = useState<'ir' | 'vis'>('ir')
   const [hosts, setHosts] = useState<Partial<Record<'ir' | 'vis', Host>>>({})
+  const [wideVis, setWideVis] = useState<Host | null>(null)
+  const layerRef = useRef<'ir' | 'vis'>('ir')
+  const surveyRef = useRef<string>('')
   const [pos, setPos] = useState({ ra: 0, dec: 0, fov: WHOLE_SKY_FOV })
   const [picked, setPicked] = useState<Meta | null>(null)
   const [step, setStep] = useState(0)
@@ -127,10 +141,11 @@ export default function Sky({ params, onReady }: PageProps) {
       try {
         if (!document.createElement('canvas').getContext('webgl2')) throw new Error('no WebGL2')
         setStep(0)
-        const [A, ir, vis] = await Promise.all([
+        const [A, ir, vis, mel] = await Promise.all([
           import('aladin-lite').then(mod => mod.default as any),
-          pick(LAYERS[0].hosts), pick(LAYERS[1].hosts),
+          pick(LAYERS[0].hosts), pick(LAYERS[1].hosts), pick(MELLINGER),
         ])
+        setWideVis(mel)
         const first = ir ?? vis
         if (!first) throw new Error('no sky server answered')
         setStep(1)
@@ -139,8 +154,10 @@ export default function Sky({ params, onReady }: PageProps) {
         lib.current = A
         setHosts({ ir: ir ?? undefined, vis: vis ?? undefined })
         setLayer(ir ? 'ir' : 'vis')
+        layerRef.current = ir ? 'ir' : 'vis'
+        surveyRef.current = first.url
         const v: AladinView = A.aladin(box.current, {
-          survey: first.url, fov: WHOLE_SKY_FOV, target: '266.4 -28.9', projection: 'AIT', cooFrame: 'ICRSd',
+          survey: first.url, fov: WHOLE_SKY_FOV, target: '266.4 -28.9', projection: 'SIN', cooFrame: 'ICRSd',
           showReticle: false, showZoomControl: false, showFullscreenControl: false, showLayersControl: false,
           showGotoControl: false, showFrame: false, showCooGridControl: false, showSimbadPointerControl: false,
           showProjectionControl: false, showContextMenu: false, showSettingsControl: false, showShareControl: false,
@@ -163,7 +180,15 @@ export default function Sky({ params, onReady }: PageProps) {
         overlay.current = A.graphicOverlay({ color: accent(), lineWidth: 1.5 })
         v.addOverlay(overlay.current)
         v.on('objectClicked', (o: any) => { if (o?.data?.slug) void fly(o.data.slug) })
-        const sync = () => { const [ra, dec] = v.getRaDec(); setPos({ ra, dec, fov: v.getFoV()[0] }) }
+        const sync = () => {
+          const [ra, dec] = v.getRaDec(), fov = v.getFoV()[0]
+          setPos({ ra, dec, fov })
+          // Visible light: the smooth Mellinger mosaic when zoomed out, detailed DSS2 when zoomed in.
+          if (layerRef.current === 'vis' && mel && vis) {
+            const want = fov > WIDE_FOV ? mel.url : vis.url
+            if (want !== surveyRef.current) { surveyRef.current = want; v.setImageSurvey(want) }
+          }
+        }
         v.on('positionChanged', sync)
         v.on('zoomChanged', sync)
         sync()
@@ -188,10 +213,13 @@ export default function Sky({ params, onReady }: PageProps) {
     const h = hosts[k]
     if (!h) return
     setLayer(k)
-    view.current?.setImageSurvey(h.url)
+    layerRef.current = k
+    const url = k === 'vis' && wideVis && pos.fov > WIDE_FOV ? wideVis.url : h.url
+    surveyRef.current = url
+    view.current?.setImageSurvey(url)
   }
 
-  const shown = hosts[layer]
+  const shown = layer === 'vis' && wideVis && pos.fov > WIDE_FOV ? wideVis : hosts[layer]
   const fovLabel = pos.fov >= 1 ? `${fmt(pos.fov, pos.fov >= 10 ? 0 : 1)}°` : `${fmt(pos.fov * 60, 1)}′`
   const scale = pos.fov > 90 ? 'whole sky' : pos.fov > 5 ? 'constellation' : pos.fov > 0.5 ? 'a few full Moons' : 'SPHEREx cutout scale'
   const info = picked ? TARGETS.find(t => t.slug === picked.slug)! : null
