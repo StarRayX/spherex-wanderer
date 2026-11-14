@@ -26,8 +26,13 @@ def test_registry():
         n = bs.MAX_MB // build.cutout_mb(t.get("size_arcmin", 2.0))
         assert n * build.cutout_mb(t.get("size_arcmin", 2.0)) <= bs.MAX_MB  # planner cap fits the budget
     w = bs.TARGETS["wise-0855"]
-    assert "Not in Gaia" in w["source"] and "UNVERIFIED" in w["source"] and w["astrometry"]["parallax"] is None
-    assert w["astrometry"]["ra"] == pytest.approx((8 + 55 / 60 + 10.831 / 3600) * 15)
+    assert "Not in Gaia" in w["source"] and w["astrometry"]["parallax"] == 439.0
+    # the challenge coordinates are the WISE epoch (2010.338) position: moving the J2000 entry there must land on them
+    from astropy.time import Time
+    from blink.query import propagate
+    ra, dec = propagate(**w["astrometry"], mjd=Time(2010.338, format="jyear").mjd)
+    assert abs(ra[0] - (8 + 55 / 60 + 10.831 / 3600) * 15) * 3600 * 0.9885 < 1.0
+    assert abs(dec[0] - (-(7 + 14 / 60 + 42.53 / 3600))) * 3600 < 1.0
 
 
 def test_plan_band_cap_split():
@@ -42,7 +47,7 @@ def test_plan_band_cap_split():
 
 
 def test_plan_target_wavelength(monkeypatch):
-    import blink.select as sel
+    import blink.pick as sel
     fr = [dict(mjd=60000 + 200 * v + i, band="SPHEREx-D6", wl=4.4 + 0.05 * i) for v in range(2) for i in range(12)]
     monkeypatch.setattr(sel, "predict_wavelength", lambda v, ra, dec: np.array([f["wl"] for f in v]))
     _, v = build.plan(fr, "SPHEREx-D6", 2, 100, 0, 0, match_wavelength=True, target_um=4.9)

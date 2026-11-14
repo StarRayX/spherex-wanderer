@@ -69,7 +69,7 @@ def split_long(visits, max_span=60, bin_days=30):
 def plan(frames, band, frames_per_visit, max_frames, ra=None, dec=None, match_wavelength=False, target_um=None):
     """Choose (band, visits): one band, at most max_frames frames, visits spread evenly over time if there are
     too many, and per visit frames_per_visit frames spread in time (or closest in wavelength to target_um,
-    default the median over visits, via blink.select)."""
+    default the median over visits, via blink.pick)."""
     band = band or Counter(f["band"] for f in frames).most_common(1)[0][0]
     visits = []
     for v in split_long(group_visits(frames)):
@@ -82,7 +82,7 @@ def plan(frames, band, frames_per_visit, max_frames, ra=None, dec=None, match_wa
     if len(visits) > n_vis:
         visits = [visits[i] for i in np.linspace(0, len(visits) - 1, n_vis).round().astype(int)]
     if match_wavelength:
-        from blink.select import pick_frames
+        from blink.pick import pick_frames
         picked, _, target = pick_frames(visits, ra, dec, frames_per_visit, target_um)
         print(f"wavelength-matched to {target:.3f} um")
         return band, [sorted(v, key=lambda f: f["mjd"]) for v in picked]
@@ -157,7 +157,7 @@ def build_target(slug, ra, dec, astrometry, out_dir, band=None, max_mb=100, fram
     """Build out_dir/visit_NN.png + meta.json for one sky position; returns the meta dict.
 
     astrometry: {ra, dec, pmra, pmdec (mas/yr, pmra with cos dec), parallax (mas), epoch_from (Julian yr)} or None
-    for a static position at (ra, dec). match_wavelength: pick frames per visit by wavelength at the star (blink.select),
+    for a static position at (ra, dec). match_wavelength: pick frames per visit by wavelength at the star (blink.pick),
     closest to target_um (default: median over visits).
     """
     say = progress or (lambda d, t, m="": None)

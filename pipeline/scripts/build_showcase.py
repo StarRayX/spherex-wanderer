@@ -43,18 +43,17 @@ TARGETS = {
                "Frames matched to 1.27 um; the Apr 2026 visit has none closer than 1.30 to 1.37 um."]),
     "wise-0855": dict(
         name="WISE 0855-0714",
-        astrometry=dict(ra=133.79512916666667, dec=-7.245147222222222, pmra=-8120.0, pmdec=670.0, parallax=None,
+        astrometry=dict(ra=133.81890825, dec=-7.247048, pmra=-8123.7, pmdec=673.2, parallax=439.0,
                         epoch_from=2000.0),
-        source=("Not in Gaia (a Y dwarf, far too faint in G). Position: challenge coordinates 08h55m10.831s "
-                "-7d14m42.53s; motion -8.12, +0.67 arcsec/yr (Luhman 2014, docs/evidence_notes.md). The J2000 epoch "
-                "of the coordinates is an UNVERIFIED assumption; parallax not applied."),
+        source=("Not in Gaia (a Y dwarf, far too faint in G). J2000 position, proper motion and parallax from SIMBAD "
+                "(Kirkpatrick et al. 2021, ApJS 253, 7). The challenge coordinates 08h55m10.831s -7d14m42.53s are the "
+                "WISE All-Sky position at epoch 2010.338, not J2000: see pipeline/blink/WISE0855_NOTES.md."),
         band="SPHEREx-D6", frames_per_visit=4, size_arcmin=4.0,
         claim="The hardest target: what SPHEREx sees at 4.4 to 5 um at the predicted position.",
-        notes=["Position epoch UNVERIFIED: if the coordinates are at the WISE epoch (about 2010) and not J2000, the true "
-               "position is about 85 arcsec east of the marker. The 4 arcmin field covers both cases.",
-               "One-off check (2026-11-14, same stacks): forced S/N at the epoch-2010.5 position is 3.1, 7.6 and 6.1 in "
-               "the three visits, with the local peak on that spot. A candidate only: the epoch is unverified and a "
-               "background source there would look the same. No marker is drawn for it."]),
+        notes=["Expected brightness is only marginal: W2 13.9 (about 0.47 mJy) gives an expected S/N of about 2 to 3 per visit.",
+               "A faint background star (AllWISE J085501.95-071428.1, W2 15.05) sits about 1.3 pixels from the 2025-26 "
+               "position, inside the measuring aperture, so any signal here may be blended. Candidate only unless the "
+               "build's detection rule passes."]),
     "rw-aurigae": dict(
         name="RW Aurigae",
         astrometry=dict(ra=76.95608119552952, dec=30.401204589097233, pmra=2.6406431770317083,

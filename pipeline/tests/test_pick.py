@@ -6,7 +6,7 @@ from astropy.io import fits
 from astropy.wcs import WCS
 
 from blink import fetch
-from blink.select import pick_frames, pixel_from_region, predict_wavelength
+from blink.pick import pick_frames, pixel_from_region, predict_wavelength
 
 CORNERS = [(-0.5, -0.5), (2039.5, -0.5), (2039.5, 2039.5), (-0.5, 2039.5)]
 
