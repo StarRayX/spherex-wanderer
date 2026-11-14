@@ -38,7 +38,7 @@ Other: DSS2 tiles (CSIRO HiPS) and CDS sky services through Aladin Lite. No NASA
 
 - Python 3.12, managed with uv: Astropy, NumPy, SciPy, Requests, Pillow, reproject, pytest. Research scripts also used pyvo and Matplotlib.
 - Web: TypeScript, React 19, Vite, Aladin Lite 3.8.2, Space Grotesk and Public Sans fonts.
-- Hosting: Vercel (static site plus a Python function `api/live.py`). Live at https://nasaspaceapps-six.vercel.app (deployed Nov 15 from main).
+- Hosting: Vercel (static site plus a Python function `api/live.py`). Live at https://spherex-blink-tool.vercel.app (deployed Nov 15 from main).
 - Git and GitHub for the repo.
 - Hardware: team laptops only. Pipeline runs and cutout downloads ran locally.
 
@@ -83,7 +83,7 @@ Space Apps allows AI to speed up work but not to come up with the solution idea.
 7. **Who benefits and what is next.**
    - Solar-system researchers, candidate vetters, educators.
    - Depth V 18 to 19, no discovery claim. More movers and batch downloads next.
-   - Links: https://nasaspaceapps-six.vercel.app
+   - Links: https://spherex-blink-tool.vercel.app
 
 ### 30-second demo script
 
