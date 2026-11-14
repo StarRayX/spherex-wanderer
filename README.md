@@ -2,6 +2,8 @@
 
 SPHEREx Blink turns NASA SPHEREx images into a table of measured positions and spectra for moving objects, and into a quick "is this dot real?" check, with an RA/Dec flipbook to see it by eye.
 
+Live site: https://nasaspaceapps-six.vercel.app
+
 Built for NASA Space Apps 2026 (Manila), challenge [Planet X and SPHEREx](https://www.spaceappschallenge.org/2026/challenges/planet-x-and-spherex/).
 
 This tool does not claim any discovery. It has not found Planet X. Its search depth is about V 18 to 19.
