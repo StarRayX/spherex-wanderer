@@ -16,7 +16,7 @@ The challenge Resources tab (read Nov 14) names no new data products. It links t
 
 A public web app. You type a star's name or sky coordinates and see SPHEREx images of that spot, one per visit, played like a short animation. The app marks where the Gaia catalogue says the star should be on each date, draws its path, and reports how far it moved.
 
-The demo moment is a split screen of Barnard's Star. On the left, a plain flipbook of raw SPHEREx frames flickers. On the right, our version holds steady while the star slides along a glowing trail. The caption reads "SPHEREx: X arcsec per year. Gaia: 10.4." X is measured during the hackathon.
+The demo moment is a split screen of Barnard's Star. On the left, a plain flipbook of raw SPHEREx frames flickers. On the right, our version holds steady while the star slides along a glowing trail. The caption reads "SPHEREx: 10.5 +/- 0.7 arcsec per year northward. Gaia: 10.4." These are the Dec component, not the total proper motion (`motion.caption_note`).
 
 We are judged on looks as much as on the data work. Section 5 treats presentation as a first-class workstream, not a polish step.
 
@@ -24,7 +24,7 @@ We are judged on looks as much as on the data work. Section 5 treats presentatio
 
 | Source | What we use | How |
 |---|---|---|
-| NASA/IPAC IRSA SPHEREx archive | Calibrated images (Level 2), releases QR2 and QR3 | TAP query on `spherex.obscore` at `https://irsa.ipac.caltech.edu/TAP`; cutouts via `<image url>?center=RA,Dec&size=...` |
+| NASA/IPAC IRSA SPHEREx archive | Calibrated images (Level 2), all releases in `spherex.obscore` (DR1, QR3 and their deep sets) | TAP query on `spherex.obscore` at `https://irsa.ipac.caltech.edu/TAP`; cutouts via `<image url>?center=RA,Dec&size=...` |
 | Gaia DR3 | Position, proper motion, parallax of each target | Gaia archive TAP or astroquery |
 | JPL Small-Body Identification API | Known asteroids in a frame at a given time | `https://ssd-api.jpl.nasa.gov/sb_ident.api` |
 | Name resolver (`resolve.py`) | Name to coordinates ("Barnard's Star" to RA/Dec) | Built-in aliases for the five targets, Gaia archive for Gaia stars, SIMBAD or Sesame when reachable (Sesame at CDS was unreachable on 2026-11-14) |
@@ -43,7 +43,7 @@ Facts about the data (tested Nov 7, see `evidence_notes.md`):
 ```
             build time (local, Python)                    run time
  ┌───────────────────────────────────┐        ┌──────────────────────────────┐
- │ pipeline/                          │        │ web/ (Next.js on Vercel)      │
+ │ pipeline/                          │        │ web/ (Vite + React, Vercel)   │
  │  resolve-> name, Gaia, aliases     │        │  /            landing + demo  │
  │  query  -> TAP, list frames        │  JSON  │  /t/[slug]    target viewer   │
  │  pick   -> frames by wavelength    │ ─────► │  /view?ra=&dec=  any spot     │
@@ -56,7 +56,7 @@ Facts about the data (tested Nov 7, see `evidence_notes.md`):
 
 Two paths into the same pipeline code:
 1. **Showcase (precomputed).** The five test targets are built ahead of time and served as static files. The demo and the landing page never depend on IRSA being up. Build this first.
-2. **Live.** Any coordinates. A Python serverless function runs the same pipeline and caches results by (RA, Dec, size, release). The UI shows real progress while frames arrive.
+2. **Live.** Any coordinates. A Python serverless function runs the same pipeline and caches results by (RA, Dec, size); there is no release tag, because a build uses every release and the exposures do not repeat across them. It matches wavelengths, defaults to a 6 arcmin field, and for a fast-moving star that Gaia does not list at the typed position it searches Gaia within 5 arcmin for stars faster than 200 mas/yr and carries them back to J2000, the WISE epoch and 2016.0 (`API.md`). The UI shows real progress while frames arrive.
 
 ### Repo layout
 ```
@@ -65,9 +65,12 @@ pipeline/            Python package (uv)
                      + WAVELENGTH_NOTES.md, WISE0855_NOTES.md, PHOTOMETRY_NOTES.md
   data/              wave_D1..D6.npz, the per-detector wavelength tables (6 kB each)
   tests/             pytest for each module
-  scripts/build_showcase.py
-web/                 Next.js app (TypeScript)
-  public/showcase/<slug>/  visit PNGs + meta.json (generated)
+  scripts/build_showcase.py          the five challenge targets
+  scripts/build_showcase_nearby.py   seven more nearby fast movers
+  scripts/fetch_fast_movers.py       the 300 fastest Gaia stars for the sky map
+web/                 Vite + React + TypeScript app (pages: Home, Sky, Target, AnySpot, Method)
+  public/showcase/<slug>/  visit PNGs + meta.json (generated), 12 targets
+  public/data/fast_movers.json
 api/live.py          Python function wrapping pipeline/blink; vercel.json rewrites /api/blink to it
 docs/                plans, rules, evidence
 branding/            NYSCP team logo (team brand, not the product brand)
@@ -84,7 +87,7 @@ branding/            NYSCP team logo (team brand, not the product brand)
 8. **Render and build** (`render.py`, `build.py`). asinh stretch with the same limits across visits, so brightness differences are real. 4x upsample for display. Write PNGs and `meta.json`: dates, wavelengths, positions, predicted positions, motion fit, flags summary.
 
 ### Frontend
-- Next.js App Router, TypeScript, Tailwind CSS, Framer Motion for UI transitions.
+- As built: Vite, React 19 and TypeScript (see `HANDOFF.md`). The Next.js, Tailwind, Framer Motion and WebGL2 plan below was not followed; the flipbook and the Aladin Lite sky map are what shipped.
 - **Flipbook on WebGL2** (one canvas): crossfade between visits, bicubic upsampling in the shader, a trail and crosshair drawn on top, a time scrubber. Plain canvas 2D as a fallback.
 - Aladin Lite (CDS) for an optional wide-context panel with Gaia and WISE overlays.
 - State in the URL (`?ra=&dec=&fov=&band=`), so any view can be shared or embedded.
@@ -97,12 +100,12 @@ branding/            NYSCP team logo (team brand, not the product brand)
 | 1 | Showcase cache for the 5 test targets | Must, first | Demo cannot depend on IRSA |
 | 2 | Flipbook by visit with trail and Gaia marker | Must | The demo moment |
 | 3 | Motion fit vs Gaia with error bar | Must | Barnard's Star, Epsilon Indi B |
-| 4 | Target gallery: 5 honest cards | Must | WISE 0855 a candidate, R Draconis no brightness |
+| 4 | Target gallery: 5 honest cards | Must | WISE 0855 not separately detected, R Draconis no brightness |
 | 5 | Any-coordinates live mode with progress | Must | Required by the challenge |
 | 6 | Same-wavelength brightness chart | Second | RW Aurigae only (R Draconis is saturated) |
 | 7 | "What is that dot?" via JPL lookup | Second | Asteroids that appear in one frame |
 | 8 | Candidate card, CSV export | Second | Saved in the browser only |
-| 9 | Spectrum on the fly | Stretch | Ship only if it matches IRSA's own tool on one star |
+| 9 | Spectrum on the fly | Stretch | Matched IRSA's tool only for uncrowded stars of K 10.4 to 10.6; Epsilon Indi B's is preliminary |
 | 10 | Difference image | Stretch | Labelled as a visual aid |
 
 ## 5. Presentation workstream
@@ -139,9 +142,9 @@ See `PLAN.md`. Samantha leads development and picks her own work. Clarence suppo
 | Risk | Plan |
 |---|---|
 | IRSA overloaded during the hackathon | Showcase precomputed first; live mode retries and shows honest progress |
-| WISE 0855 not visible | Candidate only (2 of 3 visits at S/N about 8, 2 to 3 expected, blended star); say so |
+| WISE 0855 not visible | Not separately detected (about 2 sigma per visit, expected flux plus a blended star); say so |
 | Saturated stars (R Draconis, Barnard's core) | Report lower limits or no brightness; choose bands that avoid saturation |
-| Cutouts are slow (about 10 s each) | Parallel fetch (max 4), disk cache, small default field of view |
+| Cutouts are slow (about 10 s each) | Parallel fetch (max 4), disk cache, 6 arcmin default field of view (about 4.4 MB a cutout) |
 | Python astropy stack too large for a serverless function | Vercel functions allow up to 5 GB; if it still fails, run live mode on a small container and keep the showcase static |
 | Overclaiming | Every number on screen traces to `evidence_notes.md` or `meta.json` |
 | Rules | AI use disclosed in the submission; no NASA logo in generated media |

@@ -79,7 +79,7 @@ Space Apps allows AI to speed up work but not to come up with the solution idea.
 6. **How NASA data makes it possible, and how we check it.**
    - IRSA SPHEREx TAP and cutouts, JPL sb_ident and Horizons, ESA Gaia DR3.
    - Validation card: Barnard's Star 10.55 +/- 0.71 vs Gaia 10.36 arcsec/yr.
-   - Honest limits: R Draconis saturated, WISE 0855 candidate only.
+   - Honest limits: R Draconis saturated, WISE 0855 not separately detected.
 7. **Who benefits and what is next.**
    - Solar-system researchers, candidate vetters, educators.
    - Depth V 18 to 19, no discovery claim. More movers and batch downloads next.

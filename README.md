@@ -19,8 +19,8 @@ Proper-motion researchers are not a target group. Gaia and CatWISE measure motio
 
 ## What it does
 
-1. **Known-mover spectrophotometry.** Enter an asteroid or comet designation. JPL gives its predicted position in every SPHEREx frame that caught it, the pipeline measures it frame by frame, and you download the spectrum. IRSA's MOST lists which images caught a mover but measures nothing. IRSA's Spectrophotometry Tool measures a fixed position, so it cannot follow a mover. Launch set: 3I/ATLAS first, then unsaturated asteroids. TODO(number): how many asteroids in the launch set.
-2. **Vet this dot.** Give an RA, Dec and frame. The report checks for a JPL match and its offset, the FLAGS bits, the nearest bright Gaia star, distance to the detector edge, and whether the dot shows in the adjacent frame. TODO(number): confusion table totals for the shipped triage run.
+1. **Known-mover spectrophotometry.** Enter an asteroid or comet designation. JPL gives its predicted position in every SPHEREx frame that caught it, the pipeline measures it frame by frame, and you download the spectrum. IRSA's MOST lists which images caught a mover but measures nothing. IRSA's Spectrophotometry Tool measures a fixed position, so it cannot follow a mover. Shipped: 3I/ATLAS (116 frames) and 10 asteroids (98 to 185 frames each, median offset from the SPHEREx-observer JPL prediction 0.3 to 2.2 arcsec).
+2. **Vet this dot.** Give an RA, Dec and frame. The report checks for a JPL match and its offset, the FLAGS bits, the nearest bright Gaia star, distance to the detector edge, and whether the dot shows in the adjacent frame. Shipped for two ecliptic fields: 145 changes (2 known asteroids, 59 bright-star leftovers, 21 cosmic rays, 17 edge or mask, 41 cannot confirm, 5 unexplained) and 1092 changes.
 3. **RA/Dec flipbook (the challenge's must-have).** Enter coordinates or a name and play SPHEREx images of the spot as a short animation, one frame per visit, with Gaia positions, difference images between epochs, wavelength matching and a spectrum on the fly.
 4. **Sky map.** An Aladin Lite sky with 12 showcase targets, 300 of the fastest Gaia stars, and each visit's SPHEREx image pinned and blinked in place.
 5. **Batch and download.** TODO(number): batch size and runtime once the batch endpoint is measured. A field takes about 2.5 min to triage, so results are precomputed, not served live.
@@ -38,7 +38,7 @@ From `docs/HANDOFF.md` and `docs/evidence_notes.md`. Arcsec per year, SPHEREx pi
 | Kapteyn's Star | 6.91 +/- 0.95 vs 6.49 | Agrees within the error bar |
 | Groombridge 1830, Lacaille 9352 | Just outside the error bar | Not claimed as agreement |
 | Proxima Centauri, Luhman 16 | No drift claim | Images only |
-| WISE 0855 | About 2 sigma, not separately detected | Candidate only. A faint background star sits 1.3 px away |
+| WISE 0855 | Not separately detected: about 2 sigma per visit (earlier S/N 8 figures retracted) | No detection claim. A faint background star sits 1.3 px away |
 | RW Aurigae | 72.2 mJy (2025-09-02) to 182.6 mJy (2026-09-08), 2.5x brighter at 0.75 um | One frame per visit. A and B are blended |
 | R Draconis | Saturated in every band checked | SPHEREx cannot give an aperture brightness |
 | 3I/ATLAS (Dec 2025 frames) | S/N 72 to 154 per frame. A rough 97-point Dec spectrum shows H2O 2.7 um, C-H 3.3 um, CO2 4.25 um (strong) and CO 4.6 um, qualitatively matching arXiv:2601.06759 | Flux is uncalibrated and aperture dependent. No water-ice claim from December data |
@@ -86,6 +86,13 @@ The live API is one endpoint, `GET /api/blink`, served by `api/live.py` on Verce
 - IRSA sometimes answers "503 Server busy"; CDS services were down on Nov 14.
 - IRSA already offers Data Explorer, Cutout, Spectrophotometry, Source Discovery and MOST. This project covers only the mover gap between them. Gagne et al. (arXiv:2604.22012) already cover fast-moving ultracool dwarfs.
 - The live API has not run on Vercel yet.
+
+## Docs
+
+- [Handoff](docs/HANDOFF.md), [data contract for movers and triage](docs/MOVERS_CONTRACT.md), [submission text](docs/SUBMISSION.md)
+- [Tech plan](docs/TECH_PLAN.md), [API](docs/API.md), [rules](docs/RULES.md), [evidence notes](docs/evidence_notes.md), [plan](docs/PLAN.md)
+- [Frontend notes](docs/FRONTEND_NOTES.md): data contract and honest-wording rules for `web/`
+- [Brand](docs/BRAND.md)
 
 ## Team
 
