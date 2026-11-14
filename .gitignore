@@ -1,0 +1,19 @@
+# design sources (large binaries; exported SVG/PNG are committed)
+*.psd
+*.ai
+
+# python
+__pycache__/
+.venv/
+*.pyc
+.pytest_cache/
+pipeline/cache/
+
+# node
+node_modules/
+.next/
+.vercel/
+
+# env
+.env
+.env*.local

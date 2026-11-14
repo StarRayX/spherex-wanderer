@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 189.23 60.74">
+  <defs>
+    <style>
+      .cls-1 {
+        letter-spacing: -.06em;
+      }
+
+      .cls-2 {
+        fill: #231f20;
+        font-family: NeuePower-Ultra, 'Neue Power';
+        font-size: 53.94px;
+      }
+    </style>
+  </defs>
+  <g id="Layer_1-2" data-name="Layer 1">
+    <text class="cls-2" transform="translate(0 45.85)"><tspan x="0" y="0">N</tspan><tspan class="cls-1" x="39.05" y="0">Y</tspan><tspan x="72.55" y="0">SCP</tspan></text>
+  </g>
+</svg>
