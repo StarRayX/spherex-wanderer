@@ -101,7 +101,7 @@ The live API is one endpoint, `GET /api/blink`, served by `api/live.py` on Verce
 ## Team
 
 - Clarence Pagaduan (StarRayX): web frontend, sky map, product direction, docs.
-- Samantha Nicole Bracamonte (snrbracamonte): Python pipeline and live API.
+- Samantha Nicole Bracamonte (snrbracamonte): Python pipeline and tests, live API, API docs, evidence notes.
 
 Team NYSCP, Manila local event. More in [docs/](docs/): `HANDOFF.md`, `PLAN.md`, `RULES.md`, `API.md`, `TECH_PLAN.md`, `evidence_notes.md`, `SUBMISSION.md`.
 
