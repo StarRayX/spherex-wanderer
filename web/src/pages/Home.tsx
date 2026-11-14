@@ -29,7 +29,7 @@ export default function Home({ onReady }: PageProps) {
     <div className="home">
       <div className="home-bg" aria-hidden><div className="stars" /></div>
       <div className="home-inner">
-        <div className="brand-line"><Logo height={32} /><span><b>Wanderer</b></span></div>
+        <div className="brand-line"><Logo height={32} /><span className="wm" aria-label="Wanderer">WANDERER</span></div>
         <div className="hm-hero">
           <h1>
             NASA's archive tells you which SPHEREx images caught an asteroid or comet.
