@@ -76,6 +76,9 @@ function at(a: { ra: number; dec: number; pmra: number; pmdec: number; epoch_fro
 const yearOf = (mjd: number) => 2000 + (mjd - 51544.5) / 365.25
 const midYear = (m: Meta) => yearOf((m.visits[0].mjd + m.visits[m.visits.length - 1].mjd) / 2)
 const THEN = 1999 // the 2MASS sky survey ran 1997 to 2001
+const nowYear = (m: Meta) => yearOf(m.visits[m.visits.length - 1].mjd) // the latest SPHEREx visit: what "now" means on the map
+const GLIDE_MS = 4000
+const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2)
 
 // The sky map draws on a canvas, so it reads the accent colour from the CSS tokens at start-up.
 const accent = () => getComputedStyle(document.documentElement).getPropertyValue('--cyan').trim() || '#00B8D9'
@@ -186,8 +189,75 @@ export default function Sky({ params, onReady }: PageProps) {
   const [fast, setFast] = useState<FastStar | null>(null)
   const [fastCount, setFastCount] = useState(0)
   const fastPick = useRef<any>(null) // a one-source catalogue drawn as a ring round the clicked fast mover
+  const glideCat = useRef<any>(null) // one source drawn as a filled dot, moved along the star's path
+  const glide = useRef<{ id: number; a: any; year1: number; on: boolean }>({ id: 0, a: null, year1: 0, on: false })
+  const [gliding, setGliding] = useState(false)
+  const slider = useRef<HTMLInputElement>(null)
+  const yearLabel = useRef<HTMLSpanElement>(null)
+  const layers = useRef<{ names: string[]; token: number; cur: number }>({ names: [], token: 0, cur: 0 }) // SPHEREx photos pinned on the map
+  const tip = useRef<HTMLDivElement>(null)
+  const metaBySlug = useRef(new Map<string, Meta>())
+  const viewerBox = useRef<HTMLDivElement>(null)
 
   useEffect(() => { onReady() }, [onReady])
+
+  const hideTip = () => { if (tip.current) tip.current.style.display = 'none' }
+
+  // Only the visit whose index the side panel shows is visible on the map; the rest sit at opacity 0.
+  const showVisit = (i: number) => {
+    const L = layers.current, v = view.current as any
+    L.cur = i
+    L.names.forEach((n, k) => { const img = v?.view?.imageLayers?.get(n); if (img?.setOpacity) img.setOpacity(k === i ? 0.9 : 0) })
+  }
+  const dropPhotos = () => {
+    const L = layers.current, v = view.current as any
+    L.token++ // photos still loading will remove themselves when they arrive
+    L.names.forEach(n => v?.removeImageLayer?.(n))
+    L.names = []
+  }
+  const setMarker = (year: number | null) => {
+    const c = glideCat.current, A = lib.current, g = glide.current
+    if (!c || !A) return
+    c.removeAll?.()
+    if (year === null || !g.a) return
+    const [ra, dec] = at(g.a, year)
+    c.addSources([A.source(ra, dec, { label: String(Math.floor(year)) })])
+    if (slider.current) slider.current.value = String(year)
+    if (yearLabel.current) yearLabel.current.textContent = String(Math.floor(year))
+  }
+  const stopGlide = () => { cancelAnimationFrame(glide.current.id); setGliding(false) }
+  const clearGlide = () => { stopGlide(); glide.current.a = null; setMarker(null) }
+  const playGlide = () => {
+    const g = glide.current
+    if (!g.a) return
+    cancelAnimationFrame(g.id)
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { setMarker(g.year1); return }
+    setGliding(true)
+    const t0 = performance.now()
+    const step = (now: number) => {
+      const t = Math.min(1, (now - t0) / GLIDE_MS)
+      setMarker(THEN + (g.year1 - THEN) * easeInOut(t))
+      if (t < 1) g.id = requestAnimationFrame(step)
+      else setGliding(false)
+    }
+    g.id = requestAnimationFrame(step)
+  }
+  const [hasGlide, setHasGlide] = useState(false)
+
+  // Keep the map photo on the same visit as the side panel's viewer, by reading which stop the viewer marks as on.
+  useEffect(() => {
+    const el = viewerBox.current
+    if (!el || !picked) return
+    const read = () => {
+      const stops = [...el.querySelectorAll('.stop')]
+      const i = stops.findIndex(s => s.classList.contains('on'))
+      if (i >= 0 && i !== layers.current.cur) showVisit(i)
+    }
+    const mo = new MutationObserver(read)
+    mo.observe(el, { subtree: true, attributes: true, attributeFilter: ['class'] })
+    read()
+    return () => mo.disconnect()
+  }, [picked])
 
   // One readable label per circle: while a star is selected its catalogue name label is taken off the map,
   // because the "<name>, now (year)" label beside the circle already says it.
@@ -209,15 +279,19 @@ export default function Sky({ params, onReady }: PageProps) {
     const ov = overlay.current
     ov.removeAll?.()
     epochs.current?.removeAll?.()
+    clearGlide()
+    dropPhotos()
+    hideTip()
     showMarks(slug)
     // Gaia positions are for 2016. Move the star to the middle of the SPHEREx visits, or a fast mover
     // like Barnard's Star (about 100 arcsec since 2016) would sit outside its own 2 arcmin box.
     const k = 1 / Math.cos((a.dec * Math.PI) / 180)
-    const [ra, dec] = at(a, midYear(m))
+    const yNow = nowYear(m)
+    const [ra, dec] = at(a, yNow)
     // Plain annotations: a blue circle where the star is now, and for a fast mover a white circle where it was
     // in 1999 with an arrow between them. Nothing that needs an astronomy background to read.
     const name = TARGETS.find(t => t.slug === slug)?.name ?? 'The star'
-    const year = Math.round(midYear(m))
+    const year = Math.floor(yNow)
     const r = 15 / 3600
     ov.add(A.circle(ra, dec, r, { color: accent(), hoverColor: accent(), selectionColor: accent(), lineWidth: 2.5 }))
     const d = totalDrift(a)
@@ -251,6 +325,27 @@ export default function Sky({ params, onReady }: PageProps) {
       const sep = Math.hypot((ra - then[0]) / k, dec - then[1])
       fov = Math.max(TARGET_FOV, sep * 2.6)
     }
+    // SPHEREx photos pinned at their true sky position. The PNGs are 6.15" pixels upsampled, centred on the star's
+    // position at the middle visit; row 0 is the lowest Dec and x grows westward, so CDELT1 < 0 and CDELT2 > 0.
+    const L = layers.current, token = L.token
+    const mid = Math.floor(m.visits.length / 2)
+    const [cr, cd] = at(a, yearOf(m.visits[mid].mjd))
+    const n = (Math.round((m.size_arcmin * 60) / m.pixel_scale_arcsec) | 1) * m.upsample, sc = m.pixel_scale_arcsec / m.upsample / 3600
+    L.cur = 0
+    L.names = m.visits.map((x, i) => {
+      const name = `sx-${token}-${i}`
+      const img = A.image(imageUrl(slug, x.file), { name, imgFormat: 'png', opacity: 0,
+        wcs: { NAXIS: 2, NAXIS1: n, NAXIS2: n, CTYPE1: 'RA---TAN', CTYPE2: 'DEC--TAN', CRPIX1: (n + 1) / 2, CRPIX2: (n + 1) / 2, CRVAL1: cr, CRVAL2: cd, CDELT1: -sc, CDELT2: sc },
+        successCallback: () => { if (layers.current.token !== token) (v as any).removeImageLayer?.(name); else showVisit(layers.current.cur) } })
+      ;(v as any).setOverlayImageLayer(img, name)
+      return name
+    })
+    // The then-to-now glide: a dot that moves from the 1999 circle to the blue circle.
+    glide.current.a = a
+    glide.current.year1 = yNow
+    setHasGlide(!!(d && d > 1))
+    if (slider.current) { slider.current.min = String(THEN); slider.current.max = String(yNow); slider.current.value = String(yNow) }
+    if (yearLabel.current) yearLabel.current.textContent = String(Math.floor(yNow))
     flyTo(v, cra, cdec, fov, anim)
   }, [])
 
@@ -280,6 +375,10 @@ export default function Sky({ params, onReady }: PageProps) {
     setPicked(null)
     overlay.current?.removeAll?.()
     epochs.current?.removeAll?.()
+    clearGlide()
+    dropPhotos()
+    hideTip()
+    setHasGlide(false)
     showMarks()
     setFast(s)
     setSheet(true)
@@ -318,7 +417,7 @@ export default function Sky({ params, onReady }: PageProps) {
         view.current = v
         v.setFoVRange(0.02, WHOLE_SKY_FOV)
         // the user taking the map over cancels a running fly
-        const stop = () => cancelAnimationFrame(anim.current)
+        const stop = () => { cancelAnimationFrame(anim.current); hideTip() }
         box.current.addEventListener('pointerdown', stop)
         box.current.addEventListener('wheel', stop, { passive: true })
         tune(v, first.url)
@@ -337,6 +436,59 @@ export default function Sky({ params, onReady }: PageProps) {
         epochs.current = A.catalog({ name: 'Then and now', sourceSize: 8, color: NO_RING, hoverColor: NO_RING, selectionColor: NO_RING, shape: 'square',
           displayLabel: true, labelColumn: 'name', labelColor: '#FFFFFF', labelFont: '600 12px Public Sans' })
         v.addCatalog(epochs.current)
+        // A filled dot with the year beside it: a custom shape, so it keeps its size in pixels at every zoom.
+        const dot = (s: any, ctx: CanvasRenderingContext2D) => {
+          const x = s.x, y = s.y, label = s.data?.label ?? ''
+          ctx.save()
+          ctx.fillStyle = accent(); ctx.strokeStyle = 'rgba(5,7,12,0.85)'; ctx.lineWidth = 2
+          ctx.beginPath(); ctx.arc(x, y, 3.5, 0, 2 * Math.PI); ctx.stroke(); ctx.fill()
+          ctx.font = '600 13px Public Sans'; ctx.textBaseline = 'middle'; ctx.lineWidth = 3
+          ctx.strokeText(label, x + 10, y); ctx.fillStyle = '#FFFFFF'; ctx.fillText(label, x + 10, y)
+          ctx.restore()
+        }
+        glideCat.current = A.catalog({ name: 'Glide', sourceSize: 8, shape: dot, color: accent(), hoverColor: accent(), selectionColor: NO_RING, displayLabel: false })
+        v.addCatalog(glideCat.current)
+        metas.forEach((m, i) => { if (m) metaBySlug.current.set(TARGETS[i].slug, m) })
+        // Hover tooltip: next to the cursor, for the five targets and the fast-mover dots only (not the annotation shapes).
+        const pointer = { x: 0, y: 0 }
+        const place = () => {
+          const t = tip.current, b = box.current
+          if (!t || !b) return
+          const x = Math.min(pointer.x + 14, b.clientWidth - t.offsetWidth - 8), y = Math.min(pointer.y + 16, b.clientHeight - t.offsetHeight - 8)
+          t.style.transform = `translate(${Math.max(4, x)}px, ${Math.max(4, y)}px)`
+        }
+        box.current.addEventListener('pointermove', e => {
+          const r = box.current!.getBoundingClientRect()
+          pointer.x = e.clientX - r.left; pointer.y = e.clientY - r.top
+          if (tip.current && tip.current.style.display === 'block') place()
+        })
+        const tipLines = (o: any): string[] | null => {
+          const d = o?.data
+          if (d?.slug) {
+            const m = metaBySlug.current.get(d.slug), a = m?.target?.astrometry, t = TARGETS.find(x => x.slug === d.slug)
+            if (!m || !t) return null
+            const ly = lightYears(a), dr = totalDrift(a)
+            return [t.name, [ly ? `${fmt(ly, ly < 100 ? 1 : 0)} light years` : '', dr ? `drifts ${fmt(dr, 2)}″ a year` : ''].filter(Boolean).join(' · '),
+              STATUS_LABEL[t.status] + (t.status === 'measured' ? ' by SPHEREx' : '')]
+          }
+          if (d?.fast) {
+            const s = d.fast as FastStar, a = { ...s, epoch_from: FAST_EPOCH }, ly = lightYears(a), dr = totalDrift(a)
+            return [s.name, [ly ? `${fmt(ly, ly < 100 ? 1 : 0)} light years` : '', dr ? `drifts ${fmt(dr, 2)}″ a year` : ''].filter(Boolean).join(' · ')]
+          }
+          return null
+        }
+        if (window.matchMedia('(hover: hover)').matches) {
+          v.on('objectHovered', (o: any) => {
+            const lines = tipLines(o), t = tip.current
+            if (!lines || !t) return
+            t.replaceChildren(...lines.map((l, i) => { const p = document.createElement(i === 0 ? 'b' : 'span'); p.textContent = l; return p }))
+            t.style.display = 'block'
+            place()
+          })
+          v.on('objectHoveredStop', hideTip)
+          box.current.addEventListener('pointerdown', hideTip)
+          box.current.addEventListener('wheel', hideTip, { passive: true })
+        }
         overlay.current = A.graphicOverlay({ color: accent(), hoverColor: accent(), selectionColor: accent(), lineWidth: 1.5 })
         v.addOverlay(overlay.current)
         v.on('objectClicked', (o: any) => {
@@ -361,6 +513,7 @@ export default function Sky({ params, onReady }: PageProps) {
         }
         const sync = () => {
           dropRings()
+          hideTip()
           const [ra, dec] = v.getRaDec(), fov = v.getFoV()[0]
           writeHud(hud.current, ra, dec, fov)
           const w = fov > WIDE_FOV
@@ -397,6 +550,10 @@ export default function Sky({ params, onReady }: PageProps) {
     fastPick.current?.removeAll?.()
     overlay.current?.removeAll?.()
     epochs.current?.removeAll?.()
+    clearGlide()
+    dropPhotos()
+    hideTip()
+    setHasGlide(false)
     showMarks()
     if (view.current) flyTo(view.current, 266.4, -28.9, WHOLE_SKY_FOV, anim)
   }
@@ -435,6 +592,7 @@ export default function Sky({ params, onReady }: PageProps) {
         <div className="sky-hud" aria-hidden ref={hud}>
           <span /><span /><span />
         </div>
+        <div className="sky-tip" ref={tip} aria-hidden />
         {shown && <p className="sky-credit">Sky: {shown.credit}. Map: Aladin Lite (CDS).</p>}
         <div className="sky-tools">
           {Object.keys(hosts).length > 0 && (
@@ -469,7 +627,17 @@ export default function Sky({ params, onReady }: PageProps) {
                   <span className="stat-value">{picked.motion ? <>{fmt(picked.motion.gaia_arcsec_per_yr, 1)}<small> ″/yr</small></> : 'n/a'}</span>
                 </div>
               </div>
-              <Viewer meta={picked} src={f => imageUrl(picked.slug, f)} compact />
+              <div ref={viewerBox}><Viewer meta={picked} src={f => imageUrl(picked.slug, f)} compact /></div>
+              {hasGlide && (
+                <div className="glide">
+                  <button className="icon-btn" onClick={playGlide} aria-label="Play the star's path from 1999 to now">
+                    {gliding ? <Pause /> : <Play />}
+                  </button>
+                  <input ref={slider} type="range" min={THEN} max={nowYear(picked)} step="0.01" defaultValue={nowYear(picked)} aria-label="Year"
+                    onInput={e => { stopGlide(); setMarker(Number(e.currentTarget.value)) }} />
+                  <span className="glide-year mono" ref={yearLabel}>{Math.floor(nowYear(picked))}</span>
+                </div>
+              )}
               <p className="caption" style={{ marginTop: 12 }}>
                 {(totalDrift(picked.target?.astrometry) ?? 0) > 1
                   ? <>On the map, the star has moved from the white circle ({THEN}) to the blue circle (today).{shown?.name === '2MASS' && <> The background photo is from {THEN}, so it still shows the star in the white circle.</>}{layer === 'vis' && <> The visible-light photo is older, taken between the 1950s and 1990s, so the star appears further back along its path, outside both circles.</>}</>
@@ -546,3 +714,6 @@ function FastCard({ s, onClose }: { s: FastStar; onClose: () => void }) {
     </div>
   )
 }
+
+const Play = () => <svg viewBox="0 0 16 16" width="14" height="14"><path d="M4.5 2.5v11l9-5.5z" fill="currentColor" /></svg>
+const Pause = () => <svg viewBox="0 0 16 16" width="14" height="14"><path d="M4 2.5h3v11H4zM9 2.5h3v11H9z" fill="currentColor" /></svg>

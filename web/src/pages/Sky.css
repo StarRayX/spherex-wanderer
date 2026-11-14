@@ -3,3 +3,14 @@
 .fast-dot { flex: none; width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid var(--cyan); opacity: 0.6; transform: translateY(1px); }
 .fast-card .btn { margin-top: 12px; }
 .fast-note { margin: 8px 0 0; opacity: 0.8; }
+
+/* Hover tooltip on the map: solid dark surface, white text, no border or glow. Position is written to the DOM. */
+.sky-tip { position: absolute; left: 0; top: 0; display: none; z-index: 6; pointer-events: none; max-width: 260px; padding: 8px 10px; border-radius: 8px;
+  background: #0B1018; color: #fff; font: 400 13px/1.35 'Public Sans', system-ui, sans-serif; }
+.sky-tip b { display: block; font-weight: 600; }
+.sky-tip span { display: block; opacity: 0.85; }
+
+/* Then-to-now glide control in the side card. */
+.glide { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
+.glide input[type=range] { flex: 1; min-width: 0; accent-color: var(--cyan); }
+.glide-year { min-width: 3.2ch; text-align: right; font-size: var(--t-xs); }

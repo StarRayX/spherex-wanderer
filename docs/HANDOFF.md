@@ -64,8 +64,13 @@ Ranked ideas:
   - Scripts: detect2.py, jplseq.py. Images: lilaea_jump.png, widorn_jump.png.
 - Python venv for the scripts: uv, with astropy, pyvo, numpy, requests, reproject, scipy and matplotlib.
 
-## In flight at the compact
-- An agent was adding (to Sky.tsx/Sky.css): SPHEREx visit photos pinned onto the sky map, blinked in sync with the panel; a 1999-to-now glide slider; and hover tooltips on map markers. Check `git status` / `git log` for whether it landed. If Sky.tsx is modified but uncommitted, verify in the browser and commit.
+## Landed just before the compact
+- Sky map: each visit's SPHEREx PNG is pinned onto the sky with A.image (TAN WCS, needs NAXIS: 2), blinked in sync with the side-panel viewer (a MutationObserver on .stop.on).
+  - Alignment on Barnard's Star: the star sits within 0.2 to 3.7 px (under 4 arcsec) of the expected position.
+- A 1999-to-now glide slider (accent dot plus year).
+- Hover tooltips on target markers and fast-mover dots.
+- The "now" circle sits at the latest visit date.
+- Follow-up: the pinned photo is a mostly opaque dark square over the background survey. Consider a softer edge, lower opacity, or showing only a central crop.
 
 ## Known caveats
 - CDS (SIMBAD, Sesame, alasky HiPS) was down all day. IRSA and Gaia TAP work. A SIMBAD mirror at Harvard worked.
