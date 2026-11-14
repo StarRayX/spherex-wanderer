@@ -9,6 +9,13 @@ type State =
   | { kind: 'done'; meta: Meta; slug: string; label: string }
   | { kind: 'error'; message: string }
 
+// Gaia DR3 positions (epoch 2016) of three showcase targets, so a live result can be compared with the prebuilt one.
+const EXAMPLES = [
+  { name: "Barnard's Star", ra: 269.4485, dec: 4.7394 },
+  { name: 'Epsilon Indi B', ra: 331.0765, dec: -56.7938 },
+  { name: 'RW Aurigae', ra: 76.9561, dec: 30.4012 },
+]
+
 interface Reply { meta: Meta; slug: string; label?: string; error?: string }
 
 // Live mode: any coordinates, built on demand by /api/blink (see docs/API.md).
@@ -68,6 +75,12 @@ export default function AnySpot() {
         <p className="lede">Type sky coordinates. Blink asks NASA's archive for every SPHEREx photo of that spot, stacks them by visit, and plays them back.</p>
       </div>
 
+      <div className="chips examples">
+        <span className="mono fine">Try:</span>
+        {EXAMPLES.map(e => (
+          <button key={e.name} type="button" className="chip" onClick={() => { setRa(String(e.ra)); setDec(String(e.dec)) }}>{e.name}</button>
+        ))}
+      </div>
       <form className="console" onSubmit={run}>
         <label><span className="mono">RA (deg)</span><input inputMode="decimal" value={ra} onChange={e => setRa(e.target.value)} placeholder="269.4485" /></label>
         <label><span className="mono">Dec (deg)</span><input inputMode="decimal" value={dec} onChange={e => setDec(e.target.value)} placeholder="4.7394" /></label>

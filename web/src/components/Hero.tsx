@@ -17,14 +17,15 @@ export default function Hero({ slug, onSelect }: { slug: string; onSelect: (s: s
     return () => { live = false }
   }, [slug])
 
-  const m = meta?.slug === slug ? meta : null
-  const barnard = slug === 'barnards-star' && m?.motion
+  // Keep showing the previous target until the next one loads, so the page never collapses and jumps.
+  const m = meta
+  const barnard = slug === 'barnards-star' && m?.slug === slug && m.motion
 
   return (
     <section className="hero" id="top">
       <div className="hero-copy">
         <p className="eyebrow mono">NASA SPHEREx · {TARGETS.length} test targets · QR2 + QR3 data</p>
-        <h1>
+        <h1 className="hero-title">
           {barnard ? <>This star moved.<br /><span className="accent">SPHEREx saw it.</span></>
             : <>{info.name}<br /><span className="accent">in SPHEREx</span></>}
         </h1>
@@ -34,7 +35,7 @@ export default function Hero({ slug, onSelect }: { slug: string; onSelect: (s: s
             : info.hook}
         </p>
         <p className="lede dim">
-          SPHEREx photographs the whole sky every six months in 102 colours of infrared light.
+          SPHEREx is a NASA space telescope that photographs the whole sky every six months in 102 colours of infrared light.
           Blink lines those photos up so you can see the two things that change: <b>where</b> an object is, and <b>what colour</b> it is.
         </p>
 
@@ -54,8 +55,8 @@ export default function Hero({ slug, onSelect }: { slug: string; onSelect: (s: s
         {!m && !error && <div className="state loading"><div className="skeleton square" /><span className="mono">Loading SPHEREx visits…</span></div>}
         {m && (
           <>
-            <Viewer meta={m} src={f => imageUrl(slug, f)} />
-            <Readout meta={m} status={info.status} />
+            <Viewer meta={m} src={f => imageUrl(m.slug, f)} />
+            <Readout meta={m} status={TARGETS.find(t => t.slug === m.slug)?.status} />
           </>
         )}
       </div>

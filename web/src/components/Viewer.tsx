@@ -58,6 +58,9 @@ export default function Viewer({ meta, src, autoplay = true, label }: Props) {
   const offColour = Math.abs(v.wavelength_um - median) > 0.04 * median
   const saturated = (meta.notes ?? []).some(n => /whole core is masked|saturates on this star/i.test(n))
 
+  // With many visits, label only the ends and the current one so dates never collide.
+  const showLabel = (i: number) => visits.length <= 4 || i === 0 || i === visits.length - 1 || i === idx
+
   const fov = native * meta.pixel_scale_arcsec // arcsec across
   const scaleArcsec = fov > 200 ? 60 : 30
   const scaleFrac = scaleArcsec / fov
@@ -66,9 +69,9 @@ export default function Viewer({ meta, src, autoplay = true, label }: Props) {
     <div className="viewer">
       <div className="viewer-top mono">
         <span className="tag">{label ?? meta.target?.name ?? meta.slug}</span>
-        <span>VISIT {idx + 1}/{visits.length}</span>
+        <span>Visit {idx + 1}/{visits.length}</span>
         <span>{monthYear(v.date)}</span>
-        <span>λ {fmt(v.wavelength_um)} µm</span>
+        <span className="nocaps">λ {fmt(v.wavelength_um)} µm</span>
       </div>
 
       <div className="frame" ref={frameRef}>
@@ -128,12 +131,13 @@ export default function Viewer({ meta, src, autoplay = true, label }: Props) {
             <button key={x.file} className={'stop' + (i === idx ? ' on' : '')}
               onClick={() => { setIdx(i); setPlaying(false) }}
               aria-label={`Visit ${i + 1}, ${monthYear(x.date)}`}>
-              <i /><span className="mono">{monthYear(x.date)}</span>
+              <i /><span className="mono">{showLabel(i) ? monthYear(x.date, visits.length > 4) : ''}</span>
             </button>
           ))}
         </div>
         <div className="seg" role="group" aria-label="Zoom">
-          {[1, 2].map(z => <button key={z} className={zoom === z ? 'on' : ''} onClick={() => setZoom(z)}>{z}×</button>)}
+          <span className="seg-label mono">Zoom</span>
+          {[1, 2].map(z => <button key={z} className={zoom === z ? 'on' : ''} onClick={() => setZoom(z)} aria-pressed={zoom === z}>{z}×</button>)}
         </div>
         {diffs.some(d => d.file) && (
           <div className="seg" role="group" aria-label="Layer">
@@ -144,9 +148,14 @@ export default function Viewer({ meta, src, autoplay = true, label }: Props) {
       </div>
 
       <div className="legend">
-        <span><i className="lg-ret" />Where SPHEREx saw it</span>
-        <span><i className="lg-gaia" />Where Gaia says it should be</span>
-        <span><i className="lg-px" />One SPHEREx pixel = {meta.pixel_scale_arcsec}″</span>
+        {layer === 'changes'
+          ? <span className="wide">What changed: bright where light arrived since the last visit, dark where it left. A moving star leaves a bright and dark pair.</span>
+          : <>
+            <span><i className="lg-ret" />Where SPHEREx saw it</span>
+            <span><i className="lg-gaia" />Where the Gaia star catalogue predicts it</span>
+            <span><i className="lg-px" />One SPHEREx pixel = {meta.pixel_scale_arcsec}″ (arcseconds)</span>
+            <span className="wide dim">A visit is one pass of SPHEREx over this spot, about every six months.</span>
+          </>}
       </div>
     </div>
   )

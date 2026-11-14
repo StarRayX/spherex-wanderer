@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import SpectrumPlot from './SpectrumPlot'
 import { loadMeta } from '../lib/targets'
 import type { Meta } from '../lib/types'
-import { fmt, lightYears } from '../lib/format'
+import { fmt, lightYears, tidy } from '../lib/format'
 
 // The second thing that changes: colour. Only Epsilon Indi B has a validated-method spectrum so far.
 export default function Colour() {
@@ -40,7 +40,8 @@ export default function Colour() {
             </p>
             <details className="fine">
               <summary>How sure are we?</summary>
-              <p>{s.validation}</p>
+              <p><b>In short:</b> our method was checked against IRSA's own tool on one ordinary star. Brown dwarfs are much redder than that star, so treat this curve as a careful first look, not a final result.</p>
+              <p className="dim">{tidy(s.validation)}</p>
               <ul>{s.caveats.map(c => <li key={c}>{c}</li>)}</ul>
             </details>
           </div>

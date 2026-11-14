@@ -45,8 +45,8 @@ export default function SpectrumPlot({ spectrum, notes = [] }: { spectrum: Spect
       t = setInterval(() => setShown(n => {
         if (n >= pts.length) { clearInterval(t); return n }
         return n + 1
-      }), 70)
-    }, { threshold: 0.4 })
+      }), 35)
+    }, { threshold: 0.1 })
     io.observe(el)
     return () => { io.disconnect(); if (t) clearInterval(t) }
   }, [pts.length])
@@ -73,11 +73,11 @@ export default function SpectrumPlot({ spectrum, notes = [] }: { spectrum: Spect
           </g>
         ))}
         {[1, 2, 3, 4, 5].map(w => (
-          <text key={w} x={x(w)} y={H - PAD.b + 18} className="axis-num" textAnchor="middle">{w}</text>
+          <text key={w} x={x(w)} y={H - PAD.b + 18} className="axis-num" textAnchor="middle">{w} µm</text>
         ))}
-        <text x={(W + PAD.l) / 2} y={H - 6} className="axis-label" textAnchor="middle">wavelength (microns)</text>
+        <text x={(W + PAD.l) / 2} y={H - 6} className="axis-label" textAnchor="middle">wavelength · longer = redder</text>
         <text x={14} y={(H - PAD.b + PAD.t) / 2} className="axis-label" textAnchor="middle"
-          transform={`rotate(-90 14 ${(H - PAD.b + PAD.t) / 2})`}>brightness (mJy)</text>
+          transform={`rotate(-90 14 ${(H - PAD.b + PAD.t) / 2})`}>brightness</text>
 
         {segments(vis).map((seg, i) => seg.length > 1 &&
           <polyline key={i} className="spec-line" points={seg.map(p => `${x(p.w)},${y(p.f)}`).join(' ')} />)}
@@ -88,10 +88,10 @@ export default function SpectrumPlot({ spectrum, notes = [] }: { spectrum: Spect
             <rect x={x(p.w) - 8} y={PAD.t} width={16} height={H - PAD.t - PAD.b} fill="transparent" />
           </g>
         ))}
-        {shown >= pts.length && notes.map(n => {
+        {shown >= pts.length && notes.map((n, k) => {
           const p = pts.reduce((a, b) => Math.abs(b.w - n.at) < Math.abs(a.w - n.at) ? b : a)
           const above = y(p.f) > H / 2
-          const ty = above ? y(p.f) - 34 : y(p.f) + 40
+          const ty = above ? y(p.f) - 44 - k * 4 : y(p.f) + 52
           return (
             <g key={n.text} className="note">
               <line x1={x(p.w)} x2={x(p.w)} y1={above ? y(p.f) - 8 : y(p.f) + 8} y2={above ? ty + 6 : ty - 14} />
@@ -107,6 +107,11 @@ export default function SpectrumPlot({ spectrum, notes = [] }: { spectrum: Spect
           </g>
         )}
       </svg>
+      <figcaption className="fine">
+        Each dot is one SPHEREx photo. Brightness is in millijanskys (mJy), the unit astronomers use for faint light.
+        The shaded columns D1 to D6 are SPHEREx's six detectors, each covering one slice of infrared.
+        {notes.length > 0 && <span className="notes-inline"> {notes.map(n => n.text[0].toUpperCase() + n.text.slice(1)).join('. ')}.</span>}
+      </figcaption>
     </figure>
   )
 }

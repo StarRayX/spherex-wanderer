@@ -45,7 +45,14 @@ export function decDms(deg: number) {
 
 const pad = (n: number) => String(n).padStart(2, '0')
 
-export function monthYear(iso: string) {
-  const d = new Date(iso + 'T00:00:00Z')
-  return d.toLocaleDateString('en-GB', { month: 'short', year: 'numeric', timeZone: 'UTC' })
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+export function monthYear(iso: string, short = false) {
+  const [y, m] = iso.split('-').map(Number)
+  return `${MONTHS[m - 1]} ${short ? `'${String(y).slice(2)}` : y}`
+}
+
+// Text copied from meta.json: write microns as µm, and drop pointers to repo files.
+export function tidy(text: string) {
+  return text.replace(/\bum\b/g, 'µm').replace(/\s*See pipeline\/\S+/g, '').trim()
 }

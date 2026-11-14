@@ -1,5 +1,5 @@
 import type { Meta } from '../lib/types'
-import { axisWords, decDms, fmt, lightYears, raHms, yearsPerMoon } from '../lib/format'
+import { axisWords, decDms, fmt, lightYears, raHms, tidy, yearsPerMoon } from '../lib/format'
 import { STATUS_LABEL, type Status } from '../lib/targets'
 
 // Boxed instrument readouts. Every number here comes straight from meta.json.
@@ -15,7 +15,7 @@ export default function Readout({ meta, status }: { meta: Meta; status?: Status 
 
       {m ? (
         <div className="cell big">
-          <label>Drift, {axisWords(m)}</label>
+          <label>Drift across the sky, {axisWords(m)}</label>
           <div className="val mono">
             <span className="accent">{fmt(m.measured_arcsec_per_yr, 1)}</span>
             <small> ± {fmt(m.error_arcsec_per_yr, 1)}″/yr</small>
@@ -27,7 +27,7 @@ export default function Readout({ meta, status }: { meta: Meta; status?: Status 
       ) : (
         <div className="cell big">
           <label>What SPHEREx shows</label>
-          <p className="claim">{meta.target?.claim}</p>
+          <p className="claim">{tidy(meta.target?.claim ?? '')}</p>
         </div>
       )}
 
@@ -42,13 +42,13 @@ export default function Readout({ meta, status }: { meta: Meta; status?: Status 
         )}
         {a && (
           <>
-            <div className="cell"><label>RA</label><div className="val mono sm">{raHms(a.ra)}</div></div>
-            <div className="cell"><label>Dec</label><div className="val mono sm">{decDms(a.dec)}</div></div>
+            <div className="cell"><label>RA · sky longitude</label><div className="val mono sm">{raHms(a.ra)}</div></div>
+            <div className="cell"><label>Dec · sky latitude</label><div className="val mono sm">{decDms(a.dec)}</div></div>
           </>
         )}
       </div>
 
-      {m && meta.target?.claim && <p className="claim small">{meta.target.claim}</p>}
+      {m && meta.target?.claim && <p className="claim small">{tidy(meta.target.claim)}</p>}
     </div>
   )
 }

@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
 import { STATUS_LABEL, TARGETS, imageUrl, loadMeta } from '../lib/targets'
 import type { Meta } from '../lib/types'
-import { fmt } from '../lib/format'
+import { fmt, tidy } from '../lib/format'
 
 // One honest card per required test target: what SPHEREx shows, and what it does not.
 export default function Gallery({ onOpen }: { onOpen: (slug: string) => void }) {
   const [metas, setMetas] = useState<Record<string, Meta>>({})
+  const [loaded, setLoaded] = useState<Record<string, boolean>>({})
   useEffect(() => {
     TARGETS.forEach(t => loadMeta(t.slug).then(m => setMetas(s => ({ ...s, [t.slug]: m }))).catch(() => {}))
   }, [])
@@ -23,7 +24,9 @@ export default function Gallery({ onOpen }: { onOpen: (slug: string) => void }) 
           return (
             <button key={t.slug} className="card" onClick={() => onOpen(t.slug)}>
               <div className="card-img">
-                {m ? <img src={imageUrl(t.slug, m.visits[0].file)} alt="" /> : <div className="skeleton square" />}
+                {!loaded[t.slug] && <div className="skeleton square" />}
+                {m && <img src={imageUrl(t.slug, m.visits[0].file)} alt="" className={loaded[t.slug] ? 'in' : ''}
+                  onLoad={() => setLoaded(s => ({ ...s, [t.slug]: true }))} />}
                 <span className={`pill ${t.status} sm`}>{STATUS_LABEL[t.status]}</span>
               </div>
               <div className="card-body">
@@ -35,8 +38,8 @@ export default function Gallery({ onOpen }: { onOpen: (slug: string) => void }) 
                     <span className="dim"> · Gaia {fmt(m.motion.gaia_arcsec_per_yr, 1)}</span>
                   </p>
                 )}
-                {m?.target?.claim && !m.motion && <p className="claim small">{m.target.claim}</p>}
-                <span className="mono more">{m ? `${m.visits.length} visits · open →` : 'loading…'}</span>
+                {m?.target?.claim && !m.motion && <p className="claim small">{tidy(m.target.claim)}</p>}
+                <span className="mono more">{m ? `${m.visits.length} visits · open in viewer →` : 'loading…'}</span>
               </div>
             </button>
           )
