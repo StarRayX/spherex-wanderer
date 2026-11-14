@@ -137,3 +137,59 @@ def test_light_curve_and_saturated_meta(monkeypatch, tmp_path):
     assert meta["photometry"] is None and not any("Not a light curve" in n and "lower" in n for n in meta["notes"])
     meta = build.build_target("t", RA, DEC, None, tmp_path / "out2", frames_per_visit=1, photometry="light_curve", target_um=0.75)
     assert meta["photometry"]["wave_um"] == 0.75 and "rows" in meta["photometry"]
+
+
+def test_differences_matched_and_skipped():
+    img = np.zeros((9, 9))
+    vis = [dict(image=img, date=f"d{i}", wavelength_um=w) for i, w in enumerate((1.0, 1.005, 1.2))]
+    a, b = build._differences(vis)
+    assert a["file"] == "diff_00_01.png" and a["visits"] == [0, 1] and a["skipped"] is None and "_image" in a
+    assert a["n_above_5sigma"] == 0 and "17%" in a["note"] and "motion fit" in a["note"]
+    assert b["file"] is None and b["noise"] is None and "differ by more than" in b["skipped"] and "_image" not in b
+
+
+def _spec_setup(monkeypatch, tmp_path, saturated=False):
+    from blink import photometry
+    tmp_path.mkdir(parents=True, exist_ok=True)
+    paths = _fake_cutouts(tmp_path, 4, True)
+    if saturated:
+        for p in paths:
+            with fits.open(p, mode="update") as h:
+                h["FLAGS"].data[9, 9] = 2  # OVERFLOW at the star
+    fr = [dict(mjd=60000 + 200 * v + i, band=b, url=f"http://x/{v}{i}", em_min=0.5e-6, em_max=5e-6)
+          for v in range(2) for i, b in enumerate(("SPHEREx-D1", "SPHEREx-D1", "SPHEREx-D2", "SPHEREx-D3"))]
+    monkeypatch.setattr(build, "find_frames", lambda ra, dec: fr)
+    monkeypatch.setattr(build, "wavelength_at", lambda p, ra, dec: 1.0)
+    monkeypatch.setattr(photometry, "wavelength_at", lambda p, ra, dec: 1.0 + paths.index(p) / 10)
+    monkeypatch.setattr(build.fetch, "CACHE", tmp_path)
+    return paths
+
+
+def test_spectrum_meta_and_saturated(monkeypatch, tmp_path):
+    paths = _spec_setup(monkeypatch, tmp_path)
+    monkeypatch.setattr(build.fetch, "fetch_many", lambda jobs, cache_dir=None: paths[:len(jobs)])
+    m = build.build_target("t", RA, DEC, None, tmp_path / "out", frames_per_visit=2)
+    assert m["spectrum"] is None and "Not requested" in m["spectrum_reason"]
+    assert [d["file"] for d in m["differences"]] == ["diff_00_01.png"] and (tmp_path / "out" / "diff_00_01.png").exists()
+    m = build.build_target("t", RA, DEC, None, tmp_path / "out", frames_per_visit=2, spectrum=True)
+    s = m["spectrum"]
+    assert {"wavelength_um", "flux_mjy", "err_mjy", "n_used", "dropped_saturated", "dropped_masked", "visit_date",
+            "validation", "caveats"} <= s.keys() and m["spectrum_reason"] is None
+    assert s["n_used"] == 4 and s["wavelength_um"] == [1.0, 1.1, 1.2, 1.3] and min(s["flux_mjy"]) > 10 * max(s["err_mjy"])
+    assert s["validation"] == build.SPECTRUM_VALIDATION
+    sat = _spec_setup(monkeypatch, tmp_path / "sat", saturated=True)
+    monkeypatch.setattr(build.fetch, "fetch_many", lambda jobs, cache_dir=None: sat[:len(jobs)])
+    m = build.build_target("t", RA, DEC, None, tmp_path / "out2", frames_per_visit=2, spectrum=True)
+    assert m["spectrum"] is None and "4 saturated" in m["spectrum_reason"]
+
+
+def test_spectrum_budget_refusal(monkeypatch, tmp_path):
+    _spec_setup(monkeypatch, tmp_path)
+    monkeypatch.setattr(build.fetch, "fetch_many", lambda jobs, cache_dir=None: pytest.fail("downloaded despite refusal"))
+    with pytest.raises(build.BudgetError):  # 4 new spectrum cutouts, about 16 MB, over 10
+        build.build_target("t", RA, DEC, None, tmp_path / "out", frames_per_visit=2, spectrum=True, spectrum_mb=10)
+
+
+def test_spectrum_registry():
+    assert [s for s, t in bs.TARGETS.items() if t.get("spectrum")] == ["epsilon-indi-b"]
+    assert all(t.get("spectrum") or t["spectrum_reason"] for t in bs.TARGETS.values())

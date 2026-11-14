@@ -20,6 +20,7 @@ from blink import build, jpl, resolve as rs  # noqa: E402
 RELEASE = "qr2"
 CACHE = Path(os.environ.get("BLINK_CACHE", Path(tempfile.gettempdir()) / "blink_cache"))
 MAX_MB = 100
+SPECTRUM_MB = 60  # of MAX_MB, kept for a spectrum's new cutouts when spectrum=1 (the images get the rest)
 _LOCK = threading.RLock()  # guards claims and status.json I/O (a read must not see a half-written file)
 STALE_S = 330  # maxDuration is 300 s: a "running" job silent for longer was killed with its function
 SHOWCASE = ROOT / "web" / "public" / "showcase"
@@ -88,6 +89,11 @@ def _png(rel):
     return None
 
 
+def _urls(meta, prefix):
+    """Visit PNGs first (urls[i] is meta.visits[i]), then the difference PNGs that were made, in meta.differences order."""
+    return [prefix + v["file"] for v in meta["visits"]] + [prefix + d["file"] for d in meta.get("differences") or [] if d["file"]]
+
+
 def handle(query):
     """query: dict of str -> str. Returns (http_status, json_dict)."""
     q = {k: v[0] if isinstance(v, list) else v for k, v in query.items()}
@@ -96,7 +102,7 @@ def handle(query):
             if q["showcase"] not in SLUGS:
                 return 404, dict(error="unknown showcase target")
             meta = json.loads((SHOWCASE / q["showcase"] / "meta.json").read_text())
-            return 200, dict(meta=meta, slug=q["showcase"], urls=[f"/showcase/{q['showcase']}/{v['file']}" for v in meta["visits"]])
+            return 200, dict(meta=meta, slug=q["showcase"], urls=_urls(meta, f"/showcase/{q['showcase']}/"))
         if "identify" in q:
             p = q["identify"].split(",")
             if len(p) != 3:
@@ -115,6 +121,9 @@ def handle(query):
             s = _read_status(slug)
             return (200, s) if s else (404, dict(error="unknown job"))
         size = _num(q, "size", 0.5, 10) if "size" in q else 2.0
+        if q.get("spectrum", "0") not in ("0", "1"):
+            raise BadRequest("spectrum must be 0 or 1")
+        spec = q.get("spectrum") == "1"
         astro = None
         if "name" in q:
             name = q["name"].strip()
@@ -130,7 +139,7 @@ def handle(query):
             ra, dec = _num(q, "ra", 0, 360), _num(q, "dec", -90, 90)
             label = f"{ra:.5f}, {dec:+.5f}"
             astro = _gaia(ra, dec, 5)
-        slug = f"{ra:.4f}_{dec:+.4f}_{size:g}_{RELEASE}"
+        slug = f"{ra:.4f}_{dec:+.4f}_{size:g}_{RELEASE}" + ("_spec" if spec else "")
         out = CACHE / slug
         while True:  # claim the slug, or wait while someone else is building it
             with _LOCK:
@@ -144,15 +153,16 @@ def handle(query):
             time.sleep(2)
         if mine:
             try:
-                build.build_target(slug, ra, dec, astro, out, max_mb=MAX_MB, size_arcmin=size, cache_dir=CACHE / "raw",
-                                   progress=lambda d, t, m="": _write_status(slug, "running", d, t, m))
+                kw = dict(spectrum=True, spectrum_mb=SPECTRUM_MB) if spec else {}
+                build.build_target(slug, ra, dec, astro, out, max_mb=MAX_MB - SPECTRUM_MB if spec else MAX_MB,
+                                   size_arcmin=size, cache_dir=CACHE / "raw",
+                                   progress=lambda d, t, m="": _write_status(slug, "running", d, t, m), **kw)
             except Exception as e:
                 _write_status(slug, "error", message=str(e))
                 return 502, dict(error=str(e), slug=slug)
             _write_status(slug, "done", message="done")
         meta = json.loads((out / "meta.json").read_text())
-        urls = [f"/api/blink?file={slug}/{v['file']}" for v in meta["visits"]]
-        return 200, dict(meta=meta, slug=slug, label=label, gaia=astro, urls=urls)
+        return 200, dict(meta=meta, slug=slug, label=label, gaia=astro, urls=_urls(meta, f"/api/blink?file={slug}/"))
     except BadRequest as e:
         return 400, dict(error=str(e))
     except GaiaDown as e:

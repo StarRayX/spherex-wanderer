@@ -8,12 +8,12 @@ except `file`. Errors are `{"error": "..."}`. Params are checked in this order: 
 
 | Request | 200 reply |
 |---|---|
-| `?showcase=<slug>` | `{meta, slug, urls}` from the prebuilt `web/public/showcase/<slug>/meta.json`. No IRSA call. `urls` are static paths `/showcase/<slug>/visit_NN.png`. |
-| `?ra=&dec=[&size=]` | `{meta, slug, label, gaia, urls}`. Runs the pipeline unless cached. |
-| `?name=[&size=]` | Same. `name` is a target name or coordinates, resolved server side; `label` is the resolved name. |
+| `?showcase=<slug>` | `{meta, slug, urls}` from the prebuilt `web/public/showcase/<slug>/meta.json`. No IRSA call. `urls` are static paths `/showcase/<slug>/visit_NN.png`, then `/showcase/<slug>/diff_II_JJ.png` for each difference image made. |
+| `?ra=&dec=[&size=][&spectrum=1]` | `{meta, slug, label, gaia, urls}`. Runs the pipeline unless cached. |
+| `?name=[&size=][&spectrum=1]` | Same. `name` is a target name or coordinates, resolved server side; `label` is the resolved name. |
 | `?status=<slug>` | `{state, done, total, message}` |
 | `?identify=<ra>,<dec>,<mjd>[&fov=]` | `{bodies, reason}`. `bodies` = `[{name, designation, ra, dec, mag, distance_arcsec}]`, nearest first. |
-| `?file=<slug>/visit_NN.png` | `image/png` from the cache. |
+| `?file=<slug>/visit_NN.png` or `<slug>/diff_II_JJ.png` | `image/png` from the cache (only `.png` files inside it). |
 
 Showcase slugs: `barnards-star`, `epsilon-indi-b`, `r-draconis`, `rw-aurigae`, `wise-0855`.
 
@@ -27,6 +27,7 @@ Showcase slugs: `barnards-star`, `epsilon-indi-b`, `r-draconis`, `rw-aurigae`, `
 | `name` | 1..100 chars | |
 | `mjd` | 59000..70000 | required for identify |
 | `fov` | 0.5..30 arcmin | 2 |
+| `spectrum` | 0 or 1 | 0 |
 
 Numbers must be finite. `ra`, `dec` and `mjd` in `identify` are comma separated in one value.
 
@@ -44,6 +45,7 @@ Numbers must be finite. `ra`, `dec` and `mjd` in `identify` are comma separated 
 ## Cache key and job slug
 
 Slug = `{ra:.4f}_{dec:+.4f}_{size:g}_{release}`, for example `269.4500_+4.7300_2_qr2`. Release is `qr2`.
+With `spectrum=1` the slug ends in `_spec` (a separate build: a plain build has no spectrum).
 That slug is the cache key (directory `$BLINK_CACHE`, default the OS temp dir `/blink_cache/<slug>/`),
 the job id for `status`, and the prefix of every `file` URL. A request whose `meta.json` exists returns at once.
 Raw IRSA cutouts are kept in `$BLINK_CACHE/raw/` (the repo tree is read-only on Vercel). On Vercel the temp dir is per instance and not durable, so a cold instance rebuilds.
@@ -57,7 +59,35 @@ The position is looked up in Gaia (5 arcsec for `ra`/`dec`, 30 arcsec for `name`
    (the function was killed at `maxDuration`) is reported as `error`. While running, `done`/`total` count
    frames and `message` says what is happening. On `error`, `message` is the reason.
    A second request for a slug that is already building waits for that build instead of starting another.
-3. When the first call returns, use `urls` (each is `/api/blink?file=<slug>/visit_NN.png`) and `meta`.
+3. When the first call returns, use `urls` (each is `/api/blink?file=<slug>/<file>`) and `meta`. The first
+   `len(meta.visits)` urls are the visit PNGs in order, then the difference PNGs in `meta.differences` order
+   (only entries whose `file` is not null).
    `meta.visits[]` has `file`, `date`, `mjd`, `band`, `wavelength_um`, `predicted_xy`, and so on.
+
+## Difference images (`meta.differences`, always built)
+
+One entry per consecutive visit pair: `{file, visits: [i, j], dates, wave_a_um, wave_b_um, noise, n_above_5sigma,
+skipped, note}`. `file` is `diff_II_JJ.png` (visit j minus visit i on the same grid, same size as the visit PNGs).
+If the two visits' mean wavelengths at the star differ by more than wavelength/80 (half a channel), there is no image:
+`file`, `noise` and `n_above_5sigma` are null and `skipped` says why (a difference of two colours is not a change).
+`noise` is the sky scatter of the difference (MJy/sr, MAD). `n_above_5sigma` counts pixels whose |difference| is
+over 5 x the per-pixel noise, where that noise adds 10% of the brighter visit (static stars leave residuals up to
+about 17% of their peak), so it includes such residuals and is not a count of real changes. `note` says this.
+PNGs: grey + alpha, one symmetric stretch per target in `meta.difference_stretch` (`{kind: "asinh_symmetric",
+limit, softening}`, null when no image was made): mid grey = no change, white = brighter in the later visit,
+black = brighter in the earlier, transparent = masked (e.g. a saturated core: unknown, not "no change").
+Costs no downloads. Live builds pick frames by time, so many pairs are skipped there.
+
+## Spectrum (`meta.spectrum`, opt in)
+
+`meta.spectrum` is null unless asked for, and `meta.spectrum_reason` says why (null when there is a spectrum).
+With `spectrum=1` (live) the build also measures one visit's frames from every band (each frame sees a different
+wavelength): `{wavelength_um[], flux_mjy[], err_mjy[], n_used, dropped_saturated, dropped_masked, frames_tried,
+visit_date, validation, caveats[], cutouts_mb}`. It uses the visit with the most bands, every cached frame of it, and
+up to 14 new 2 arcmin cutouts spread in wavelength (about 57 MB). Cost: `MAX_MB` (100) is split, 60 MB for the
+spectrum (`SPECTRUM_MB`) and 40 MB for the images (so fewer visits). The estimate is printed and refused above
+`SPECTRUM_MB` before any download (502); with the defaults it is at most 57 MB, so it fits. `validation` is one statement for every spectrum (`SPECTRUM_VALIDATION` in
+`pipeline/blink/build.py`). A saturated star gives null with a reason; the frames with a saturated or masked pixel in
+the aperture are dropped and counted. Showcase: only `epsilon-indi-b` has a spectrum.
 
 Not tested on Vercel itself (no deploy was done); `includeFiles` and `maxDuration` in `vercel.json` are unverified.

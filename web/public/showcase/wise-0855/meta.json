@@ -210,6 +210,45 @@
   "size_arcmin": 4.0,
   "frames_per_visit": 4,
   "frame_selection": "time",
+  "differences": [
+    {
+      "file": null,
+      "visits": [
+        0,
+        1
+      ],
+      "dates": [
+        "2025-05-05",
+        "2025-11-19"
+      ],
+      "wave_a_um": 4.9435,
+      "wave_b_um": 4.6521,
+      "noise": null,
+      "n_above_5sigma": null,
+      "skipped": "visits at 4.944 and 4.652 um differ by more than 0.062 um: a difference of two colours is not a change",
+      "note": "A visual aid: the later visit minus the earlier, at the same wavelength. Static stars leave residuals of up to about 17% of their peak (the PSF is undersampled), so a change under about 10% of a star's peak cannot be flagged. Distances must come from the motion fit, not from these patches."
+    },
+    {
+      "file": null,
+      "visits": [
+        1,
+        2
+      ],
+      "dates": [
+        "2025-11-19",
+        "2026-04-28"
+      ],
+      "wave_a_um": 4.6521,
+      "wave_b_um": 4.73,
+      "noise": null,
+      "n_above_5sigma": null,
+      "skipped": "visits at 4.652 and 4.730 um differ by more than 0.059 um: a difference of two colours is not a change",
+      "note": "A visual aid: the later visit minus the earlier, at the same wavelength. Static stars leave residuals of up to about 17% of their peak (the PSF is undersampled), so a change under about 10% of a star's peak cannot be flagged. Distances must come from the motion fit, not from these patches."
+    }
+  ],
+  "difference_stretch": null,
+  "spectrum": null,
+  "spectrum_reason": "Too faint: expected S/N about 2 to 3 per visit (not even detected in one), and blended with a background star; per-frame points would be noise.",
   "target": {
     "name": "WISE 0855-0714",
     "claim": "The hardest target: what SPHEREx sees at 4.4 to 5 um at the predicted position.",

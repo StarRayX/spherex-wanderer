@@ -371,6 +371,142 @@
   "size_arcmin": 2.0,
   "frames_per_visit": 3,
   "frame_selection": "wavelength",
+  "differences": [
+    {
+      "file": "diff_00_01.png",
+      "visits": [
+        0,
+        1
+      ],
+      "dates": [
+        "2025-05-24",
+        "2025-10-14"
+      ],
+      "wave_a_um": 1.2611,
+      "wave_b_um": 1.2538,
+      "noise": 0.013874910321233554,
+      "n_above_5sigma": 8,
+      "skipped": null,
+      "note": "A visual aid: the later visit minus the earlier, at the same wavelength. Static stars leave residuals of up to about 17% of their peak (the PSF is undersampled), so a change under about 10% of a star's peak cannot be flagged. Distances must come from the motion fit, not from these patches."
+    },
+    {
+      "file": null,
+      "visits": [
+        1,
+        2
+      ],
+      "dates": [
+        "2025-10-14",
+        "2026-04-25"
+      ],
+      "wave_a_um": 1.2538,
+      "wave_b_um": 1.3332,
+      "noise": null,
+      "n_above_5sigma": null,
+      "skipped": "visits at 1.254 and 1.333 um differ by more than 0.017 um: a difference of two colours is not a change",
+      "note": "A visual aid: the later visit minus the earlier, at the same wavelength. Static stars leave residuals of up to about 17% of their peak (the PSF is undersampled), so a change under about 10% of a star's peak cannot be flagged. Distances must come from the motion fit, not from these patches."
+    },
+    {
+      "file": null,
+      "visits": [
+        2,
+        3
+      ],
+      "dates": [
+        "2026-04-25",
+        "2026-10-02"
+      ],
+      "wave_a_um": 1.3332,
+      "wave_b_um": 1.2597,
+      "noise": null,
+      "n_above_5sigma": null,
+      "skipped": "visits at 1.333 and 1.260 um differ by more than 0.017 um: a difference of two colours is not a change",
+      "note": "A visual aid: the later visit minus the earlier, at the same wavelength. Static stars leave residuals of up to about 17% of their peak (the PSF is undersampled), so a change under about 10% of a star's peak cannot be flagged. Distances must come from the motion fit, not from these patches."
+    }
+  ],
+  "difference_stretch": {
+    "kind": "asinh_symmetric",
+    "limit": 3.0914947956264145,
+    "softening": 10.0
+  },
+  "spectrum": {
+    "wavelength_um": [
+      0.7519,
+      1.2414,
+      1.2703,
+      1.2714,
+      1.5012,
+      1.5618,
+      1.5679,
+      1.6381,
+      1.7195,
+      1.8876,
+      2.3694,
+      3.8583,
+      4.0257,
+      4.3414,
+      4.4166,
+      4.4912,
+      4.6248,
+      4.9714
+    ],
+    "flux_mjy": [
+      0.2767,
+      33.7557,
+      40.8752,
+      41.7613,
+      19.0738,
+      38.4587,
+      42.1495,
+      32.6354,
+      25.0796,
+      12.7945,
+      12.2645,
+      51.9316,
+      61.0923,
+      34.1112,
+      27.8255,
+      20.0558,
+      19.4728,
+      25.87
+    ],
+    "err_mjy": [
+      0.2085,
+      0.2244,
+      0.2472,
+      0.243,
+      0.1826,
+      0.2308,
+      0.2475,
+      0.2057,
+      0.1899,
+      0.1474,
+      0.1454,
+      0.4314,
+      0.4632,
+      0.3841,
+      0.3516,
+      0.3731,
+      0.3712,
+      0.5098
+    ],
+    "n_used": 18,
+    "dropped_saturated": 0,
+    "dropped_masked": 2,
+    "frames_tried": 20,
+    "visit_date": "2025-05-09",
+    "validation": "Matched IRSA's Spectrophotometry Tool within 3.3% on one isolated, unsaturated star (K 10.42). Not validated on other stars, saturated stars, or absolute calibration beyond about 5%. See pipeline/blink/STRETCH_NOTES.md.",
+    "caveats": [
+      "20 of the visit's 118 frames, spread in wavelength to fit the download budget, not all.",
+      "Aperture photometry per frame (3 px radius, sky annulus 5-8 px), no aperture correction; frames with a saturated or masked pixel in the aperture are dropped and counted, never guessed.",
+      "A bright neighbour inside the sky annulus would bias the flux and is not detected.",
+      "Ba and Bb are one blended source: the spectrum is Ba+Bb.",
+      "A T dwarf pair, far redder than the one star the method was validated on (deep water and methane absorption): not validated for a spectrum like this.",
+      "Faint below 1 um: the 0.75 um point is about 1 sigma."
+    ],
+    "cutouts_mb": 79.3
+  },
+  "spectrum_reason": null,
   "target": {
     "name": "Epsilon Indi B",
     "claim": "Detected in every visit; its drift is reported with the error bar, no further claim.",

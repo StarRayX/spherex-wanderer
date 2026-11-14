@@ -107,6 +107,49 @@
   "size_arcmin": 2.0,
   "frames_per_visit": 1,
   "frame_selection": "wavelength",
+  "differences": [
+    {
+      "file": "diff_00_01.png",
+      "visits": [
+        0,
+        1
+      ],
+      "dates": [
+        "2025-09-02",
+        "2026-03-08"
+      ],
+      "wave_a_um": 0.7454,
+      "wave_b_um": 0.739,
+      "noise": 0.028799749319326436,
+      "n_above_5sigma": 5,
+      "skipped": null,
+      "note": "A visual aid: the later visit minus the earlier, at the same wavelength. Static stars leave residuals of up to about 17% of their peak (the PSF is undersampled), so a change under about 10% of a star's peak cannot be flagged. Distances must come from the motion fit, not from these patches."
+    },
+    {
+      "file": null,
+      "visits": [
+        1,
+        2
+      ],
+      "dates": [
+        "2026-03-08",
+        "2026-09-08"
+      ],
+      "wave_a_um": 0.739,
+      "wave_b_um": 0.7522,
+      "noise": null,
+      "n_above_5sigma": null,
+      "skipped": "visits at 0.739 and 0.752 um differ by more than 0.009 um: a difference of two colours is not a change",
+      "note": "A visual aid: the later visit minus the earlier, at the same wavelength. Static stars leave residuals of up to about 17% of their peak (the PSF is undersampled), so a change under about 10% of a star's peak cannot be flagged. Distances must come from the motion fit, not from these patches."
+    }
+  ],
+  "difference_stretch": {
+    "kind": "asinh_symmetric",
+    "limit": 6.8059262867736825,
+    "softening": 10.0
+  },
+  "spectrum": null,
+  "spectrum_reason": "Saturated beyond about 0.75 um (7 of the 12 cached D1 frames, checked 2026-11-14): a spectrum would be its blue end only, and A+B blended.",
   "target": {
     "name": "RW Aurigae",
     "claim": "Brightness at 0.75 um, one wavelength: 72 mJy in Sep 2025, 183 mJy in Sep 2026.",

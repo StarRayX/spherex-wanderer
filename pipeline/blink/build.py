@@ -13,13 +13,24 @@ from astropy.wcs import WCS
 from astropy.wcs.utils import proj_plane_pixel_area
 
 from blink import fetch
+from blink.diff import difference
 from blink.measure import centroid, fit_motion
 from blink.query import find_frames, group_visits, parallax_offset, propagate
-from blink.render import PIXEL_SCALE, render_target
+from blink.render import PIXEL_SCALE, render_differences, render_target
+from blink.spectrum import spectrum as measure_spectrum
 from blink.stack import BAD_FLAGS, SATURATED, stack_visit, target_wcs, wavelength_at
 
 SNR_MIN, MAX_OFFSET_PX = 5.0, 1.5  # detection: forced S/N at the predicted spot and the centre within 1.5 px of it
 AP_R = 3.0  # photometry aperture radius, px
+
+# Edit here when the wider spectrum validation finishes; copied into every meta.spectrum.
+SPECTRUM_VALIDATION = ("Matched IRSA's Spectrophotometry Tool within 3.3% on one isolated, unsaturated star (K 10.42). "
+                       "Not validated on other stars, saturated stars, or absolute calibration beyond about 5%. "
+                       "See pipeline/blink/STRETCH_NOTES.md.")
+SPECTRUM_NEW, SPECTRUM_SIZE = 14, 2.0  # at most 14 new 2' cutouts per spectrum (about 57 MB)
+DIFF_NOTE = ("A visual aid: the later visit minus the earlier, at the same wavelength. Static stars leave residuals of up "
+             "to about 17% of their peak (the PSF is undersampled), so a change under about 10% of a star's peak cannot be "
+             "flagged. Distances must come from the motion fit, not from these patches.")
 
 
 class BudgetError(RuntimeError):
@@ -153,7 +164,8 @@ def snr_at(img, x, y, r=2.0):
 
 
 def build_target(slug, ra, dec, astrometry, out_dir, band=None, max_mb=100, frames_per_visit=3, size_arcmin=2.0,
-                 progress=None, *, match_wavelength=False, target_um=None, photometry="aperture", cache_dir=None):
+                 progress=None, *, match_wavelength=False, target_um=None, photometry="aperture", cache_dir=None,
+                 spectrum=False, spectrum_mb=60):
     """Build out_dir/visit_NN.png + meta.json for one sky position; returns the meta dict.
 
     astrometry: {ra, dec, pmra, pmdec (mas/yr, pmra with cos dec), parallax (mas), epoch_from (Julian yr)} or None
@@ -162,6 +174,9 @@ def build_target(slug, ra, dec, astrometry, out_dir, band=None, max_mb=100, fram
     cache_dir: where raw cutouts are kept (the API points it at a writable dir; default pipeline/cache).
     photometry: "aperture" (per-visit sums, as before), "light_curve" (blink.photometry.light_curve at target_um:
     one wavelength, saturated frames dropped) or None (saturated: meta photometry null, no brightness reported).
+    Every consecutive visit pair gets a difference PNG if diff.difference accepts their wavelengths, else a skipped entry.
+    spectrum: also measure blink.spectrum over one visit's frames from every band (_plan_spectrum); its new cutouts
+    have their own budget, spectrum_mb, refused before any download. Only honest for an unsaturated star.
     """
     say = progress or (lambda d, t, m="": None)
     cache_dir = fetch.Path(cache_dir or fetch.CACHE)
@@ -198,6 +213,7 @@ def build_target(slug, ra, dec, astrometry, out_dir, band=None, max_mb=100, fram
     n_new = sum(not fetch.cache_path(*j, cache_dir).exists() for js in jobs for j in js)
     print(f"{slug}: {band}, {len(visits)} visits, {sum(map(len, visits))} frames ({n_new} not cached)")
     check_budget(n_new, mb_each, max_mb)
+    spec_plan = _plan_spectrum(frames, pos, pos_cutout, cache_dir, spectrum_mb) if spectrum else None
     before = set(cache_dir.glob("*.fits"))
 
     size_px = int(round(size_arcmin * 60 / PIXEL_SCALE)) | 1
@@ -304,16 +320,93 @@ def build_target(slug, ra, dec, astrometry, out_dir, band=None, max_mb=100, fram
     elif photometry:
         notes.append(f"Photometry: forced {AP_R:g} px ({AP_R * PIXEL_SCALE:.1f} arcsec) radius aperture sum on each frame, "
                      "local sky annulus, VARIANCE errors, no aperture correction, mean per visit.")
+    spec, spec_reason = (_spectrum(spec_plan, cache_dir, say, total) if spec_plan else
+                         (None, "Not requested (opt-in: only honest for an unsaturated star)."))
     new = set(cache_dir.glob("*.fits")) - before
     mb = sum(p.stat().st_size for p in new) / 1e6
     print(f"new MB downloaded: {mb:.1f}")
     say(len(visits), total, "rendering")
+    diffs = _differences(vis)
+    made = [d for d in diffs if d["file"]]
+    dstretch = render_differences([d.pop("_image") for d in made], [d["file"] for d in made], out_dir) if made else None
     meta = render_target(slug, vis, out_dir, motion, extra=dict(
         detected=[v["star_xy"] is not None for v in vis], photometry=phot, notes=notes,
         cutouts_mb=round(sum(p.stat().st_size for p in used) / 1e6, 1), size_arcmin=size_arcmin, frames_per_visit=frames_per_visit,
-        frame_selection="wavelength" if match_wavelength else "time"))
+        frame_selection="wavelength" if match_wavelength else "time", differences=diffs, difference_stretch=dstretch,
+        spectrum=spec, spectrum_reason=spec_reason))
     say(total, total, "done")
     return meta
+
+
+def _differences(vis):
+    """One entry per consecutive visit pair: a difference image (in '_image', popped before meta) or why not."""
+    out = []
+    for i, (va, vb) in enumerate(zip(vis, vis[1:])):
+        e = dict(file=None, visits=[i, i + 1], dates=[va["date"], vb["date"]], wave_a_um=round(va["wavelength_um"], 4),
+                 wave_b_um=round(vb["wavelength_um"], 4), noise=None, n_above_5sigma=None, skipped=None, note=DIFF_NOTE)
+        try:
+            d = difference(va["image"], vb["image"], va["wavelength_um"], vb["wavelength_um"])
+        except ValueError as ex:
+            e["skipped"] = str(ex).split(" (build")[0]  # diff's hint to rebuild with match_wavelength is not the reason
+        else:
+            with np.errstate(invalid="ignore"):
+                n5 = int((np.abs(d["snr"]) > 5).sum())
+            e.update(file=f"diff_{i:02d}_{i + 1:02d}.png", noise=d["sigma"], n_above_5sigma=n5, _image=d["image"])
+        out.append(e)
+    return out
+
+
+def _plan_spectrum(frames, pos, pos_cutout, cache_dir, limit):
+    """The visit with the most bands (then most cached, then most frames); its cached frames plus up to SPECTRUM_NEW
+    new ones spread evenly in predicted wavelength. Prints the estimate and refuses above limit MB before downloading."""
+    best = None
+    for v in split_long(group_visits(frames)):
+        cra, cdec = pos_cutout([f["mjd"] for f in v])
+        js = [(f["url"], float(r_), float(d_), SPECTRUM_SIZE) for f, r_, d_ in zip(v, cra, cdec)]
+        hit = [fetch.cache_path(*j, cache_dir).exists() for j in js]
+        k = (len({f["band"] for f in v}), sum(hit), len(v))
+        if best is None or k > best[0]:
+            best = (k, v, js, hit)
+    (n_bands, _, n), v, js, hit = best
+    m = float(np.mean([f["mjd"] for f in v]))
+    sra, sdec = (float(c[0]) for c in pos(m))
+    new = [i for i, h in enumerate(hit) if not h]
+    if len(new) > SPECTRUM_NEW:  # SPECTRUM_NEW slots evenly over the visit sorted by wavelength; a cached frame within
+        # half a slot takes the slot. Stable: once a slot's frame is downloaded a rerun picks it again, not a new one.
+        from blink.pick import predict_wavelength
+        order = np.argsort(predict_wavelength(v, sra, sdec, cache_dir), kind="stable")
+        h = (n - 1) / (SPECTRUM_NEW - 1) / 2
+        new = []
+        for s in np.linspace(0, n - 1, SPECTRUM_NEW):
+            near = [k for k in range(int(np.ceil(s - h)), int(s + h) + 1) if 0 <= k < n and hit[order[k]]]
+            if not near:
+                new.append(int(order[int(round(s))]))
+    print(f"spectrum: visit {Time(m, format='mjd').iso[:10]}, {n} frames in {n_bands} bands; "
+          f"using {sum(hit)} cached + {len(new)} new")
+    check_budget(len(new), cutout_mb(SPECTRUM_SIZE), limit)
+    return dict(jobs=[js[i] for i in sorted([i for i, h in enumerate(hit) if h] + new)], n_visit=n, mjd=m, ra=sra, dec=sdec)
+
+
+def _spectrum(p, cache_dir, say, total):
+    """(meta.spectrum, reason): the spectrum dict, or None and why."""
+    say(total - 1, total, f"spectrum: fetching {len(p['jobs'])} frames")
+    paths = fetch.fetch_many(p["jobs"], cache_dir)
+    s = measure_spectrum(paths, p["ra"], p["dec"])
+    tried = len(paths)
+    if not s["n_used"]:
+        return None, (f"All {tried} frames dropped ({s['dropped_saturated']} saturated, {s['dropped_masked']} masked "
+                      "or off the edge): no spectrum.")
+    caveats = [f"{tried} of the visit's {p['n_visit']} frames, spread in wavelength to fit the download budget, not all.",
+               f"Aperture photometry per frame ({AP_R:g} px radius, sky annulus 5-8 px), no aperture correction; frames "
+               "with a saturated or masked pixel in the aperture are dropped and counted, never guessed.",
+               "A bright neighbour inside the sky annulus would bias the flux and is not detected."]
+    if s["dropped_saturated"]:
+        caveats.append(f"{s['dropped_saturated']} frames had a saturated pixel at the star: no points there.")
+    r = lambda a: [round(float(x), 4) for x in a]  # noqa: E731
+    return dict(wavelength_um=r(s["wavelength_um"]), flux_mjy=r(s["flux_mjy"]), err_mjy=r(s["err_mjy"]),
+                n_used=s["n_used"], dropped_saturated=s["dropped_saturated"], dropped_masked=s["dropped_masked"],
+                frames_tried=tried, visit_date=Time(p["mjd"], format="mjd").iso[:10], validation=SPECTRUM_VALIDATION,
+                caveats=caveats, cutouts_mb=round(sum(q.stat().st_size for q in paths) / 1e6, 1)), None
 
 
 def _motion(good, gra, gdec, a, pos):

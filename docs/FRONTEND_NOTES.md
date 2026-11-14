@@ -18,5 +18,7 @@ For whoever builds `web/`. The backend is done and on `main`. No app exists yet:
 - **Names.** `?name=` only works for the five built-in targets while CDS Sesame is down. Anything else returns 404 "Name lookup is down" after about 30 s. Offer a coordinates field.
 - **Duplicate builds across instances.** The guard only works within one process, so two cold instances could both build the same spot.
 
-## Coming
-New optional keys `differences` and `spectrum` in `meta.json` and the API (additive: existing keys keep their shape). Check `docs/API.md` after the next pull.
+## Difference images and spectrum (new, optional keys)
+- `meta.differences[]`: a picture of only what changed between two visits matched to the same wavelength. Pairs that are not matched have `file: null` and a `skipped` reason: show the reason, not an empty image. It is a visual aid: `n_above_5sigma` counts pixels and includes residuals from static or saturated stars, so do not present it as a count of real changes. Take distances from the motion fit.
+- `meta.spectrum`: only Epsilon Indi B has one. The others are `null` with `spectrum_reason`. Show its `validation` and `caveats` text next to the plot. It matched IRSA's tool on one unsaturated star, and a T dwarf is outside that, so label it preliminary.
+- **Do not treat all of `urls` as the flipbook.** In the API response `urls` lists the visit PNGs first, then the difference PNGs. Use `meta.visits[i].file` for the flipbook and `meta.differences[i].file` for differences.

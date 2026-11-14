@@ -292,6 +292,49 @@
   "size_arcmin": 2.0,
   "frames_per_visit": 3,
   "frame_selection": "wavelength",
+  "differences": [
+    {
+      "file": "diff_00_01.png",
+      "visits": [
+        0,
+        1
+      ],
+      "dates": [
+        "2025-08-23",
+        "2026-04-05"
+      ],
+      "wave_a_um": 4.8881,
+      "wave_b_um": 4.9058,
+      "noise": 0.14362610121365757,
+      "n_above_5sigma": 41,
+      "skipped": null,
+      "note": "A visual aid: the later visit minus the earlier, at the same wavelength. Static stars leave residuals of up to about 17% of their peak (the PSF is undersampled), so a change under about 10% of a star's peak cannot be flagged. Distances must come from the motion fit, not from these patches."
+    },
+    {
+      "file": "diff_01_02.png",
+      "visits": [
+        1,
+        2
+      ],
+      "dates": [
+        "2026-04-05",
+        "2026-08-18"
+      ],
+      "wave_a_um": 4.9058,
+      "wave_b_um": 4.9026,
+      "noise": 0.11814457333034734,
+      "n_above_5sigma": 33,
+      "skipped": null,
+      "note": "A visual aid: the later visit minus the earlier, at the same wavelength. Static stars leave residuals of up to about 17% of their peak (the PSF is undersampled), so a change under about 10% of a star's peak cannot be flagged. Distances must come from the motion fit, not from these patches."
+    }
+  ],
+  "difference_stretch": {
+    "kind": "asinh_symmetric",
+    "limit": 347.1222023034842,
+    "softening": 10.0
+  },
+  "spectrum": null,
+  "spectrum_reason": "Saturated: all 32 cached frames (D2, D4 and D6) have a saturated pixel in the aperture (checked 2026-11-14), so every point would be dropped.",
   "target": {
     "name": "Barnard's Star",
     "claim": "The star's drift across the sky, measured from SPHEREx and compared with Gaia.",

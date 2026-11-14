@@ -150,6 +150,7 @@
   "notes": [
     "Near the north ecliptic pole SPHEREx sees this star almost continuously; 'visits' here are 30-day bins.",
     "SPHEREx saturates on this star in every band checked (the whole core is masked), so no brightness is reported. The images are shown as a flipbook only.",
+    "Difference images: the saturated core is transparent (unknown); the ring around it mixes residual from the saturated star with any real change (R Dra is a variable): not a measurement.",
     "No motion fit: 7 detected visits, expected drift 0.0 arcsec over the detected span (need 3 visits and half a pixel, 3.1 arcsec).",
     "Each frame saw a different wavelength at the star's pixel (ranges per visit); a brightness change between visits mixes real change with colour. Not a light curve."
   ],
@@ -157,6 +158,117 @@
   "size_arcmin": 2.0,
   "frames_per_visit": 2,
   "frame_selection": "wavelength",
+  "differences": [
+    {
+      "file": null,
+      "visits": [
+        0,
+        1
+      ],
+      "dates": [
+        "2025-06-06",
+        "2025-07-18"
+      ],
+      "wave_a_um": 0.9529,
+      "wave_b_um": 0.9287,
+      "noise": null,
+      "n_above_5sigma": null,
+      "skipped": "visits at 0.953 and 0.929 um differ by more than 0.012 um: a difference of two colours is not a change",
+      "note": "A visual aid: the later visit minus the earlier, at the same wavelength. Static stars leave residuals of up to about 17% of their peak (the PSF is undersampled), so a change under about 10% of a star's peak cannot be flagged. Distances must come from the motion fit, not from these patches."
+    },
+    {
+      "file": "diff_01_02.png",
+      "visits": [
+        1,
+        2
+      ],
+      "dates": [
+        "2025-07-18",
+        "2025-10-19"
+      ],
+      "wave_a_um": 0.9287,
+      "wave_b_um": 0.9304,
+      "noise": 2.7671576977094596,
+      "n_above_5sigma": 17,
+      "skipped": null,
+      "note": "A visual aid: the later visit minus the earlier, at the same wavelength. Static stars leave residuals of up to about 17% of their peak (the PSF is undersampled), so a change under about 10% of a star's peak cannot be flagged. Distances must come from the motion fit, not from these patches."
+    },
+    {
+      "file": "diff_02_03.png",
+      "visits": [
+        2,
+        3
+      ],
+      "dates": [
+        "2025-10-19",
+        "2025-11-02"
+      ],
+      "wave_a_um": 0.9304,
+      "wave_b_um": 0.9401,
+      "noise": 0.9145746273395372,
+      "n_above_5sigma": 9,
+      "skipped": null,
+      "note": "A visual aid: the later visit minus the earlier, at the same wavelength. Static stars leave residuals of up to about 17% of their peak (the PSF is undersampled), so a change under about 10% of a star's peak cannot be flagged. Distances must come from the motion fit, not from these patches."
+    },
+    {
+      "file": "diff_03_04.png",
+      "visits": [
+        3,
+        4
+      ],
+      "dates": [
+        "2025-11-02",
+        "2026-07-10"
+      ],
+      "wave_a_um": 0.9401,
+      "wave_b_um": 0.939,
+      "noise": 0.5287588093840453,
+      "n_above_5sigma": 7,
+      "skipped": null,
+      "note": "A visual aid: the later visit minus the earlier, at the same wavelength. Static stars leave residuals of up to about 17% of their peak (the PSF is undersampled), so a change under about 10% of a star's peak cannot be flagged. Distances must come from the motion fit, not from these patches."
+    },
+    {
+      "file": "diff_04_05.png",
+      "visits": [
+        4,
+        5
+      ],
+      "dates": [
+        "2026-07-10",
+        "2026-08-24"
+      ],
+      "wave_a_um": 0.939,
+      "wave_b_um": 0.9415,
+      "noise": 2.4046286999643547,
+      "n_above_5sigma": 23,
+      "skipped": null,
+      "note": "A visual aid: the later visit minus the earlier, at the same wavelength. Static stars leave residuals of up to about 17% of their peak (the PSF is undersampled), so a change under about 10% of a star's peak cannot be flagged. Distances must come from the motion fit, not from these patches."
+    },
+    {
+      "file": "diff_05_06.png",
+      "visits": [
+        5,
+        6
+      ],
+      "dates": [
+        "2026-08-24",
+        "2026-09-17"
+      ],
+      "wave_a_um": 0.9415,
+      "wave_b_um": 0.9496,
+      "noise": 2.1168059156196795,
+      "n_above_5sigma": 8,
+      "skipped": null,
+      "note": "A visual aid: the later visit minus the earlier, at the same wavelength. Static stars leave residuals of up to about 17% of their peak (the PSF is undersampled), so a change under about 10% of a star's peak cannot be flagged. Distances must come from the motion fit, not from these patches."
+    }
+  ],
+  "difference_stretch": {
+    "kind": "asinh_symmetric",
+    "limit": 537.9862128793321,
+    "softening": 10.0
+  },
+  "spectrum": null,
+  "spectrum_reason": "Saturated: all 14 cached frames have a saturated pixel in the aperture (whole core masked).",
   "target": {
     "name": "R Draconis",
     "claim": "Images about monthly at matched wavelengths; saturated, so no brightness measurement.",

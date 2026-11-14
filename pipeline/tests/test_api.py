@@ -17,6 +17,7 @@ except ImportError:  # only stub when the real module cannot import
 spec = importlib.util.spec_from_file_location("api_live", ROOT / "api" / "live.py")
 api = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(api)
+REAL_BUILD = api.build.build_target  # before any fixture swaps it
 
 
 @pytest.fixture
@@ -24,13 +25,14 @@ def fake(tmp_path, monkeypatch):
     calls = []
 
     def build_target(slug, ra, dec, astrometry, out_dir, band=None, max_mb=100, frames_per_visit=3,
-                     size_arcmin=2.0, progress=None, cache_dir=None):
-        calls.append((slug, max_mb, size_arcmin))
+                     size_arcmin=2.0, progress=None, cache_dir=None, **kw):
+        calls.append((slug, max_mb, size_arcmin, *kw.values()))
         assert Path(cache_dir) == api.CACHE / "raw"  # raw cutouts go to the writable cache, not the repo
         progress(1, 2, "half")
         assert json.loads((api.CACHE / slug / "status.json").read_text())["done"] == 1
         Path(out_dir).mkdir(parents=True, exist_ok=True)
-        meta = {"slug": slug, "visits": [{"file": "visit_00.png"}]}
+        meta = {"slug": slug, "visits": [{"file": "visit_00.png"}, {"file": "visit_01.png"}, {"file": "visit_02.png"}],
+                "differences": [{"file": "diff_00_01.png"}, {"file": None, "skipped": "colour"}]}
         (Path(out_dir) / "meta.json").write_text(json.dumps(meta))
         return meta
 
@@ -43,14 +45,16 @@ def fake(tmp_path, monkeypatch):
 
 @pytest.mark.parametrize("q", [dict(ra="abc", dec="1"), dict(ra="400", dec="1"), dict(ra="1", dec="-91"),
                                dict(ra="nan", dec="1"), dict(ra="1", dec="1", size="11"),
-                               dict(ra="1", dec="1", size="0.1"), dict(name="x" * 101), dict(name=" ")])
+                               dict(ra="1", dec="1", size="0.1"), dict(name="x" * 101), dict(name=" "),
+                               dict(ra="1", dec="1", spectrum="yes")])
 def test_rejects_bad(fake, q):
     assert api.handle(q)[0] == 400 and not fake
 
 
 def test_cache_and_status(fake):
     code, r = api.handle(dict(ra="269.45", dec="4.73", size="2"))
-    assert code == 200 and r["urls"] and fake == [(r["slug"], 100, 2.0)]
+    assert code == 200 and fake == [(r["slug"], 100, 2.0)]
+    assert r["urls"] == [f"/api/blink?file={r['slug']}/{f}" for f in ("visit_00.png", "visit_01.png", "visit_02.png", "diff_00_01.png")]
     assert api.handle(dict(ra="269.45", dec="4.73", size="2"))[0] == 200
     assert len(fake) == 1  # served from disk
     code, s = api.handle(dict(status=r["slug"]))
@@ -84,6 +88,9 @@ def test_identify_ok_and_degrades(fake, monkeypatch):
 def test_showcase_and_end_to_end(fake):
     code, r = api.handle(dict(showcase="wise-0855"))
     assert code == 200 and r["meta"]["slug"] == "wise-0855" and r["urls"][0] == "/showcase/wise-0855/visit_00.png"
+    code, r = api.handle(dict(showcase="barnards-star"))  # difference PNGs follow the visits, and exist
+    assert r["urls"][len(r["meta"]["visits"]):] == ["/showcase/barnards-star/diff_00_01.png", "/showcase/barnards-star/diff_01_02.png"]
+    assert all((api.SHOWCASE.parent / u.lstrip("/")).is_file() for u in r["urls"])
     assert api.handle(dict(showcase="../x"))[0] == 404 and api.handle(dict(showcase="nope"))[0] == 404
     assert not fake  # showcase never builds
     code, r = api.handle({"ra": ["269.45"], "dec": ["4.73"]})  # list-valued like parse_qs
@@ -166,3 +173,31 @@ def test_failed_build_can_be_retried_and_gaia_down_is_502(fake, monkeypatch):
     monkeypatch.setattr(api.rs, "gaia_astrometry", lambda *a: boom())
     code, r = api.handle(dict(ra="2", dec="2"))
     assert code == 502 and "Gaia" in r["error"] and len(fake) == 1  # no build started
+
+
+def test_file_serves_difference_png(fake):
+    (api.CACHE / "s").mkdir()
+    (api.CACHE / "s" / "diff_00_01.png").write_bytes(b"d")
+    assert api._png("s/diff_00_01.png") == b"d" and api._png("s/../s/diff_00_01.png") == b"d"
+    assert api._png("../s/diff_00_01.png") is None
+
+
+def test_spectrum_param(fake):
+    code, r = api.handle(dict(ra="269.45", dec="4.73", spectrum="1"))
+    assert code == 200 and r["slug"] == "269.4500_+4.7300_2_qr2_spec"  # its own cache key: a plain build has no spectrum
+    assert fake == [(r["slug"], api.MAX_MB - api.SPECTRUM_MB, 2.0, True, api.SPECTRUM_MB)]
+    assert api.handle(dict(ra="269.45", dec="4.73", spectrum="0"))[1]["slug"] == "269.4500_+4.7300_2_qr2"
+
+
+def test_spectrum_budget_refusal(fake, monkeypatch):
+    """spectrum=1 with the real build: refused before any download when a spectrum's cutouts exceed SPECTRUM_MB."""
+    b = api.build
+    if REAL_BUILD is None:
+        pytest.skip("blink.build stubbed")
+    fr = [dict(mjd=60000 + i, band=f"SPHEREx-D{1 + i % 6}", url=f"http://x/{i}", em_min=0, em_max=1) for i in range(12)]
+    monkeypatch.setattr(b, "build_target", REAL_BUILD)
+    monkeypatch.setattr(b, "find_frames", lambda ra, dec: fr)
+    monkeypatch.setattr(b.fetch, "fetch_many", lambda *a, **k: pytest.fail("downloaded despite refusal"))
+    monkeypatch.setattr(api, "SPECTRUM_MB", 20)  # 12 new spectrum cutouts, about 49 MB
+    code, r = api.handle(dict(ra="10", dec="10", spectrum="1"))
+    assert code == 502 and "refusing" in r["error"]
