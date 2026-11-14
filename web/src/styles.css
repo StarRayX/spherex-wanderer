@@ -16,6 +16,7 @@
   --warn-ink: #6B3A06;
   --sky: #05070C;       /* image wells and the sky map */
   --glass: rgba(255, 255, 255, .86);
+  --pop: var(--cyan);   /* warm highlight: active tab underline, sidebar marker */
   --s0: 4px; --s1: 8px; --s2: 16px; --s3: 24px; --s4: 32px; --s5: 48px; --s6: 64px;
   --t-xs: .75rem; --t-sm: .875rem; --t-md: 1rem; --t-lg: 1.5rem; --t-xl: clamp(2rem, 4.2vw, 3rem);
   --f-text: 'IBM Plex Sans', system-ui, sans-serif;
@@ -43,6 +44,20 @@ img, svg { max-width: 100%; }
 .skip:focus { top: var(--s1); }
 [hidden] { display: none !important; }
 
+/* ---------- palette trials (Nov 14). Switch with ?theme= or the dev-only switcher. ---------- */
+/* A: Sky Blue #0099FF, Cloudy White #FDFDFE, Amber Red. The card's hex (#E0F354) is a lime yellow and does not
+   match its red swatch, so the red here is matched to the swatch. */
+:root[data-theme="sky"] { --nav-word: #FFFFFF; --navy: #0099FF; --navy-dark: #0080D6; --cyan: #0099FF; --cyan-ink: #0072BF; --pop: #E5432A;
+  --bg: #F2F4F7; --card: #FDFDFE; --tint: #E3F1FC; --wash: #F5FAFE; --warn-bg: #FCE3DE; --warn-ink: #8A2414; }
+/* B: Midnight Black #02070A, Electric Blue #0297DE, Cantaloupe Orange #FC734D. */
+:root[data-theme="midnight"] { --navy: #02070A; --navy-dark: #000000; --cyan: #0297DE; --cyan-ink: #0270A6; --pop: #FC734D;
+  --bg: #F1F4F6; --card: #FFFFFF; --tint: #E1F0F9; --wash: #F4F9FC; --warn-bg: #FFE6DE; --warn-ink: #8A3317; }
+/* C: Space Black #000000, Mellow White #FEFFFA, Burnt Orange #D23A00. */
+:root[data-theme="space"] { --navy: #000000; --navy-dark: #1A1A1A; --cyan: #D23A00; --cyan-ink: #D23A00; --pop: #D23A00;
+  --bg: #F1F1EA; --card: #FEFFFA; --tint: #F7E4DA; --wash: #FAF6EE; --warn-bg: #FBE3D3; --warn-ink: #7A2500; }
+.theme-switch { position: fixed; right: 12px; top: 12px; z-index: 200; box-shadow: var(--shadow); background: var(--card); }
+@media (max-width: 767px) { .theme-switch { top: auto; bottom: calc(var(--tab-h) + 8px); } }
+
 /* ---------- shell and navigation ---------- */
 .app { display: flex; min-height: 100vh; min-height: 100dvh; }
 #view { flex: 1; min-width: 0; }
@@ -52,7 +67,7 @@ html[data-nav="closed"] .nav { width: var(--nav-w-closed); }
 .nav-head { display: flex; align-items: center; gap: var(--s1); min-height: 48px; padding: 0 var(--s1); }
 .nav-brand { display: flex; align-items: center; gap: 10px; color: #fff; text-decoration: none; font-weight: 600; font-size: var(--t-md); white-space: nowrap; overflow: hidden; }
 .nav-brand:hover, .nav-brand:visited { color: #fff; }
-.nav-brand b { color: var(--cyan); font-weight: 700; }
+.nav-brand b { color: var(--nav-word, var(--cyan)); font-weight: 700; }
 .nav-toggle { margin-left: auto; flex: none; width: 32px; height: 32px; border: 0; border-radius: var(--radius-sm); background: transparent; color: #fff; cursor: pointer; display: grid; place-items: center; }
 .nav-toggle svg { transition: transform .2s; }
 html[data-nav="closed"] .nav-toggle svg { transform: rotate(180deg); }
@@ -64,7 +79,7 @@ html[data-nav="closed"] .nav-brand span, html[data-nav="closed"] .nav a.item spa
 .nav a.item svg { flex: none; }
 .nav-toggle:hover, .nav a.item:hover { background: rgba(255, 255, 255, .12); }
 .nav-ind { position: absolute; left: 0; top: 0; border-radius: 12px; background: rgba(255, 255, 255, .16); pointer-events: none; opacity: 0; transition: transform .35s cubic-bezier(.3, .9, .3, 1), width .35s, height .35s, opacity .2s; }
-.nav-ind::before { content: ''; position: absolute; left: 0; top: 12px; bottom: 12px; width: 4px; border-radius: 0 4px 4px 0; background: var(--cyan); }
+.nav-ind::before { content: ''; position: absolute; left: 0; top: 12px; bottom: 12px; width: 4px; border-radius: 0 4px 4px 0; background: var(--pop); }
 .nav-foot { margin-top: auto; }
 .nav-foot .made { display: flex; align-items: center; gap: 10px; padding: 0 14px; min-height: 40px; font-size: var(--t-xs); color: rgba(255, 255, 255, .7); white-space: nowrap; overflow: hidden; }
 .nav-foot .made img { height: 18px; width: auto; flex: none; }
@@ -96,7 +111,7 @@ html[data-nav="closed"] .nav-brand span, html[data-nav="closed"] .nav a.item spa
 .btn.quiet:hover { background: #CFE3EC; color: var(--navy); }
 .linkbtn { border: 0; background: none; padding: var(--s0) 0; color: var(--cyan-ink); font-weight: 600; text-decoration: underline; cursor: pointer; min-height: 32px; }
 .badge { display: inline-flex; align-items: center; gap: 6px; font: 600 var(--t-xs) var(--f-text); padding: var(--s0) 10px; border-radius: 999px; background: var(--tint); color: var(--navy); white-space: nowrap; }
-.badge.measured { background: #D6F1F6; color: #00566A; }
+.badge.measured { background: var(--tint); color: var(--cyan-ink); }
 .badge.candidate, .badge.brightness, .badge.prelim { background: var(--warn-bg); color: var(--warn-ink); }
 .badge.images { background: #E4E7ED; color: var(--muted); }
 .seg { display: inline-flex; gap: 2px; background: var(--bg); border-radius: 12px; padding: 2px; }
@@ -109,7 +124,7 @@ select.field { appearance: auto; }
 .tabs { display: flex; gap: var(--s0); border-bottom: 2px solid var(--line); margin-bottom: var(--s3); overflow-x: auto; scrollbar-width: none; }
 .tabs [role="tab"] { flex: none; border: 0; background: none; padding: var(--s1) var(--s2); min-height: 48px; font-weight: 600; color: var(--muted); cursor: pointer; border-bottom: 4px solid transparent; margin-bottom: -2px; border-radius: 8px 8px 0 0; }
 .tabs [role="tab"]:hover { color: var(--ink); background: rgba(11, 31, 77, .05); }
-.tabs [role="tab"][aria-selected="true"] { color: var(--navy); border-bottom-color: var(--cyan); }
+.tabs [role="tab"][aria-selected="true"] { color: var(--navy); border-bottom-color: var(--pop); }
 .stat { display: flex; flex-direction: column; gap: var(--s0); }
 .stat-value { font: 600 clamp(1.75rem, 3vw, 2.25rem)/1.05 var(--f-mono); letter-spacing: -.02em; }
 .stat-value small { font-size: .5em; color: var(--muted); letter-spacing: 0; }

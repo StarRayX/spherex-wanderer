@@ -56,6 +56,7 @@ export default function App() {
   return (
     <div className="app">
       <Nav active={key} />
+      {import.meta.env.DEV && <ThemeSwitch />}
       <main id="view" tabIndex={-1}>
         {Page ? (
           <Suspense fallback={<PageSkel />}>
@@ -157,6 +158,25 @@ function NotFound({ onReady }: { onReady: () => void }) {
       <h1>Page not found</h1>
       <p className="muted" style={{ margin: '8px 0 16px' }}>That address does not match a SPHEREx Blink page.</p>
       <a className="btn" href="#/">Back to home</a>
+    </div>
+  )
+}
+
+// Palette trials, dev builds only: ?theme=sky|midnight|space, remembered in this browser.
+const THEMES = [['', 'Current'], ['sky', 'A · Sky'], ['midnight', 'B · Midnight'], ['space', 'C · Space']] as const
+function ThemeSwitch() {
+  const [theme, setTheme] = useState(() => {
+    const q = new URLSearchParams(location.hash.split('?')[1] ?? '').get('theme')
+    try { return q ?? localStorage.getItem('blink.theme') ?? '' } catch { return q ?? '' }
+  })
+  useEffect(() => {
+    if (theme) document.documentElement.dataset.theme = theme
+    else delete document.documentElement.dataset.theme
+    try { localStorage.setItem('blink.theme', theme) } catch { /* private mode */ }
+  }, [theme])
+  return (
+    <div className="seg theme-switch" role="group" aria-label="Palette trial">
+      {THEMES.map(([id, label]) => <button key={id} onClick={() => setTheme(id)} aria-pressed={theme === id}>{label}</button>)}
     </div>
   )
 }

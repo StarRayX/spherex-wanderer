@@ -45,6 +45,9 @@ const yearOf = (mjd: number) => 2000 + (mjd - 51544.5) / 365.25
 const midYear = (m: Meta) => yearOf((m.visits[0].mjd + m.visits[m.visits.length - 1].mjd) / 2)
 const THEN = 1999 // the 2MASS sky survey ran 1997 to 2001
 
+// The sky map draws on a canvas, so it reads the accent colour from the CSS tokens at start-up.
+const accent = () => getComputedStyle(document.documentElement).getPropertyValue('--cyan').trim() || '#00B8D9'
+
 const WHOLE_SKY_FOV = 180
 const TARGET_FOV = 0.25
 const CUTOUT_DEG = 2 / 60
@@ -94,7 +97,7 @@ export default function Sky({ params, onReady }: PageProps) {
     if (d && d > 1) {
       // The path from 1999 (when the 2MASS background photo was taken) through today and 1,000 years on.
       const then = at(a, THEN), later = at(a, midYear(m) + DRIFT_YEARS)
-      ov.add(A.polyline([then, [ra, dec], later], { color: '#00B8D9', lineWidth: 2 }))
+      ov.add(A.polyline([then, [ra, dec], later], { color: accent(), lineWidth: 2 }))
       ov.add(A.circle(then[0], then[1], 15 / 3600, { color: '#FFFFFF', lineWidth: 1.5 }))
       epochs.current?.addSources([
         A.source(then[0], then[1], { name: `Here in ${THEN}` }),
@@ -137,7 +140,7 @@ export default function Sky({ params, onReady }: PageProps) {
         })
         view.current = v
         const metas = await Promise.all(TARGETS.map(t => loadMeta(t.slug).catch(() => null)))
-        const cat = A.catalog({ name: 'Test targets', sourceSize: 22, color: '#00B8D9', shape: 'circle',
+        const cat = A.catalog({ name: 'Test targets', sourceSize: 22, color: accent(), shape: 'circle',
           displayLabel: true, labelColumn: 'name', labelColor: '#E8EEF6', labelFont: '13px IBM Plex Sans' })
         // Markers sit where each star is during the SPHEREx visits, not at its 2016 catalogue position.
         metas.forEach((m, i) => {
@@ -148,7 +151,7 @@ export default function Sky({ params, onReady }: PageProps) {
         epochs.current = A.catalog({ name: 'Then and now', sourceSize: 8, color: 'rgba(0,0,0,0)', shape: 'square',
           displayLabel: true, labelColumn: 'name', labelColor: '#FFFFFF', labelFont: '12px IBM Plex Sans' })
         v.addCatalog(epochs.current)
-        overlay.current = A.graphicOverlay({ color: '#00B8D9', lineWidth: 1.5 })
+        overlay.current = A.graphicOverlay({ color: accent(), lineWidth: 1.5 })
         v.addOverlay(overlay.current)
         v.on('objectClicked', (o: any) => { if (o?.data?.slug) void fly(o.data.slug) })
         const sync = () => { const [ra, dec] = v.getRaDec(); setPos({ ra, dec, fov: v.getFoV()[0] }) }
