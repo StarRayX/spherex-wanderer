@@ -4,7 +4,7 @@ import { STATUS_LABEL, TARGETS, imageUrl, loadMeta } from '../lib/targets'
 import type { Meta } from '../lib/types'
 import { axisWords, decDms, fmt, lightYears, raHms, totalDrift, yearsPerMoon } from '../lib/format'
 import Viewer from '../components/Viewer'
-import Mark from '../components/Mark'
+import { Logo } from '../components/Logo'
 import './Sky.css'
 
 // The 300 fastest-moving stars in Gaia DR3 (pipeline/scripts/fetch_fast_movers.py), positions at epoch 2016.0.
@@ -61,22 +61,25 @@ function tune(v: AladinView, url: string) {
   setTimeout(fix, 300)
 }
 
-// Probe every host at once and resolve with the most preferred one that answered, as soon as that is known
-// (a host answering is final once every host listed before it has failed). A dead server costs one timeout
-// (5 s), not one per host in turn, and a fast preferred host does not wait for a slow mirror.
-function pick(hosts: Host[]) {
+// Probe every host at once and report the most preferred one that has answered so far, each time that changes.
+// A fast mirror is used straight away and a preferred host that answers later takes over. A dead or hanging
+// server no longer holds the map up (before, an answer was only used once every host listed before it had
+// failed, so one hung mirror cost the full 5 s timeout). Resolves with the final best, null if none answered.
+function pick(hosts: Host[], onBest?: (h: Host) => void) {
   return new Promise<Host | null>(resolve => {
-    const ok: (boolean | undefined)[] = hosts.map(() => undefined)
+    let best = -1, n = 0
     hosts.forEach((h, i) => void probe(h, 5000).then(r => {
-      ok[i] = r
-      for (let j = 0; j < hosts.length; j++) {
-        if (ok[j] === undefined) return
-        if (ok[j]) return resolve(hosts[j])
-      }
-      resolve(null)
+      if (r && (best < 0 || i < best)) { best = i; onBest?.(h) }
+      if (++n === hosts.length) resolve(best >= 0 ? hosts[best] : null)
     }))
   })
 }
+// The host that answered best last visit: the map opens on it without waiting for the probes.
+const HOST_KEY = 'sky.host.ir'
+const rememberedIr = (): Host | null => {
+  try { const u = localStorage.getItem(HOST_KEY); return LAYERS[0].hosts.find(h => h.url === u) ?? null } catch { return null }
+}
+const rememberIr = (h: Host) => { try { localStorage.setItem(HOST_KEY, h.url) } catch { /* not kept */ } }
 const SLOW_MS = 6000 // no survey server answered by now: show the note with a Retry button
 const COL_KEY = 'sky.panel.collapsed'
 type Res = { ir?: Host | null; vis?: Host | null; mel?: Host | null } // undefined: still probing; null: none answered
@@ -532,10 +535,15 @@ export default function Sky({ params, onReady }: PageProps) {
           const todo = (['ir', 'vis', 'mel'] as const).filter(k => !res[k])
           if (!todo.length) return
           const groups = { ir: LAYERS[0].hosts, vis: LAYERS[1].hosts, mel: MELLINGER }
-          todo.forEach(k => void pick(groups[k]).then(h => {
+          todo.forEach(k => void pick(groups[k], h => {
             if (my !== run || dead) return
             res[k] = h
-            if (h) { okAny = true; setSlow(false) }
+            okAny = true; setSlow(false)
+            if (k === 'ir') rememberIr(h)
+            apply()
+          }).then(h => {
+            if (my !== run || dead) return
+            if (!h) res[k] = null
             if (++done === todo.length && !okAny) setSlow(true)
             apply()
           }))
@@ -547,7 +555,9 @@ export default function Sky({ params, onReady }: PageProps) {
         await A.init
         if (dead || !box.current) return
         lib.current = A
-        const first = LAYERS[0].hosts[0]
+        // Open on the host that answered last time, else the IRSA mirror (the most reliable); a better host that
+        // answers meanwhile takes over through apply().
+        const first = rememberedIr() ?? LAYERS[0].hosts[2]
         layerRef.current = 'ir'
         surveyRef.current = first.url
         const v: AladinView = A.aladin(box.current, {
@@ -725,7 +735,7 @@ export default function Sky({ params, onReady }: PageProps) {
         {state !== 'ready' && (
           <div className="sky-cover" role="status" aria-live="polite">
             <div className="loader-box">
-              <Mark size={48} />
+              <Logo height={48} />
               {state === 'failed' ? <>
                 <p className="loader-title">The sky map could not load</p>
                 <p className="loader-step">It needs WebGL2 and a sky image server, and neither answered. Each star still opens its SPHEREx photos.</p>

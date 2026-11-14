@@ -34,3 +34,11 @@ html[data-nav="closed"] .nav.unweave .nav-group { margin: var(--s2) 0 var(--s0);
 .nav-brand { flex: none; overflow: visible; }
 html[data-nav="closed"] .nav-head { padding-top: 9px; }
 html[data-nav="closed"] .nav.unweave .nav-head { padding-top: 0; }
+/* Toggle: fade out while the letters leave, then ease into its new slot (under the logo when closed,
+   at the right edge when open) instead of popping in. */
+.nav.unweave .nav-toggle { opacity: 0; transition: opacity .1s; }
+html[data-nav="closed"] .nav:not(.unweave) .nav-toggle { animation: tg-in-closed .24s cubic-bezier(.2, .9, .25, 1) both; }
+html:not([data-nav="closed"]) .nav-toggle { animation: tg-in-open .26s cubic-bezier(.2, .9, .25, 1) .08s both; }
+@keyframes tg-in-closed { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+@keyframes tg-in-open { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .nav-toggle, html[data-nav="closed"] .nav:not(.unweave) .nav-toggle, html:not([data-nav="closed"]) .nav-toggle { animation: none; transition: none; } }

@@ -17,13 +17,13 @@ const PAGES = {
 type Key = keyof typeof PAGES
 
 const TITLES: Record<Key, string> = {
-  home: 'Wanderer: spectra of moving objects and dot checks',
-  movers: 'Moving objects: Wanderer',
-  triage: 'Vet a field: Wanderer',
-  sky: 'Sky map: Wanderer',
-  target: 'Test stars: Wanderer',
-  any: 'Any spot: Wanderer',
-  method: 'Method: Wanderer',
+  home: 'Wanderer',
+  movers: 'Moving Objects · Wanderer',
+  triage: 'Vet a Field · Wanderer',
+  sky: 'Sky Map · Wanderer',
+  target: 'Test Stars · Wanderer',
+  any: 'Any Spot · Wanderer',
+  method: 'Method · Wanderer',
 }
 
 const Icon = ({ d }: { d: string }) => (
@@ -56,7 +56,7 @@ export default function App() {
   const Page = key ? PAGES[key] : null
 
   useEffect(() => {
-    document.title = key ? TITLES[key] : 'Page not found: Wanderer'
+    document.title = key ? TITLES[key] : 'Page Not Found · Wanderer'
     document.body.className = 'route-' + (key ?? 'notfound')
   }, [key])
   useEffect(() => { const t = setTimeout(bootDone, 60); return () => clearTimeout(t) }, [])
