@@ -3,7 +3,7 @@ import type { PageProps } from '../lib/router'
 import { imageUrl, loadMeta } from '../lib/targets'
 import type { Meta } from '../lib/types'
 import { monthYear } from '../lib/format'
-import Mark from '../components/Mark'
+import { Logo } from '../components/Logo'
 import HeroBlink from '../components/HeroBlink'
 import './Home.css'
 
@@ -29,7 +29,7 @@ export default function Home({ onReady }: PageProps) {
     <div className="home">
       <div className="home-bg" aria-hidden><div className="stars" /></div>
       <div className="home-inner">
-        <div className="brand-line"><Mark size={32} /><span><b>Wanderer</b></span></div>
+        <div className="brand-line"><Logo height={32} /><span><b>Wanderer</b></span></div>
         <div className="hm-hero">
           <h1>
             MOST tells you which SPHEREx images caught an asteroid or comet.

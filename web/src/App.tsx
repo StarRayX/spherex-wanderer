@@ -1,7 +1,7 @@
 import { Suspense, lazy, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
 import { useRoute } from './lib/router'
-import Mark from './components/Mark'
+import { Logo, Wordmark } from './components/Logo'
 
 // Shell and hash router, after LAMBAT's web app: a sidebar (bottom tab bar under 768 px), one page per route,
 // each page lazy-loaded behind a skeleton. index.html carries a static skeleton inside #root that React replaces on first render.
@@ -48,7 +48,7 @@ const MORE_ICON = '<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.
 const tip = (n: NavItem) => (n.sub ? n.label + ': ' + n.sub : n.label)
 
 // No boot overlay any more: the shell renders at once. Kept as a no-op for pages that still call onReady.
-function bootDone() {}
+function bootDone() { (window as unknown as { __bootReady?: () => void }).__bootReady?.() }
 
 export default function App() {
   const route = useRoute()
@@ -59,6 +59,7 @@ export default function App() {
     document.title = key ? TITLES[key] : 'Page not found: Wanderer'
     document.body.className = 'route-' + (key ?? 'notfound')
   }, [key])
+  useEffect(() => { const t = setTimeout(bootDone, 60); return () => clearTimeout(t) }, [])
   useEffect(() => { if (key !== 'sky') window.scrollTo(0, 0) }, [key, route.slug])
 
   return (
@@ -83,6 +84,7 @@ function Nav({ active }: { active: Key | null }) {
   const [open, setOpen] = useState(() => document.documentElement.dataset.nav !== 'closed')
   const [phone, setPhone] = useState(() => matchMedia('(max-width: 767px)').matches)
   const [more, setMore] = useState(false)
+  const [unweave, setUnweave] = useState(false)
   const inMore = active !== null && MORE.some(n => n.id === active)
 
   useEffect(() => {
@@ -120,7 +122,13 @@ function Nav({ active }: { active: Key | null }) {
   }, [more])
 
   function toggle() {
+    if (unweave) return
     const next = !open
+    // Closing: hold the open layout for 260 ms so the letters leave right to left as the sidebar narrows.
+    if (!next && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setUnweave(true)
+      setTimeout(() => setUnweave(false), 260)
+    }
     setOpen(next)
     document.documentElement.dataset.nav = next ? 'open' : 'closed'
     try { localStorage.setItem('blink.nav', next ? 'open' : 'closed') } catch { /* private mode */ }
@@ -129,9 +137,9 @@ function Nav({ active }: { active: Key | null }) {
 
   return (
     <>
-    <nav className="nav" aria-label="Main">
+    <nav className={'nav' + (unweave ? ' unweave' : '')} aria-label="Main">
       <div className="nav-head">
-        <a className="nav-brand" href="#/" aria-label="Wanderer home"><Mark /><span><b>Wanderer</b></span></a>
+        <a className="nav-brand" href="#/" aria-label="Wanderer home"><Logo height={30} /><Wordmark /></a>
         <button className="nav-toggle" onClick={toggle} aria-expanded={open} aria-label={open ? 'Collapse the sidebar' : 'Expand the sidebar'}>
           <Icon d='<path d="m15 6-6 6 6 6"/>' />
         </button>

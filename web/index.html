@@ -11,17 +11,36 @@
     <meta name="theme-color" content="#020305" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <script>try{document.documentElement.dataset.nav=localStorage.getItem("blink.nav")||(/^#\/sky/.test(location.hash)?"closed":"open")}catch(e){document.documentElement.dataset.nav="open"}</script>
+    <script>try{if(!sessionStorage.getItem("wanderer.boot")){sessionStorage.setItem("wanderer.boot","1");document.documentElement.classList.add("booting");window.__bootT=Date.now()}}catch(e){}</script>
     <style>
       /* First paint: flat deep-space background and a static shell skeleton inside #root. React replaces it on render.
          No overlay, no minimum delay, no webfont dependency. */
       html,body{background:#020305;margin:0}
+      /* Loading screen: first load of a session only. Logo pops in, the dart slides in toward it, WANDERER reveals
+         letter by letter (35 ms apart), then it fades. About 1.1 s in all; closes once the first route has drawn. */
+      #boot{display:none;position:fixed;inset:0;z-index:9999;background:#020305;place-items:center;transition:opacity .25s ease}
+      .booting #boot{display:grid}
+      #boot.gone{opacity:0;pointer-events:none}
+      #boot .bt{display:flex;flex-direction:column;align-items:center;gap:22px}
+      #boot svg{height:84px;width:auto;overflow:visible;fill:#EAF2FA}
+      #boot .bd{fill:#4DD0F8;transform-box:fill-box;transform-origin:50% 50%;animation:bPop .34s cubic-bezier(.2,1.5,.4,1) backwards}
+      #boot .bp1,#boot .bp2{animation:bDart .42s cubic-bezier(.2,.9,.25,1) backwards;animation-delay:.14s}
+      #boot .bp2{animation-delay:.22s}
+      #boot .bw{display:flex;overflow:hidden;padding:3px 0;font:700 26px/1.15 "Space Grotesk",system-ui,sans-serif;letter-spacing:.3em;margin-right:-.3em;color:#EAF2FA}
+      #boot .bw i{font-style:normal;display:inline-block;animation:bUp .28s cubic-bezier(.2,.9,.25,1) backwards;animation-delay:calc(.52s + var(--i) * 35ms)}
+      #boot .bw i:nth-child(even){animation-name:bDown}
+      @keyframes bPop{from{opacity:0;transform:scale(.3)}to{opacity:1;transform:none}}
+      @keyframes bDart{from{opacity:0;transform:translate(-46px,-12px)}to{opacity:1;transform:none}}
+      @keyframes bUp{from{opacity:0;transform:translateY(90%)}to{opacity:1;transform:none}}
+      @keyframes bDown{from{opacity:0;transform:translateY(-90%)}to{opacity:1;transform:none}}
+      @media (prefers-reduced-motion:reduce){#boot .bd,#boot .bp1,#boot .bp2,#boot .bw i{animation:none}#boot{transition:opacity .2s}}
       .skip{position:absolute;left:8px;top:-64px}
       body{color:#EAF2FA;font:400 16px/1.5 "Public Sans",system-ui,sans-serif}
       .ss{display:flex;min-height:100vh}
       .ss-nav{flex:none;width:232px;height:100vh;padding:16px 8px;background:rgba(255,255,255,.07);border-right:1px solid rgba(255,255,255,.14);display:flex;flex-direction:column;gap:8px}
       .ss-brand{display:flex;align-items:center;gap:10px;height:48px;padding:0 8px;font:700 16px "Space Grotesk",system-ui,sans-serif}
-      .ss-brand svg{width:28px;height:28px;flex:none}
-      .ss-brand b{color:#4DD0F8}
+      .ss-brand svg{width:28px;height:30px;flex:none}
+      .ss-brand span{letter-spacing:.16em}
       .ss-i{display:block;height:48px;margin:0 0 4px;border-radius:12px;background:rgba(255,255,255,.05)}
       .ss-main{flex:1;min-width:0;max-width:960px;margin:0 auto;padding:48px 32px}
       .ss-l{display:block;height:1em;margin:8px 0;border-radius:8px;background:rgba(255,255,255,.07);animation:ssP 1.5s ease-in-out infinite}
@@ -34,11 +53,13 @@
     </style>
   </head>
   <body>
+    <div id="boot" role="status" aria-label="Loading Wanderer"><div class="bt"><svg viewBox="0 0 196.13 205.93" aria-hidden="true"><circle class="bd" cx="108.34" cy="25.18" r="25.18"/><polygon class="bp1" points="0 41.57 196.13 79.43 133.16 103.76 164.98 205.93 91.66 108.17 112.95 88.45 0 41.57"/><polygon class="bp2" points="15.39 56.57 96.94 91.65 13.67 168.95 53.02 93.3 15.39 56.57"/></svg><div class="bw" aria-hidden="true"><i style="--i:0">W</i><i style="--i:1">A</i><i style="--i:2">N</i><i style="--i:3">D</i><i style="--i:4">E</i><i style="--i:5">R</i><i style="--i:6">E</i><i style="--i:7">R</i></div></div></div>
+    <script>(function(){var d=document.documentElement;if(!d.classList.contains("booting"))return;var rm=matchMedia("(prefers-reduced-motion: reduce)").matches,min=rm?450:1100,ready=false,done=false;function go(){if(done||!ready)return;var w=min-(Date.now()-(window.__bootT||Date.now()));setTimeout(function(){if(done)return;done=true;var b=document.getElementById("boot");if(!b)return;b.classList.add("gone");setTimeout(function(){d.classList.remove("booting");b.remove()},300)},Math.max(0,w))}window.__bootReady=function(){ready=true;go()};setTimeout(window.__bootReady,4000)})()</script>
     <a class="skip" href="#view">Skip to content</a>
     <div id="root">
       <div class="ss" aria-hidden="true">
         <div class="ss-nav">
-          <div class="ss-brand"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="#EAF2FA" stroke-width="1.4"/><path d="M12 1.5v4.5M12 18v4.5M1.5 12H6M18 12h4.5" stroke="#EAF2FA" stroke-width="1.4" stroke-linecap="round"/><circle cx="9.8" cy="13.8" r="1.9" fill="#EAF2FA"/><circle cx="13.6" cy="10" r="2.2" fill="#4DD0F8"/></svg><span><b>Wanderer</b></span></div>
+          <div class="ss-brand"><svg viewBox="0 0 196.13 205.93"><circle cx="108.34" cy="25.18" r="25.18" fill="#4DD0F8"/><g fill="#EAF2FA"><polygon points="0 41.57 196.13 79.43 133.16 103.76 164.98 205.93 91.66 108.17 112.95 88.45 0 41.57"/><polygon points="15.39 56.57 96.94 91.65 13.67 168.95 53.02 93.3 15.39 56.57"/></g></svg><span>WANDERER</span></div>
           <i class="ss-i"></i><i class="ss-i"></i><i class="ss-i"></i>
         </div>
         <div class="ss-main">

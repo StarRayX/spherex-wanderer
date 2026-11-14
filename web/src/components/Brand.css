@@ -1,0 +1,36 @@
+/* Brand: logo, wordmark and the sidebar open/close motion. Motion language follows LAMBAT's sidebar:
+   opening, letters slide in alternately from above and below, left to right, ~32 ms apart;
+   closing, the sidebar narrows at once and the letters leave right to left (14 ms apart) as its edge passes them,
+   then the collapsed layout takes over (class .unweave holds the open layout for 260 ms). */
+.logo { flex: none; display: block; fill: currentColor; overflow: visible; }
+.logo .lg-dot { fill: var(--cyan); }
+.nav-brand { gap: 12px; color: var(--ink); }
+.nav-brand .nav-word { display: inline-flex; overflow: hidden; padding: 2px 0; font: 700 1.0625rem/1.2 var(--f-display); letter-spacing: .16em; color: var(--ink); }
+.nav-brand b { color: inherit; }
+.nav-word .ltr { display: inline-block; animation: ltr-in-up .28s cubic-bezier(.2, .9, .25, 1) backwards; animation-delay: calc(30ms + var(--i) * 32ms); }
+.nav-word .ltr:nth-child(odd) { animation-name: ltr-in-down; }
+@keyframes ltr-in-up { from { opacity: 0; transform: translateY(90%); } to { opacity: 1; transform: none; } }
+@keyframes ltr-in-down { from { opacity: 0; transform: translateY(-90%); } to { opacity: 1; transform: none; } }
+.nav.unweave .nav-word .ltr { animation: ltr-out-down .15s cubic-bezier(.25, .6, .35, 1) forwards; animation-delay: calc((7 - var(--i)) * 14ms); }
+.nav.unweave .nav-word .ltr:nth-child(odd) { animation-name: ltr-out-up; }
+@keyframes ltr-out-down { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(90%); } }
+@keyframes ltr-out-up { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(-90%); } }
+/* logo: tilts in toward its slot when the sidebar opens, settles back when it folds */
+.nav-brand .logo { transition: transform .3s cubic-bezier(.3, .9, .3, 1); }
+html[data-nav="closed"] .nav:not(.unweave) .nav-brand .logo { transform: translateX(1px) scale(1.06); }
+/* hold the open layout while the letters leave */
+html[data-nav="closed"] .nav.unweave .nav-head { flex-direction: row; padding: 0 var(--s1); min-height: 48px; }
+html[data-nav="closed"] .nav.unweave .nav-head .nav-toggle { margin-left: auto; }
+html[data-nav="closed"] .nav.unweave .nav-brand span, html[data-nav="closed"] .nav.unweave a.item span, html[data-nav="closed"] .nav.unweave .nav-foot span { display: revert; }
+html[data-nav="closed"] .nav.unweave .nav-brand span.nav-word { display: inline-flex; }
+html[data-nav="closed"] .nav.unweave .nav-group span { display: inline; }
+html[data-nav="closed"] .nav.unweave .nav-group { margin: var(--s2) 0 var(--s0); padding: 0 12px; border-top: 0; height: auto; }
+@media (prefers-reduced-motion: reduce) {
+  .nav-word .ltr, .nav.unweave .nav-word .ltr { animation: none; }
+  .nav-brand .logo { transition: none; }
+}
+/* Keep the logo steady through open/close: the brand box never shrinks (the sidebar's own overflow clips the
+   wordmark and toggle instead), and the logo sits at the same x and y in the open row and the closed column. */
+.nav-brand { flex: none; overflow: visible; }
+html[data-nav="closed"] .nav-head { padding-top: 9px; }
+html[data-nav="closed"] .nav.unweave .nav-head { padding-top: 0; }
