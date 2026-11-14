@@ -42,7 +42,7 @@ From `docs/HANDOFF.md` and `docs/evidence_notes.md`. Arcsec per year, SPHEREx pi
 | RW Aurigae | 72.2 mJy (2025-09-02) to 182.6 mJy (2026-09-08), 2.5x brighter at 0.75 um | One frame per visit. A and B are blended |
 | R Draconis | Saturated in every band checked | SPHEREx cannot give an aperture brightness |
 | 3I/ATLAS (Dec 2025 frames) | S/N 72 to 154 per frame. A rough 97-point Dec spectrum shows H2O 2.7 um, C-H 3.3 um, CO2 4.25 um (strong) and CO 4.6 um, qualitatively matching arXiv:2601.06759 | Flux is uncalibrated and aperture dependent. No water-ice claim from December data |
-| Asteroid triage, field RA 150.05 Dec +13.17, Nov 15-20 2025 | 145 changes: 2 known asteroids (213 Lilaea, 3721 Widorn, within 7 arcsec of JPL), 59 star residuals, 21 cosmic rays, about 24 edge or mask artefacts, 30 unconfirmable, 0 unexplained | "0 unexplained" says nothing about Planet X at this depth |
+| Asteroid triage, field RA 150.05 Dec +13.17, Nov 15-20 2025 | 145 changes: 2 known asteroids (213 Lilaea, 3721 Widorn, within 7 arcsec of JPL), 59 star residuals, 21 cosmic rays, 17 edge or mask artefacts, 41 unconfirmable (including 11 one-pixel blobs), 5 unexplained (seen in 2 of 3 exposures of one visit, no known asteroid nearby, not shown to be real) | Depth is about V 18 to 19, so no count of unexplained dots says anything about Planet X |
 
 TODO(number): shipped 3I/ATLAS spectrum point count and aperture; asteroid spectra count; how many of our cosmic rays the pipeline's TRANSIENT bit already catches.
 

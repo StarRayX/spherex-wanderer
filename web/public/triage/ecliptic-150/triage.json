@@ -1,0 +1,3494 @@
+{
+ "meta": {
+  "slug": "ecliptic-150",
+  "name": "Near the ecliptic, RA 150, Dec +13",
+  "ra": 150.05,
+  "dec": 13.17,
+  "detector": "D1",
+  "date_first": "2025-11-14",
+  "date_last": "2025-11-19",
+  "depth_note": "Depth is about V 18 to 19 for a point source at 5 sigma, so a count of 'unexplained' (even 0) says nothing about anything fainter, Planet X included. This is a vetting aid for bright changes, not a search.",
+  "method": "SPHEREx D1 exposures are regridded onto one 30 arcmin field, bad pixels masked, and each visit is compared with the median of the visits on other days; every blob brighter than 5 sigma is a change. Each change is then checked against JPL's asteroid positions for that time, Gaia stars, the exposures of the same visit, the image edge and the SPHEREx pixel flags.",
+  "caveats": [
+   "19 exposures in 6 visits over 2025-11-14 to 2025-11-19; wavelengths differ between visits, so very red or blue objects can change brightness without moving.",
+   "A JPL asteroid counts as a match within 20 arcsec (about 3 pixels) of the predicted position.",
+   "Gaia positions are epoch 2016 and are not moved for proper motion; stars here are only used as nearby-star evidence.",
+   "'unconfirmable' means the visit had one exposure or the change is one pixel wide; they are not explained, only not testable here.",
+   "Positions are from the regridded image and good to about one pixel (6 arcsec).",
+   "5 changes are left unexplained, at 2025-11-14 23:43 (UTC), a median 23 pixels from the nearest cutout edge. No known asteroid is within 20 arcsec, nothing bright is at the spot in the other days' images, and each shows in at least 2 exposures of its visit. They have not been shown to be real or instrumental; look at the thumbnails."
+  ],
+  "counts": {
+   "known_asteroid": 2,
+   "star_residual": 59,
+   "cosmic_ray": 21,
+   "edge_mask": 17,
+   "unconfirmable": 41,
+   "unexplained": 5
+  },
+  "transient_bit_overlap": {
+   "cosmic_rays": 21,
+   "flagged_transient_by_pipeline": 7,
+   "rule": "FLAGS bit 0 (TRANSIENT) set in the 5x5 raw pixels around the position, in the exposure where the brightening is strongest",
+   "all_rows_with_bit": 31,
+   "all_rows": 145,
+   "baseline_random_windows_with_bit": 0.115
+  },
+  "dropped_exposures": [
+   "2025W46_2A_0304_4",
+   "2025W46_2A_0633_1",
+   "2025W46_2A_0633_2"
+  ],
+  "thumb_note": "Each thumbnail is 25x25 pixels (about 2.5 arcmin) enlarged 2x: left, the median of the other days; right, this visit. Same grey scale."
+ },
+ "rows": [
+  {
+   "id": "t001",
+   "ra": 150.062269,
+   "dec": 12.920585,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_3",
+   "verdict": "edge_mask",
+   "reason": "It sits 0 pixels from the edge of the image cutout, where data are cut off, so a change here cannot be trusted.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 20.52,
+    "nearest_gaia_sep_arcsec": 21.9,
+    "edge_px": 0,
+    "in_adjacent_frame": false
+   },
+   "thumb": "thumbs/t001.png"
+  },
+  {
+   "id": "t002",
+   "ra": 150.042989,
+   "dec": 12.920585,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_3",
+   "verdict": "edge_mask",
+   "reason": "It sits 0 pixels from the edge of the image cutout, where data are cut off, so a change here cannot be trusted.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 0,
+    "flag_names": [],
+    "nearest_gaia_g": null,
+    "nearest_gaia_sep_arcsec": null,
+    "edge_px": 0,
+    "in_adjacent_frame": false
+   },
+   "thumb": "thumbs/t002.png"
+  },
+  {
+   "id": "t003",
+   "ra": 150.023709,
+   "dec": 12.922292,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_3",
+   "verdict": "edge_mask",
+   "reason": "It sits 1 pixels from the edge of the image cutout, where data are cut off, so a change here cannot be trusted.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 13.93,
+    "nearest_gaia_sep_arcsec": 7.4,
+    "edge_px": 1,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t003.png"
+  },
+  {
+   "id": "t004",
+   "ra": 150.00443,
+   "dec": 12.922289,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_3",
+   "verdict": "edge_mask",
+   "reason": "It sits 1 pixels from the edge of the image cutout, where data are cut off, so a change here cannot be trusted.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 0,
+    "flag_names": [],
+    "nearest_gaia_g": null,
+    "nearest_gaia_sep_arcsec": null,
+    "edge_px": 1,
+    "in_adjacent_frame": false
+   },
+   "thumb": "thumbs/t004.png"
+  },
+  {
+   "id": "t005",
+   "ra": 150.148153,
+   "dec": 12.925691,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_2",
+   "verdict": "edge_mask",
+   "reason": "It sits 3 pixels from the edge of the image cutout, where data are cut off, so a change here cannot be trusted.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 15.89,
+    "nearest_gaia_sep_arcsec": 6.7,
+    "edge_px": 3,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t005.png"
+  },
+  {
+   "id": "t006",
+   "ra": 150.039484,
+   "dec": 12.92571,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_3",
+   "verdict": "edge_mask",
+   "reason": "It sits 3 pixels from the edge of the image cutout, where data are cut off, so a change here cannot be trusted.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 524288,
+    "flag_names": [
+     "OUTLIER"
+    ],
+    "nearest_gaia_g": null,
+    "nearest_gaia_sep_arcsec": null,
+    "edge_px": 3,
+    "in_adjacent_frame": false
+   },
+   "thumb": "thumbs/t006.png"
+  },
+  {
+   "id": "t007",
+   "ra": 150.014945,
+   "dec": 12.925707,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_3",
+   "verdict": "edge_mask",
+   "reason": "It sits 3 pixels from the edge of the image cutout, where data are cut off, so a change here cannot be trusted.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 524352,
+    "flag_names": [
+     "NONFUNC",
+     "OUTLIER"
+    ],
+    "nearest_gaia_g": null,
+    "nearest_gaia_sep_arcsec": null,
+    "edge_px": 3,
+    "in_adjacent_frame": false
+   },
+   "thumb": "thumbs/t007.png"
+  },
+  {
+   "id": "t008",
+   "ra": 149.995665,
+   "dec": 12.925704,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_3",
+   "verdict": "edge_mask",
+   "reason": "It sits 3 pixels from the edge of the image cutout, where data are cut off, so a change here cannot be trusted.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 524288,
+    "flag_names": [
+     "OUTLIER"
+    ],
+    "nearest_gaia_g": null,
+    "nearest_gaia_sep_arcsec": null,
+    "edge_px": 3,
+    "in_adjacent_frame": false
+   },
+   "thumb": "thumbs/t008.png"
+  },
+  {
+   "id": "t009",
+   "ra": 150.144648,
+   "dec": 12.927401,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_1",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 15.9, 8 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 15.89,
+    "nearest_gaia_sep_arcsec": 7.8,
+    "edge_px": 4,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t009.png"
+  },
+  {
+   "id": "t010",
+   "ra": 150.006181,
+   "dec": 12.929123,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_3",
+   "verdict": "cosmic_ray",
+   "reason": "The brightening is in only 1 of the 3 exposures of this visit, which is what a cosmic-ray hit looks like; a real object would be in all of them.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": null,
+    "nearest_gaia_sep_arcsec": null,
+    "edge_px": 5,
+    "in_adjacent_frame": false
+   },
+   "thumb": "thumbs/t010.png"
+  },
+  {
+   "id": "t011",
+   "ra": 149.992159,
+   "dec": 12.930828,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_3",
+   "verdict": "cosmic_ray",
+   "reason": "The brightening is in only 1 of the 3 exposures of this visit, which is what a cosmic-ray hit looks like; a real object would be in all of them.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 524288,
+    "flag_names": [
+     "OUTLIER"
+    ],
+    "nearest_gaia_g": null,
+    "nearest_gaia_sep_arcsec": null,
+    "edge_px": 6,
+    "in_adjacent_frame": false
+   },
+   "thumb": "thumbs/t011.png"
+  },
+  {
+   "id": "t012",
+   "ra": 149.988653,
+   "dec": 12.930828,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_3",
+   "verdict": "cosmic_ray",
+   "reason": "The brightening is in only 1 of the 3 exposures of this visit, which is what a cosmic-ray hit looks like; a real object would be in all of them.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 524288,
+    "flag_names": [
+     "OUTLIER"
+    ],
+    "nearest_gaia_g": null,
+    "nearest_gaia_sep_arcsec": null,
+    "edge_px": 6,
+    "in_adjacent_frame": false
+   },
+   "thumb": "thumbs/t012.png"
+  },
+  {
+   "id": "t013",
+   "ra": 150.01845,
+   "dec": 12.932541,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_3",
+   "verdict": "cosmic_ray",
+   "reason": "The brightening is in only 1 of the 3 exposures of this visit, which is what a cosmic-ray hit looks like; a real object would be in all of them.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2621440,
+    "flag_names": [
+     "OUTLIER",
+     "SOURCE"
+    ],
+    "nearest_gaia_g": null,
+    "nearest_gaia_sep_arcsec": null,
+    "edge_px": 7,
+    "in_adjacent_frame": false
+   },
+   "thumb": "thumbs/t013.png"
+  },
+  {
+   "id": "t014",
+   "ra": 149.969371,
+   "dec": 12.935947,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_3",
+   "verdict": "unexplained",
+   "reason": "Nothing known explains it: no listed asteroid, bright star, cosmic-ray pattern or edge effect.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 0,
+    "flag_names": [],
+    "nearest_gaia_g": 20.16,
+    "nearest_gaia_sep_arcsec": 16.3,
+    "edge_px": 9,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t014.png"
+  },
+  {
+   "id": "t015",
+   "ra": 149.979887,
+   "dec": 12.939367,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_3",
+   "verdict": "cosmic_ray",
+   "reason": "The brightening is in only 1 of the 3 exposures of this visit, which is what a cosmic-ray hit looks like; a real object would be in all of them.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 270532677,
+    "flag_names": [
+     "TRANSIENT",
+     "SUR_ERROR",
+     "NONFUNC",
+     "SOURCE",
+     "HALO"
+    ],
+    "nearest_gaia_g": null,
+    "nearest_gaia_sep_arcsec": null,
+    "edge_px": 11,
+    "in_adjacent_frame": false
+   },
+   "thumb": "thumbs/t015.png"
+  },
+  {
+   "id": "t016",
+   "ra": 149.978134,
+   "dec": 12.941075,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_3",
+   "verdict": "cosmic_ray",
+   "reason": "The brightening is in only 1 of the 3 exposures of this visit, which is what a cosmic-ray hit looks like; a real object would be in all of them.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 270532677,
+    "flag_names": [
+     "TRANSIENT",
+     "SUR_ERROR",
+     "NONFUNC",
+     "SOURCE",
+     "HALO"
+    ],
+    "nearest_gaia_g": null,
+    "nearest_gaia_sep_arcsec": null,
+    "edge_px": 12,
+    "in_adjacent_frame": false
+   },
+   "thumb": "thumbs/t016.png"
+  },
+  {
+   "id": "t017",
+   "ra": 149.958852,
+   "dec": 12.941069,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_3",
+   "verdict": "cosmic_ray",
+   "reason": "The brightening is in only 1 of the 3 exposures of this visit, which is what a cosmic-ray hit looks like; a real object would be in all of them.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 1048576,
+    "flag_names": [
+     "CROSSTALK"
+    ],
+    "nearest_gaia_g": null,
+    "nearest_gaia_sep_arcsec": null,
+    "edge_px": 12,
+    "in_adjacent_frame": false
+   },
+   "thumb": "thumbs/t017.png"
+  },
+  {
+   "id": "t018",
+   "ra": 150.07454,
+   "dec": 12.9445,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_3",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 14.8, 12 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 14.76,
+    "nearest_gaia_sep_arcsec": 11.5,
+    "edge_px": 14,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t018.png"
+  },
+  {
+   "id": "t019",
+   "ra": 149.967615,
+   "dec": 12.944488,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_3",
+   "verdict": "cosmic_ray",
+   "reason": "The brightening is in only 1 of the 3 exposures of this visit, which is what a cosmic-ray hit looks like; a real object would be in all of them.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2621440,
+    "flag_names": [
+     "OUTLIER",
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 20.16,
+    "nearest_gaia_sep_arcsec": 15.6,
+    "edge_px": 14,
+    "in_adjacent_frame": false
+   },
+   "thumb": "thumbs/t019.png"
+  },
+  {
+   "id": "t020",
+   "ra": 149.96411,
+   "dec": 12.944487,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_3",
+   "verdict": "cosmic_ray",
+   "reason": "The brightening is in only 1 of the 3 exposures of this visit, which is what a cosmic-ray hit looks like; a real object would be in all of them.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 20.2,
+    "nearest_gaia_sep_arcsec": 19.3,
+    "edge_px": 14,
+    "in_adjacent_frame": false
+   },
+   "thumb": "thumbs/t020.png"
+  },
+  {
+   "id": "t021",
+   "ra": 150.071035,
+   "dec": 12.946209,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_2",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 14.8, 8 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 14.76,
+    "nearest_gaia_sep_arcsec": 8.3,
+    "edge_px": 15,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t021.png"
+  },
+  {
+   "id": "t022",
+   "ra": 149.944827,
+   "dec": 12.946188,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_3",
+   "verdict": "unexplained",
+   "reason": "Nothing known explains it: no listed asteroid, bright star, cosmic-ray pattern or edge effect.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2621440,
+    "flag_names": [
+     "OUTLIER",
+     "SOURCE"
+    ],
+    "nearest_gaia_g": null,
+    "nearest_gaia_sep_arcsec": null,
+    "edge_px": 15,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t022.png"
+  },
+  {
+   "id": "t023",
+   "ra": 150.072788,
+   "dec": 12.949625,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_2",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 14.8, 8 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 14.76,
+    "nearest_gaia_sep_arcsec": 8.2,
+    "edge_px": 17,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t023.png"
+  },
+  {
+   "id": "t024",
+   "ra": 149.964107,
+   "dec": 12.953029,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_3",
+   "verdict": "edge_mask",
+   "reason": "Pixels right next to it are masked as unusable by SPHEREx's own flags, so the apparent change comes from the mask, not the sky.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 270663681,
+    "flag_names": [
+     "TRANSIENT",
+     "PERSIST",
+     "SOURCE",
+     "HALO"
+    ],
+    "nearest_gaia_g": 20.2,
+    "nearest_gaia_sep_arcsec": 14.8,
+    "edge_px": 19,
+    "in_adjacent_frame": false
+   },
+   "thumb": "thumbs/t024.png"
+  },
+  {
+   "id": "t025",
+   "ra": 149.937812,
+   "dec": 12.954727,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_3",
+   "verdict": "unconfirmable",
+   "reason": "Only one pixel is brighter, narrower than a real star's image, and no known asteroid or bright star explains it.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 18.49,
+    "nearest_gaia_sep_arcsec": 20.8,
+    "edge_px": 20,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t025.png"
+  },
+  {
+   "id": "t026",
+   "ra": 149.934306,
+   "dec": 12.954725,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_3",
+   "verdict": "cosmic_ray",
+   "reason": "The brightening is in only 1 of the 3 exposures of this visit, which is what a cosmic-ray hit looks like; a real object would be in all of them.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2621440,
+    "flag_names": [
+     "OUTLIER",
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 18.49,
+    "nearest_gaia_sep_arcsec": 27.8,
+    "edge_px": 20,
+    "in_adjacent_frame": false
+   },
+   "thumb": "thumbs/t026.png"
+  },
+  {
+   "id": "t027",
+   "ra": 149.920283,
+   "dec": 12.954719,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_3",
+   "verdict": "cosmic_ray",
+   "reason": "The brightening is in only 1 of the 3 exposures of this visit, which is what a cosmic-ray hit looks like; a real object would be in all of them.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 268435461,
+    "flag_names": [
+     "TRANSIENT",
+     "SUR_ERROR",
+     "HALO"
+    ],
+    "nearest_gaia_g": 20.92,
+    "nearest_gaia_sep_arcsec": 14.2,
+    "edge_px": 20,
+    "in_adjacent_frame": false
+   },
+   "thumb": "thumbs/t027.png"
+  },
+  {
+   "id": "t028",
+   "ra": 149.937805,
+   "dec": 12.970102,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_3",
+   "verdict": "cosmic_ray",
+   "reason": "The brightening is in only 1 of the 3 exposures of this visit, which is what a cosmic-ray hit looks like; a real object would be in all of them.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2621440,
+    "flag_names": [
+     "OUTLIER",
+     "SOURCE"
+    ],
+    "nearest_gaia_g": null,
+    "nearest_gaia_sep_arcsec": null,
+    "edge_px": 29,
+    "in_adjacent_frame": false
+   },
+   "thumb": "thumbs/t028.png"
+  },
+  {
+   "id": "t029",
+   "ra": 149.936051,
+   "dec": 12.971809,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_3",
+   "verdict": "unconfirmable",
+   "reason": "Only one pixel is brighter, narrower than a real star's image, and no known asteroid or bright star explains it.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2621440,
+    "flag_names": [
+     "OUTLIER",
+     "SOURCE"
+    ],
+    "nearest_gaia_g": null,
+    "nearest_gaia_sep_arcsec": null,
+    "edge_px": 30,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t029.png"
+  },
+  {
+   "id": "t030",
+   "ra": 149.922026,
+   "dec": 12.973511,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_3",
+   "verdict": "cosmic_ray",
+   "reason": "The brightening is in only 1 of the 3 exposures of this visit, which is what a cosmic-ray hit looks like; a real object would be in all of them.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 524288,
+    "flag_names": [
+     "OUTLIER"
+    ],
+    "nearest_gaia_g": null,
+    "nearest_gaia_sep_arcsec": null,
+    "edge_px": 31,
+    "in_adjacent_frame": false
+   },
+   "thumb": "thumbs/t030.png"
+  },
+  {
+   "id": "t031",
+   "ra": 149.85541,
+   "dec": 12.97347,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_3",
+   "verdict": "unexplained",
+   "reason": "Nothing known explains it: no listed asteroid, bright star, cosmic-ray pattern or edge effect.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 524288,
+    "flag_names": [
+     "OUTLIER"
+    ],
+    "nearest_gaia_g": null,
+    "nearest_gaia_sep_arcsec": null,
+    "edge_px": 31,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t031.png"
+  },
+  {
+   "id": "t032",
+   "ra": 149.93605,
+   "dec": 12.975226,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_3",
+   "verdict": "unconfirmable",
+   "reason": "Only one pixel is brighter, narrower than a real star's image, and no known asteroid or bright star explains it.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 270532608,
+    "flag_names": [
+     "SOURCE",
+     "HALO"
+    ],
+    "nearest_gaia_g": null,
+    "nearest_gaia_sep_arcsec": null,
+    "edge_px": 32,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t032.png"
+  },
+  {
+   "id": "t033",
+   "ra": 149.869432,
+   "dec": 12.976897,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_3",
+   "verdict": "unexplained",
+   "reason": "Nothing known explains it: no listed asteroid, bright star, cosmic-ray pattern or edge effect.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 17.25,
+    "nearest_gaia_sep_arcsec": 17.0,
+    "edge_px": 33,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t033.png"
+  },
+  {
+   "id": "t034",
+   "ra": 149.858913,
+   "dec": 12.976889,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_3",
+   "verdict": "cosmic_ray",
+   "reason": "The brightening is in only 1 of the 3 exposures of this visit, which is what a cosmic-ray hit looks like; a real object would be in all of them.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 0,
+    "flag_names": [],
+    "nearest_gaia_g": null,
+    "nearest_gaia_sep_arcsec": null,
+    "edge_px": 33,
+    "in_adjacent_frame": false
+   },
+   "thumb": "thumbs/t034.png"
+  },
+  {
+   "id": "t035",
+   "ra": 149.834367,
+   "dec": 12.980287,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_3",
+   "verdict": "unexplained",
+   "reason": "Nothing known explains it: no listed asteroid, bright star, cosmic-ray pattern or edge effect.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 16.95,
+    "nearest_gaia_sep_arcsec": 20.1,
+    "edge_px": 23,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t035.png"
+  },
+  {
+   "id": "t036",
+   "ra": 149.858909,
+   "dec": 12.982014,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_3",
+   "verdict": "cosmic_ray",
+   "reason": "The brightening is in only 1 of the 3 exposures of this visit, which is what a cosmic-ray hit looks like; a real object would be in all of them.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": null,
+    "nearest_gaia_sep_arcsec": null,
+    "edge_px": 36,
+    "in_adjacent_frame": false
+   },
+   "thumb": "thumbs/t036.png"
+  },
+  {
+   "id": "t037",
+   "ra": 149.834363,
+   "dec": 12.985412,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_3",
+   "verdict": "cosmic_ray",
+   "reason": "The brightening is in only 1 of the 3 exposures of this visit, which is what a cosmic-ray hit looks like; a real object would be in all of them.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 20.02,
+    "nearest_gaia_sep_arcsec": 23.5,
+    "edge_px": 23,
+    "in_adjacent_frame": false
+   },
+   "thumb": "thumbs/t037.png"
+  },
+  {
+   "id": "t038",
+   "ra": 150.072791,
+   "dec": 12.988916,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_3",
+   "verdict": "unconfirmable",
+   "reason": "Only one pixel is brighter, narrower than a real star's image, and no known asteroid or bright star explains it.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 270532608,
+    "flag_names": [
+     "SOURCE",
+     "HALO"
+    ],
+    "nearest_gaia_g": 17.77,
+    "nearest_gaia_sep_arcsec": 5.9,
+    "edge_px": 40,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t038.png"
+  },
+  {
+   "id": "t039",
+   "ra": 149.825594,
+   "dec": 12.988821,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_3",
+   "verdict": "cosmic_ray",
+   "reason": "The brightening is in only 1 of the 3 exposures of this visit, which is what a cosmic-ray hit looks like; a real object would be in all of them.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097221,
+    "flag_names": [
+     "TRANSIENT",
+     "SUR_ERROR",
+     "NONFUNC",
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 20.33,
+    "nearest_gaia_sep_arcsec": 21.6,
+    "edge_px": 18,
+    "in_adjacent_frame": false
+   },
+   "thumb": "thumbs/t039.png"
+  },
+  {
+   "id": "t040",
+   "ra": 149.804554,
+   "dec": 12.99051,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_3",
+   "verdict": "cosmic_ray",
+   "reason": "The brightening is in only 1 of the 3 exposures of this visit, which is what a cosmic-ray hit looks like; a real object would be in all of them.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 17.37,
+    "nearest_gaia_sep_arcsec": 25.9,
+    "edge_px": 6,
+    "in_adjacent_frame": false
+   },
+   "thumb": "thumbs/t040.png"
+  },
+  {
+   "id": "t041",
+   "ra": 149.801046,
+   "dec": 12.992215,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_3",
+   "verdict": "cosmic_ray",
+   "reason": "The brightening is in only 1 of the 3 exposures of this visit, which is what a cosmic-ray hit looks like; a real object would be in all of them.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 268435461,
+    "flag_names": [
+     "TRANSIENT",
+     "SUR_ERROR",
+     "HALO"
+    ],
+    "nearest_gaia_g": null,
+    "nearest_gaia_sep_arcsec": null,
+    "edge_px": 4,
+    "in_adjacent_frame": false
+   },
+   "thumb": "thumbs/t041.png"
+  },
+  {
+   "id": "t042",
+   "ra": 149.80981,
+   "dec": 12.993932,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_3",
+   "verdict": "unconfirmable",
+   "reason": "Only one pixel is brighter, narrower than a real star's image, and no known asteroid or bright star explains it.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 19.12,
+    "nearest_gaia_sep_arcsec": 22.6,
+    "edge_px": 9,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t042.png"
+  },
+  {
+   "id": "t043",
+   "ra": 149.797538,
+   "dec": 12.99392,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_3",
+   "verdict": "edge_mask",
+   "reason": "It sits 2 pixels from the edge of the image cutout, where data are cut off, so a change here cannot be trusted.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 268435461,
+    "flag_names": [
+     "TRANSIENT",
+     "SUR_ERROR",
+     "HALO"
+    ],
+    "nearest_gaia_g": null,
+    "nearest_gaia_sep_arcsec": null,
+    "edge_px": 2,
+    "in_adjacent_frame": false
+   },
+   "thumb": "thumbs/t043.png"
+  },
+  {
+   "id": "t044",
+   "ra": 149.794025,
+   "dec": 13.00075,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_3",
+   "verdict": "edge_mask",
+   "reason": "It sits 0 pixels from the edge of the image cutout, where data are cut off, so a change here cannot be trusted.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 19.73,
+    "nearest_gaia_sep_arcsec": 20.0,
+    "edge_px": 0,
+    "in_adjacent_frame": false
+   },
+   "thumb": "thumbs/t044.png"
+  },
+  {
+   "id": "t045",
+   "ra": 150.165717,
+   "dec": 13.004267,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_3",
+   "verdict": "unconfirmable",
+   "reason": "Only one pixel is brighter, narrower than a real star's image, and no known asteroid or bright star explains it.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 18.1,
+    "nearest_gaia_sep_arcsec": 5.5,
+    "edge_px": 49,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t045.png"
+  },
+  {
+   "id": "t046",
+   "ra": 150.183252,
+   "dec": 13.007675,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_1",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 14.0, 11 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 14.03,
+    "nearest_gaia_sep_arcsec": 10.6,
+    "edge_px": 51,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t046.png"
+  },
+  {
+   "id": "t047",
+   "ra": 150.153473,
+   "dec": 13.072605,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_1",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 16.1, 7 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2621509,
+    "flag_names": [
+     "TRANSIENT",
+     "SUR_ERROR",
+     "NONFUNC",
+     "OUTLIER",
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 16.08,
+    "nearest_gaia_sep_arcsec": 6.7,
+    "edge_px": 87,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t047.png"
+  },
+  {
+   "id": "t048",
+   "ra": 150.123661,
+   "dec": 13.079448,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_1",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 17.8, 10 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 17.78,
+    "nearest_gaia_sep_arcsec": 9.5,
+    "edge_px": 93,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t048.png"
+  },
+  {
+   "id": "t049",
+   "ra": 150.083325,
+   "dec": 13.094831,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_1",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 13.6, 9 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 13.58,
+    "nearest_gaia_sep_arcsec": 8.9,
+    "edge_px": 102,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t049.png"
+  },
+  {
+   "id": "t050",
+   "ra": 150.071049,
+   "dec": 13.115332,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_3",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 14.5, 9 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 14.52,
+    "nearest_gaia_sep_arcsec": 9.3,
+    "edge_px": 114,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t050.png"
+  },
+  {
+   "id": "t051",
+   "ra": 150.032456,
+   "dec": 13.159749,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_2",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 11.7, 11 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 11.65,
+    "nearest_gaia_sep_arcsec": 11.3,
+    "edge_px": 136,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t051.png"
+  },
+  {
+   "id": "t052",
+   "ra": 149.841214,
+   "dec": 13.175041,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_3",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 20.2, 8 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097216,
+    "flag_names": [
+     "NONFUNC",
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 20.25,
+    "nearest_gaia_sep_arcsec": 8.0,
+    "edge_px": 27,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t052.png"
+  },
+  {
+   "id": "t053",
+   "ra": 150.164048,
+   "dec": 13.18535,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_1",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 15.0, 8 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 270532608,
+    "flag_names": [
+     "SOURCE",
+     "HALO"
+    ],
+    "nearest_gaia_g": 15.04,
+    "nearest_gaia_sep_arcsec": 8.1,
+    "edge_px": 81,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t053.png"
+  },
+  {
+   "id": "t054",
+   "ra": 150.16054,
+   "dec": 13.18706,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_3",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 15.0, 6 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 270532613,
+    "flag_names": [
+     "TRANSIENT",
+     "SUR_ERROR",
+     "SOURCE",
+     "HALO"
+    ],
+    "nearest_gaia_g": 15.04,
+    "nearest_gaia_sep_arcsec": 5.7,
+    "edge_px": 83,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t054.png"
+  },
+  {
+   "id": "t055",
+   "ra": 150.197407,
+   "dec": 13.221208,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_3",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 16.4, 6 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 16.39,
+    "nearest_gaia_sep_arcsec": 6.5,
+    "edge_px": 62,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t055.png"
+  },
+  {
+   "id": "t056",
+   "ra": 150.269358,
+   "dec": 13.224573,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_3",
+   "verdict": "unconfirmable",
+   "reason": "Only one pixel is brighter, narrower than a real star's image, and no known asteroid or bright star explains it.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 18.64,
+    "nearest_gaia_sep_arcsec": 6.1,
+    "edge_px": 21,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t056.png"
+  },
+  {
+   "id": "t057",
+   "ra": 150.278175,
+   "dec": 13.27069,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_3",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 15.7, 7 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 15.74,
+    "nearest_gaia_sep_arcsec": 7.1,
+    "edge_px": 16,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t057.png"
+  },
+  {
+   "id": "t058",
+   "ra": 150.250103,
+   "dec": 13.28438,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_3",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 13.4, 11 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 13.43,
+    "nearest_gaia_sep_arcsec": 11.0,
+    "edge_px": 32,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t058.png"
+  },
+  {
+   "id": "t059",
+   "ra": 150.176384,
+   "dec": 13.289552,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_3",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 14.4, 11 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 14.38,
+    "nearest_gaia_sep_arcsec": 11.4,
+    "edge_px": 74,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t059.png"
+  },
+  {
+   "id": "t060",
+   "ra": 150.13076,
+   "dec": 13.332278,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_1",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 18.3, 8 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 18.29,
+    "nearest_gaia_sep_arcsec": 7.9,
+    "edge_px": 51,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t060.png"
+  },
+  {
+   "id": "t061",
+   "ra": 149.981526,
+   "dec": 13.347657,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_3",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 11.5, 7 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 270532615,
+    "flag_names": [
+     "TRANSIENT",
+     "OVERFLOW",
+     "SUR_ERROR",
+     "SOURCE",
+     "HALO"
+    ],
+    "nearest_gaia_g": 11.47,
+    "nearest_gaia_sep_arcsec": 6.8,
+    "edge_px": 42,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t061.png"
+  },
+  {
+   "id": "t062",
+   "ra": 149.979756,
+   "dec": 13.397197,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_1",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 20.6, 7 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 20.56,
+    "nearest_gaia_sep_arcsec": 7.0,
+    "edge_px": 13,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t062.png"
+  },
+  {
+   "id": "t063",
+   "ra": 150.144832,
+   "dec": 13.402314,
+   "mjd": 60993.98824,
+   "iso": "2025-11-14 23:43",
+   "obs_id": "2025W46_2A_0304_2",
+   "verdict": "edge_mask",
+   "reason": "Pixels right next to it are masked as unusable by SPHEREx's own flags, so the apparent change comes from the mask, not the sky.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 270532613,
+    "flag_names": [
+     "TRANSIENT",
+     "SUR_ERROR",
+     "SOURCE",
+     "HALO"
+    ],
+    "nearest_gaia_g": 17.97,
+    "nearest_gaia_sep_arcsec": 3.1,
+    "edge_px": 10,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t063.png"
+  },
+  {
+   "id": "t064",
+   "ra": 150.032468,
+   "dec": 12.997458,
+   "mjd": 60995.28002,
+   "iso": "2025-11-16 06:43",
+   "obs_id": "2025W46_2A_0576_2",
+   "verdict": "star_residual",
+   "reason": "The same spot is already bright in the other days' images, so this is the same source imaged a little differently, not something new.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097154,
+    "flag_names": [
+     "OVERFLOW",
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 10.42,
+    "nearest_gaia_sep_arcsec": 12.3,
+    "edge_px": 45,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t064.png"
+  },
+  {
+   "id": "t065",
+   "ra": 150.028947,
+   "dec": 13.163166,
+   "mjd": 60995.28002,
+   "iso": "2025-11-16 06:43",
+   "obs_id": "2025W46_2A_0576_2",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 19.8, 8 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 19.81,
+    "nearest_gaia_sep_arcsec": 8.1,
+    "edge_px": 134,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t065.png"
+  },
+  {
+   "id": "t066",
+   "ra": 150.07282,
+   "dec": 13.29129,
+   "mjd": 60995.28002,
+   "iso": "2025-11-16 06:43",
+   "obs_id": "2025W46_2A_0576_2",
+   "verdict": "unconfirmable",
+   "reason": "Only one pixel is brighter, narrower than a real star's image, and no known asteroid or bright star explains it.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 271056901,
+    "flag_names": [
+     "TRANSIENT",
+     "SUR_ERROR",
+     "OUTLIER",
+     "SOURCE",
+     "HALO"
+    ],
+    "nearest_gaia_g": 20.68,
+    "nearest_gaia_sep_arcsec": 25.7,
+    "edge_px": 75,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t066.png"
+  },
+  {
+   "id": "t067",
+   "ra": 149.890243,
+   "dec": 13.3237,
+   "mjd": 60995.28002,
+   "iso": "2025-11-16 06:43",
+   "obs_id": "2025W46_2A_0576_2",
+   "verdict": "unconfirmable",
+   "reason": "Only one pixel is brighter, narrower than a real star's image, and no known asteroid or bright star explains it.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 270532613,
+    "flag_names": [
+     "TRANSIENT",
+     "SUR_ERROR",
+     "SOURCE",
+     "HALO"
+    ],
+    "nearest_gaia_g": null,
+    "nearest_gaia_sep_arcsec": null,
+    "edge_px": 55,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t067.png"
+  },
+  {
+   "id": "t068",
+   "ra": 150.294041,
+   "dec": 13.340716,
+   "mjd": 60995.28002,
+   "iso": "2025-11-16 06:43",
+   "obs_id": "2025W46_2A_0576_4",
+   "verdict": "cosmic_ray",
+   "reason": "The brightening is in only 1 of the 4 exposures of this visit, which is what a cosmic-ray hit looks like; a real object would be in all of them.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 270532613,
+    "flag_names": [
+     "TRANSIENT",
+     "SUR_ERROR",
+     "SOURCE",
+     "HALO"
+    ],
+    "nearest_gaia_g": 20.8,
+    "nearest_gaia_sep_arcsec": 2.6,
+    "edge_px": 7,
+    "in_adjacent_frame": false
+   },
+   "thumb": "thumbs/t068.png"
+  },
+  {
+   "id": "t069",
+   "ra": 149.862139,
+   "dec": 13.342472,
+   "mjd": 60995.28002,
+   "iso": "2025-11-16 06:43",
+   "obs_id": "2025W46_2A_0576_3",
+   "verdict": "cosmic_ray",
+   "reason": "The brightening is in only 1 of the 4 exposures of this visit, which is what a cosmic-ray hit looks like; a real object would be in all of them.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 302514181,
+    "flag_names": [
+     "TRANSIENT",
+     "SUR_ERROR",
+     "OUTLIER",
+     "STREAK",
+     "HALO"
+    ],
+    "nearest_gaia_g": null,
+    "nearest_gaia_sep_arcsec": null,
+    "edge_px": 39,
+    "in_adjacent_frame": false
+   },
+   "thumb": "thumbs/t069.png"
+  },
+  {
+   "id": "t070",
+   "ra": 150.214769,
+   "dec": 12.944449,
+   "mjd": 60996.02661,
+   "iso": "2025-11-17 00:38",
+   "obs_id": "2025W47_1A_0007_4",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 13.0, 12 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 13.02,
+    "nearest_gaia_sep_arcsec": 11.6,
+    "edge_px": 14,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t070.png"
+  },
+  {
+   "id": "t071",
+   "ra": 150.165689,
+   "dec": 12.944476,
+   "mjd": 60996.02661,
+   "iso": "2025-11-17 00:38",
+   "obs_id": "2025W47_1A_0007_3",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 14.8, 10 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 270532608,
+    "flag_names": [
+     "SOURCE",
+     "HALO"
+    ],
+    "nearest_gaia_g": 14.77,
+    "nearest_gaia_sep_arcsec": 10.4,
+    "edge_px": 14,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t071.png"
+  },
+  {
+   "id": "t072",
+   "ra": 150.08857,
+   "dec": 12.987206,
+   "mjd": 60996.02661,
+   "iso": "2025-11-17 00:38",
+   "obs_id": "2025W47_1A_0007_1",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 13.9, 9 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2621440,
+    "flag_names": [
+     "OUTLIER",
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 13.86,
+    "nearest_gaia_sep_arcsec": 9.2,
+    "edge_px": 39,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t072.png"
+  },
+  {
+   "id": "t073",
+   "ra": 149.814862,
+   "dec": 13.210893,
+   "mjd": 60996.02661,
+   "iso": "2025-11-17 00:38",
+   "obs_id": "2025W47_1A_0007_2",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 13.8, 10 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 13.81,
+    "nearest_gaia_sep_arcsec": 9.5,
+    "edge_px": 12,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t073.png"
+  },
+  {
+   "id": "t074",
+   "ra": 150.288671,
+   "dec": 13.234806,
+   "mjd": 60996.02661,
+   "iso": "2025-11-17 00:38",
+   "obs_id": "2025W47_1A_0007_4",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 11.9, 11 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 11.93,
+    "nearest_gaia_sep_arcsec": 10.6,
+    "edge_px": 10,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t074.png"
+  },
+  {
+   "id": "t075",
+   "ra": 150.171118,
+   "dec": 13.289555,
+   "mjd": 60996.02661,
+   "iso": "2025-11-17 00:38",
+   "obs_id": "2025W47_1A_0007_4",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 14.4, 10 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2621440,
+    "flag_names": [
+     "OUTLIER",
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 14.38,
+    "nearest_gaia_sep_arcsec": 9.8,
+    "edge_px": 76,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t075.png"
+  },
+  {
+   "id": "t076",
+   "ra": 150.025462,
+   "dec": 12.924,
+   "mjd": 60997.31729,
+   "iso": "2025-11-18 07:36",
+   "obs_id": "2025W47_1A_0295_1",
+   "verdict": "edge_mask",
+   "reason": "It sits 2 pixels from the edge of the image cutout, where data are cut off, so a change here cannot be trusted.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 270532608,
+    "flag_names": [
+     "SOURCE",
+     "HALO"
+    ],
+    "nearest_gaia_g": 13.93,
+    "nearest_gaia_sep_arcsec": 9.4,
+    "edge_px": 2,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t076.png"
+  },
+  {
+   "id": "t077",
+   "ra": 150.148153,
+   "dec": 12.925691,
+   "mjd": 60997.31729,
+   "iso": "2025-11-18 07:36",
+   "obs_id": "2025W47_1A_0295_2",
+   "verdict": "edge_mask",
+   "reason": "It sits 3 pixels from the edge of the image cutout, where data are cut off, so a change here cannot be trusted.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 15.89,
+    "nearest_gaia_sep_arcsec": 6.7,
+    "edge_px": 3,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t077.png"
+  },
+  {
+   "id": "t078",
+   "ra": 150.216522,
+   "dec": 12.944448,
+   "mjd": 60997.31729,
+   "iso": "2025-11-18 07:36",
+   "obs_id": "2025W47_1A_0295_3",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 13.0, 6 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 13.02,
+    "nearest_gaia_sep_arcsec": 5.8,
+    "edge_px": 14,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t078.png"
+  },
+  {
+   "id": "t079",
+   "ra": 150.076293,
+   "dec": 12.947916,
+   "mjd": 60997.31729,
+   "iso": "2025-11-18 07:36",
+   "obs_id": "2025W47_1A_0295_4",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 14.8, 11 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 14.76,
+    "nearest_gaia_sep_arcsec": 11.4,
+    "edge_px": 16,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t079.png"
+  },
+  {
+   "id": "t080",
+   "ra": 150.235807,
+   "dec": 12.94956,
+   "mjd": 60997.31729,
+   "iso": "2025-11-18 07:36",
+   "obs_id": "2025W47_1A_0295_3",
+   "verdict": "edge_mask",
+   "reason": "Pixels right next to it are masked as unusable by SPHEREx's own flags, so the apparent change comes from the mask, not the sky.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 270532613,
+    "flag_names": [
+     "TRANSIENT",
+     "SUR_ERROR",
+     "SOURCE",
+     "HALO"
+    ],
+    "nearest_gaia_g": 18.58,
+    "nearest_gaia_sep_arcsec": 7.0,
+    "edge_px": 17,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t080.png"
+  },
+  {
+   "id": "t081",
+   "ra": 150.06753,
+   "dec": 12.959875,
+   "mjd": 60997.31729,
+   "iso": "2025-11-18 07:36",
+   "obs_id": "2025W47_1A_0295_2",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 15.8, 10 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2621440,
+    "flag_names": [
+     "OUTLIER",
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 15.79,
+    "nearest_gaia_sep_arcsec": 9.8,
+    "edge_px": 23,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t081.png"
+  },
+  {
+   "id": "t082",
+   "ra": 150.192004,
+   "dec": 12.982045,
+   "mjd": 60997.31729,
+   "iso": "2025-11-18 07:36",
+   "obs_id": "2025W47_1A_0295_3",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 15.7, 8 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 15.73,
+    "nearest_gaia_sep_arcsec": 7.7,
+    "edge_px": 36,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t082.png"
+  },
+  {
+   "id": "t083",
+   "ra": 150.097336,
+   "dec": 12.987205,
+   "mjd": 60997.31729,
+   "iso": "2025-11-18 07:36",
+   "obs_id": "2025W47_1A_0295_4",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 18.2, 5 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097219,
+    "flag_names": [
+     "TRANSIENT",
+     "OVERFLOW",
+     "NONFUNC",
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 18.21,
+    "nearest_gaia_sep_arcsec": 5.3,
+    "edge_px": 39,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t083.png"
+  },
+  {
+   "id": "t084",
+   "ra": 150.072791,
+   "dec": 12.988916,
+   "mjd": 60997.31729,
+   "iso": "2025-11-18 07:36",
+   "obs_id": "2025W47_1A_0295_4",
+   "verdict": "unconfirmable",
+   "reason": "Only one pixel is brighter, narrower than a real star's image, and no known asteroid or bright star explains it.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 17.77,
+    "nearest_gaia_sep_arcsec": 5.9,
+    "edge_px": 40,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t084.png"
+  },
+  {
+   "id": "t085",
+   "ra": 150.153473,
+   "dec": 13.072605,
+   "mjd": 60997.31729,
+   "iso": "2025-11-18 07:36",
+   "obs_id": "2025W47_1A_0295_3",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 16.1, 7 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 16.08,
+    "nearest_gaia_sep_arcsec": 6.7,
+    "edge_px": 87,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t085.png"
+  },
+  {
+   "id": "t086",
+   "ra": 150.123661,
+   "dec": 13.079448,
+   "mjd": 60997.31729,
+   "iso": "2025-11-18 07:36",
+   "obs_id": "2025W47_1A_0295_4",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 17.8, 10 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 17.78,
+    "nearest_gaia_sep_arcsec": 9.5,
+    "edge_px": 93,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t086.png"
+  },
+  {
+   "id": "t087",
+   "ra": 150.083325,
+   "dec": 13.094831,
+   "mjd": 60997.31729,
+   "iso": "2025-11-18 07:36",
+   "obs_id": "2025W47_1A_0295_1",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 13.6, 9 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 270532609,
+    "flag_names": [
+     "TRANSIENT",
+     "SOURCE",
+     "HALO"
+    ],
+    "nearest_gaia_g": 13.58,
+    "nearest_gaia_sep_arcsec": 8.9,
+    "edge_px": 102,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t087.png"
+  },
+  {
+   "id": "t088",
+   "ra": 150.178045,
+   "dec": 13.110177,
+   "mjd": 60997.31729,
+   "iso": "2025-11-18 07:36",
+   "obs_id": "2025W47_1A_0295_3",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 12.8, 11 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 12.84,
+    "nearest_gaia_sep_arcsec": 11.2,
+    "edge_px": 73,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t088.png"
+  },
+  {
+   "id": "t089",
+   "ra": 150.071049,
+   "dec": 13.115332,
+   "mjd": 60997.31729,
+   "iso": "2025-11-18 07:36",
+   "obs_id": "2025W47_1A_0295_3",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 14.5, 9 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 14.52,
+    "nearest_gaia_sep_arcsec": 9.3,
+    "edge_px": 114,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t089.png"
+  },
+  {
+   "id": "t090",
+   "ra": 150.021928,
+   "dec": 13.173415,
+   "mjd": 60997.31729,
+   "iso": "2025-11-18 07:36",
+   "obs_id": "2025W47_1A_0295_3",
+   "verdict": "known_asteroid",
+   "reason": "A known asteroid, 213 Lilaea (A880 DA), was predicted 7 arcsec from here at this time (JPL, V 14.9).",
+   "evidence": {
+    "jpl_name": "213 Lilaea (A880 DA)",
+    "jpl_offset_arcsec": 6.6,
+    "flags_bits": 270532608,
+    "flag_names": [
+     "SOURCE",
+     "HALO"
+    ],
+    "nearest_gaia_g": 16.36,
+    "nearest_gaia_sep_arcsec": 20.5,
+    "edge_px": 130,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t090.png"
+  },
+  {
+   "id": "t091",
+   "ra": 150.299147,
+   "dec": 13.181838,
+   "mjd": 60997.31729,
+   "iso": "2025-11-18 07:36",
+   "obs_id": "2025W47_1A_0295_2",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 12.5, 11 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097216,
+    "flag_names": [
+     "NONFUNC",
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 12.52,
+    "nearest_gaia_sep_arcsec": 11.4,
+    "edge_px": 4,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t091.png"
+  },
+  {
+   "id": "t092",
+   "ra": 150.295638,
+   "dec": 13.181841,
+   "mjd": 60997.31729,
+   "iso": "2025-11-18 07:36",
+   "obs_id": "2025W47_1A_0295_3",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 12.5, 7 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 12.52,
+    "nearest_gaia_sep_arcsec": 7.0,
+    "edge_px": 6,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t092.png"
+  },
+  {
+   "id": "t093",
+   "ra": 150.297396,
+   "dec": 13.185256,
+   "mjd": 60997.31729,
+   "iso": "2025-11-18 07:36",
+   "obs_id": "2025W47_1A_0295_1",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 12.5, 7 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 12.52,
+    "nearest_gaia_sep_arcsec": 6.8,
+    "edge_px": 5,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t093.png"
+  },
+  {
+   "id": "t094",
+   "ra": 150.293886,
+   "dec": 13.18526,
+   "mjd": 60997.31729,
+   "iso": "2025-11-18 07:36",
+   "obs_id": "2025W47_1A_0295_2",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 12.5, 11 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 12.52,
+    "nearest_gaia_sep_arcsec": 10.8,
+    "edge_px": 7,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t094.png"
+  },
+  {
+   "id": "t095",
+   "ra": 150.164048,
+   "dec": 13.18535,
+   "mjd": 60997.31729,
+   "iso": "2025-11-18 07:36",
+   "obs_id": "2025W47_1A_0295_4",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 15.0, 8 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 270532613,
+    "flag_names": [
+     "TRANSIENT",
+     "SUR_ERROR",
+     "SOURCE",
+     "HALO"
+    ],
+    "nearest_gaia_g": 15.04,
+    "nearest_gaia_sep_arcsec": 8.1,
+    "edge_px": 81,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t095.png"
+  },
+  {
+   "id": "t096",
+   "ra": 150.22898,
+   "dec": 13.202396,
+   "mjd": 60997.31729,
+   "iso": "2025-11-18 07:36",
+   "obs_id": "2025W47_1A_0295_4",
+   "verdict": "star_residual",
+   "reason": "The same spot is already bright in the other days' images, so this is the same source imaged a little differently, not something new.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 14.03,
+    "nearest_gaia_sep_arcsec": 12.1,
+    "edge_px": 44,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t096.png"
+  },
+  {
+   "id": "t097",
+   "ra": 150.065793,
+   "dec": 13.212708,
+   "mjd": 60997.31729,
+   "iso": "2025-11-18 07:36",
+   "obs_id": "2025W47_1A_0295_4",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 16.4, 2 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 16.35,
+    "nearest_gaia_sep_arcsec": 2.5,
+    "edge_px": 121,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t097.png"
+  },
+  {
+   "id": "t098",
+   "ra": 150.197407,
+   "dec": 13.221208,
+   "mjd": 60997.31729,
+   "iso": "2025-11-18 07:36",
+   "obs_id": "2025W47_1A_0295_2",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 16.4, 6 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 16.39,
+    "nearest_gaia_sep_arcsec": 6.5,
+    "edge_px": 62,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t098.png"
+  },
+  {
+   "id": "t099",
+   "ra": 150.243058,
+   "dec": 13.253636,
+   "mjd": 60997.31729,
+   "iso": "2025-11-18 07:36",
+   "obs_id": "2025W47_1A_0295_4",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 13.5, 8 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 13.49,
+    "nearest_gaia_sep_arcsec": 8.4,
+    "edge_px": 36,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t099.png"
+  },
+  {
+   "id": "t100",
+   "ra": 150.239548,
+   "dec": 13.253638,
+   "mjd": 60997.31729,
+   "iso": "2025-11-18 07:36",
+   "obs_id": "2025W47_1A_0295_2",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 13.5, 7 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 13.49,
+    "nearest_gaia_sep_arcsec": 6.6,
+    "edge_px": 38,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t100.png"
+  },
+  {
+   "id": "t101",
+   "ra": 150.255346,
+   "dec": 13.257043,
+   "mjd": 60997.31729,
+   "iso": "2025-11-18 07:36",
+   "obs_id": "2025W47_1A_0295_4",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 14.6, 10 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 270532608,
+    "flag_names": [
+     "SOURCE",
+     "HALO"
+    ],
+    "nearest_gaia_g": 14.58,
+    "nearest_gaia_sep_arcsec": 10.5,
+    "edge_px": 29,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t101.png"
+  },
+  {
+   "id": "t102",
+   "ra": 150.241306,
+   "dec": 13.257054,
+   "mjd": 60997.31729,
+   "iso": "2025-11-18 07:36",
+   "obs_id": "2025W47_1A_0295_1",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 13.5, 8 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 13.49,
+    "nearest_gaia_sep_arcsec": 8.1,
+    "edge_px": 37,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t102.png"
+  },
+  {
+   "id": "t103",
+   "ra": 150.257104,
+   "dec": 13.260458,
+   "mjd": 60997.31729,
+   "iso": "2025-11-18 07:36",
+   "obs_id": "2025W47_1A_0295_1",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 14.6, 10 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 14.58,
+    "nearest_gaia_sep_arcsec": 9.6,
+    "edge_px": 28,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t103.png"
+  },
+  {
+   "id": "t104",
+   "ra": 150.274665,
+   "dec": 13.270693,
+   "mjd": 60997.31729,
+   "iso": "2025-11-18 07:36",
+   "obs_id": "2025W47_1A_0295_4",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 15.7, 8 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 15.74,
+    "nearest_gaia_sep_arcsec": 7.6,
+    "edge_px": 18,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t104.png"
+  },
+  {
+   "id": "t105",
+   "ra": 150.232542,
+   "dec": 13.272435,
+   "mjd": 60997.31729,
+   "iso": "2025-11-18 07:36",
+   "obs_id": "2025W47_1A_0295_4",
+   "verdict": "unconfirmable",
+   "reason": "Only one pixel is brighter, narrower than a real star's image, and no known asteroid or bright star explains it.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 17.33,
+    "nearest_gaia_sep_arcsec": 6.4,
+    "edge_px": 42,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t105.png"
+  },
+  {
+   "id": "t106",
+   "ra": 150.276423,
+   "dec": 13.274108,
+   "mjd": 60997.31729,
+   "iso": "2025-11-18 07:36",
+   "obs_id": "2025W47_1A_0295_3",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 15.7, 8 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 15.74,
+    "nearest_gaia_sep_arcsec": 8.3,
+    "edge_px": 17,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t106.png"
+  },
+  {
+   "id": "t107",
+   "ra": 150.297492,
+   "dec": 13.280922,
+   "mjd": 60997.31729,
+   "iso": "2025-11-18 07:36",
+   "obs_id": "2025W47_1A_0295_3",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 15.1, 9 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 15.12,
+    "nearest_gaia_sep_arcsec": 9.0,
+    "edge_px": 5,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t107.png"
+  },
+  {
+   "id": "t108",
+   "ra": 150.023667,
+   "dec": 13.316915,
+   "mjd": 60997.31729,
+   "iso": "2025-11-18 07:36",
+   "obs_id": "2025W47_1A_0295_2",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 16.6, 6 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 16.58,
+    "nearest_gaia_sep_arcsec": 6.1,
+    "edge_px": 60,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t108.png"
+  },
+  {
+   "id": "t109",
+   "ra": 150.279975,
+   "dec": 13.318521,
+   "mjd": 60997.31729,
+   "iso": "2025-11-18 07:36",
+   "obs_id": "2025W47_1A_0295_2",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 13.8, 1 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 13.81,
+    "nearest_gaia_sep_arcsec": 0.7,
+    "edge_px": 15,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t109.png"
+  },
+  {
+   "id": "t110",
+   "ra": 150.157096,
+   "dec": 13.335685,
+   "mjd": 60997.31729,
+   "iso": "2025-11-18 07:36",
+   "obs_id": "2025W47_1A_0295_2",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 16.3, 9 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 16.33,
+    "nearest_gaia_sep_arcsec": 8.6,
+    "edge_px": 49,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t110.png"
+  },
+  {
+   "id": "t111",
+   "ra": 150.202751,
+   "dec": 13.349329,
+   "mjd": 60997.31729,
+   "iso": "2025-11-18 07:36",
+   "obs_id": "2025W47_1A_0295_4",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 13.8, 9 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 13.85,
+    "nearest_gaia_sep_arcsec": 9.1,
+    "edge_px": 41,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t111.png"
+  },
+  {
+   "id": "t112",
+   "ra": 150.199241,
+   "dec": 13.351039,
+   "mjd": 60997.31729,
+   "iso": "2025-11-18 07:36",
+   "obs_id": "2025W47_1A_0295_4",
+   "verdict": "star_residual",
+   "reason": "A bright star (Gaia G 13.8, 7 arcsec away) is imaged a little differently each visit and leaves this leftover in the difference; nothing moved.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 13.85,
+    "nearest_gaia_sep_arcsec": 6.9,
+    "edge_px": 40,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t112.png"
+  },
+  {
+   "id": "t113",
+   "ra": 150.216814,
+   "dec": 13.373236,
+   "mjd": 60997.31729,
+   "iso": "2025-11-18 07:36",
+   "obs_id": "2025W47_1A_0295_1",
+   "verdict": "known_asteroid",
+   "reason": "A known asteroid, 3721 Widorn (1982 TU), was predicted 3 arcsec from here at this time (JPL, V 17.4).",
+   "evidence": {
+    "jpl_name": "3721 Widorn (1982 TU)",
+    "jpl_offset_arcsec": 2.7,
+    "flags_bits": 405405697,
+    "flag_names": [
+     "TRANSIENT",
+     "PERSIST",
+     "OUTLIER",
+     "SOURCE",
+     "SNOWBALL",
+     "HALO"
+    ],
+    "nearest_gaia_g": 19.45,
+    "nearest_gaia_sep_arcsec": 9.0,
+    "edge_px": 27,
+    "in_adjacent_frame": true
+   },
+   "thumb": "thumbs/t113.png"
+  },
+  {
+   "id": "t114",
+   "ra": 150.165689,
+   "dec": 12.944476,
+   "mjd": 60998.94157,
+   "iso": "2025-11-19 22:35",
+   "obs_id": "2025W47_1A_0629_1",
+   "verdict": "unconfirmable",
+   "reason": "This visit has only one exposure, so there is nothing to confirm it against, and no known asteroid or bright star explains it.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 14.77,
+    "nearest_gaia_sep_arcsec": 10.4,
+    "edge_px": 14,
+    "in_adjacent_frame": null
+   },
+   "thumb": "thumbs/t114.png"
+  },
+  {
+   "id": "t115",
+   "ra": 150.071035,
+   "dec": 12.947917,
+   "mjd": 60998.94157,
+   "iso": "2025-11-19 22:35",
+   "obs_id": "2025W47_1A_0629_1",
+   "verdict": "unconfirmable",
+   "reason": "This visit has only one exposure, so there is nothing to confirm it against, and no known asteroid or bright star explains it.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 14.76,
+    "nearest_gaia_sep_arcsec": 7.4,
+    "edge_px": 16,
+    "in_adjacent_frame": null
+   },
+   "thumb": "thumbs/t115.png"
+  },
+  {
+   "id": "t116",
+   "ra": 149.878198,
+   "dec": 12.975194,
+   "mjd": 60998.94157,
+   "iso": "2025-11-19 22:35",
+   "obs_id": "2025W47_1A_0629_1",
+   "verdict": "unconfirmable",
+   "reason": "This visit has only one exposure, so there is nothing to confirm it against, and no known asteroid or bright star explains it.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 271712261,
+    "flag_names": [
+     "TRANSIENT",
+     "SUR_ERROR",
+     "PERSIST",
+     "CROSSTALK",
+     "SOURCE",
+     "HALO"
+    ],
+    "nearest_gaia_g": 19.85,
+    "nearest_gaia_sep_arcsec": 23.2,
+    "edge_px": 32,
+    "in_adjacent_frame": null
+   },
+   "thumb": "thumbs/t116.png"
+  },
+  {
+   "id": "t117",
+   "ra": 149.95356,
+   "dec": 13.028191,
+   "mjd": 60998.94157,
+   "iso": "2025-11-19 22:35",
+   "obs_id": "2025W47_1A_0629_1",
+   "verdict": "unconfirmable",
+   "reason": "This visit has only one exposure, so there is nothing to confirm it against, and no known asteroid or bright star explains it.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 270532613,
+    "flag_names": [
+     "TRANSIENT",
+     "SUR_ERROR",
+     "SOURCE",
+     "HALO"
+    ],
+    "nearest_gaia_g": null,
+    "nearest_gaia_sep_arcsec": null,
+    "edge_px": 63,
+    "in_adjacent_frame": null
+   },
+   "thumb": "thumbs/t117.png"
+  },
+  {
+   "id": "t118",
+   "ra": 149.944789,
+   "dec": 13.035021,
+   "mjd": 60998.94157,
+   "iso": "2025-11-19 22:35",
+   "obs_id": "2025W47_1A_0629_1",
+   "verdict": "unconfirmable",
+   "reason": "This visit has only one exposure, so there is nothing to confirm it against, and no known asteroid or bright star explains it.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 13.58,
+    "nearest_gaia_sep_arcsec": 8.2,
+    "edge_px": 67,
+    "in_adjacent_frame": null
+   },
+   "thumb": "thumbs/t118.png"
+  },
+  {
+   "id": "t119",
+   "ra": 150.197314,
+   "dec": 13.067458,
+   "mjd": 60998.94157,
+   "iso": "2025-11-19 22:35",
+   "obs_id": "2025W47_1A_0629_1",
+   "verdict": "unconfirmable",
+   "reason": "This visit has only one exposure, so there is nothing to confirm it against, and no known asteroid or bright star explains it.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 268435461,
+    "flag_names": [
+     "TRANSIENT",
+     "SUR_ERROR",
+     "HALO"
+    ],
+    "nearest_gaia_g": null,
+    "nearest_gaia_sep_arcsec": null,
+    "edge_px": 62,
+    "in_adjacent_frame": null
+   },
+   "thumb": "thumbs/t119.png"
+  },
+  {
+   "id": "t120",
+   "ra": 150.151719,
+   "dec": 13.070897,
+   "mjd": 60998.94157,
+   "iso": "2025-11-19 22:35",
+   "obs_id": "2025W47_1A_0629_1",
+   "verdict": "unconfirmable",
+   "reason": "This visit has only one exposure, so there is nothing to confirm it against, and no known asteroid or bright star explains it.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 16.08,
+    "nearest_gaia_sep_arcsec": 6.8,
+    "edge_px": 88,
+    "in_adjacent_frame": null
+   },
+   "thumb": "thumbs/t120.png"
+  },
+  {
+   "id": "t121",
+   "ra": 150.072803,
+   "dec": 13.110207,
+   "mjd": 60998.94157,
+   "iso": "2025-11-19 22:35",
+   "obs_id": "2025W47_1A_0629_1",
+   "verdict": "unconfirmable",
+   "reason": "This visit has only one exposure, so there is nothing to confirm it against, and no known asteroid or bright star explains it.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 270532613,
+    "flag_names": [
+     "TRANSIENT",
+     "SUR_ERROR",
+     "SOURCE",
+     "HALO"
+    ],
+    "nearest_gaia_g": 15.6,
+    "nearest_gaia_sep_arcsec": 18.2,
+    "edge_px": 111,
+    "in_adjacent_frame": null
+   },
+   "thumb": "thumbs/t121.png"
+  },
+  {
+   "id": "t122",
+   "ra": 150.065787,
+   "dec": 13.115333,
+   "mjd": 60998.94157,
+   "iso": "2025-11-19 22:35",
+   "obs_id": "2025W47_1A_0629_1",
+   "verdict": "unconfirmable",
+   "reason": "This visit has only one exposure, so there is nothing to confirm it against, and no known asteroid or bright star explains it.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 270532613,
+    "flag_names": [
+     "TRANSIENT",
+     "SUR_ERROR",
+     "SOURCE",
+     "HALO"
+    ],
+    "nearest_gaia_g": 14.52,
+    "nearest_gaia_sep_arcsec": 9.4,
+    "edge_px": 114,
+    "in_adjacent_frame": null
+   },
+   "thumb": "thumbs/t122.png"
+  },
+  {
+   "id": "t123",
+   "ra": 150.064033,
+   "dec": 13.127291,
+   "mjd": 60998.94157,
+   "iso": "2025-11-19 22:35",
+   "obs_id": "2025W47_1A_0629_1",
+   "verdict": "unconfirmable",
+   "reason": "This visit has only one exposure, so there is nothing to confirm it against, and no known asteroid or bright star explains it.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 14.36,
+    "nearest_gaia_sep_arcsec": 8.5,
+    "edge_px": 121,
+    "in_adjacent_frame": null
+   },
+   "thumb": "thumbs/t123.png"
+  },
+  {
+   "id": "t124",
+   "ra": 150.060525,
+   "dec": 13.127291,
+   "mjd": 60998.94157,
+   "iso": "2025-11-19 22:35",
+   "obs_id": "2025W47_1A_0629_1",
+   "verdict": "unconfirmable",
+   "reason": "This visit has only one exposure, so there is nothing to confirm it against, and no known asteroid or bright star explains it.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 14.36,
+    "nearest_gaia_sep_arcsec": 7.9,
+    "edge_px": 121,
+    "in_adjacent_frame": null
+   },
+   "thumb": "thumbs/t124.png"
+  },
+  {
+   "id": "t125",
+   "ra": 149.944737,
+   "dec": 13.156312,
+   "mjd": 60998.94157,
+   "iso": "2025-11-19 22:35",
+   "obs_id": "2025W47_1A_0629_1",
+   "verdict": "unconfirmable",
+   "reason": "This visit has only one exposure, so there is nothing to confirm it against, and no known asteroid or bright star explains it.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2621440,
+    "flag_names": [
+     "OUTLIER",
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 13.96,
+    "nearest_gaia_sep_arcsec": 9.1,
+    "edge_px": 86,
+    "in_adjacent_frame": null
+   },
+   "thumb": "thumbs/t125.png"
+  },
+  {
+   "id": "t126",
+   "ra": 149.89035,
+   "dec": 13.159701,
+   "mjd": 60998.94157,
+   "iso": "2025-11-19 22:35",
+   "obs_id": "2025W47_1A_0629_1",
+   "verdict": "unconfirmable",
+   "reason": "This visit has only one exposure, so there is nothing to confirm it against, and no known asteroid or bright star explains it.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 270532613,
+    "flag_names": [
+     "TRANSIENT",
+     "SUR_ERROR",
+     "SOURCE",
+     "HALO"
+    ],
+    "nearest_gaia_g": 19.04,
+    "nearest_gaia_sep_arcsec": 9.8,
+    "edge_px": 55,
+    "in_adjacent_frame": null
+   },
+   "thumb": "thumbs/t126.png"
+  },
+  {
+   "id": "t127",
+   "ra": 150.016666,
+   "dec": 13.161456,
+   "mjd": 60998.94157,
+   "iso": "2025-11-19 22:35",
+   "obs_id": "2025W47_1A_0629_1",
+   "verdict": "unconfirmable",
+   "reason": "This visit has only one exposure, so there is nothing to confirm it against, and no known asteroid or bright star explains it.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 270532677,
+    "flag_names": [
+     "TRANSIENT",
+     "SUR_ERROR",
+     "NONFUNC",
+     "SOURCE",
+     "HALO"
+    ],
+    "nearest_gaia_g": 13.68,
+    "nearest_gaia_sep_arcsec": 7.3,
+    "edge_px": 127,
+    "in_adjacent_frame": null
+   },
+   "thumb": "thumbs/t127.png"
+  },
+  {
+   "id": "t128",
+   "ra": 150.08158,
+   "dec": 13.164873,
+   "mjd": 60998.94157,
+   "iso": "2025-11-19 22:35",
+   "obs_id": "2025W47_1A_0629_1",
+   "verdict": "unconfirmable",
+   "reason": "This visit has only one exposure, so there is nothing to confirm it against, and no known asteroid or bright star explains it.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2621440,
+    "flag_names": [
+     "OUTLIER",
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 18.15,
+    "nearest_gaia_sep_arcsec": 1.5,
+    "edge_px": 128,
+    "in_adjacent_frame": null
+   },
+   "thumb": "thumbs/t128.png"
+  },
+  {
+   "id": "t129",
+   "ra": 150.058773,
+   "dec": 13.176833,
+   "mjd": 60998.94157,
+   "iso": "2025-11-19 22:35",
+   "obs_id": "2025W47_1A_0629_1",
+   "verdict": "unconfirmable",
+   "reason": "This visit has only one exposure, so there is nothing to confirm it against, and no known asteroid or bright star explains it.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 15.01,
+    "nearest_gaia_sep_arcsec": 9.3,
+    "edge_px": 141,
+    "in_adjacent_frame": null
+   },
+   "thumb": "thumbs/t129.png"
+  },
+  {
+   "id": "t130",
+   "ra": 150.146504,
+   "dec": 13.188774,
+   "mjd": 60998.94157,
+   "iso": "2025-11-19 22:35",
+   "obs_id": "2025W47_1A_0629_1",
+   "verdict": "unconfirmable",
+   "reason": "This visit has only one exposure, so there is nothing to confirm it against, and no known asteroid or bright star explains it.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 271056901,
+    "flag_names": [
+     "TRANSIENT",
+     "SUR_ERROR",
+     "OUTLIER",
+     "SOURCE",
+     "HALO"
+    ],
+    "nearest_gaia_g": null,
+    "nearest_gaia_sep_arcsec": null,
+    "edge_px": 91,
+    "in_adjacent_frame": null
+   },
+   "thumb": "thumbs/t130.png"
+  },
+  {
+   "id": "t131",
+   "ra": 150.290391,
+   "dec": 13.19893,
+   "mjd": 60998.94157,
+   "iso": "2025-11-19 22:35",
+   "obs_id": "2025W47_1A_0629_1",
+   "verdict": "edge_mask",
+   "reason": "Pixels right next to it are masked as unusable by SPHEREx's own flags, so the apparent change comes from the mask, not the sky.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 268959749,
+    "flag_names": [
+     "TRANSIENT",
+     "SUR_ERROR",
+     "OUTLIER",
+     "HALO"
+    ],
+    "nearest_gaia_g": null,
+    "nearest_gaia_sep_arcsec": null,
+    "edge_px": 9,
+    "in_adjacent_frame": null
+   },
+   "thumb": "thumbs/t131.png"
+  },
+  {
+   "id": "t132",
+   "ra": 150.228979,
+   "dec": 13.200688,
+   "mjd": 60998.94157,
+   "iso": "2025-11-19 22:35",
+   "obs_id": "2025W47_1A_0629_1",
+   "verdict": "unconfirmable",
+   "reason": "This visit has only one exposure, so there is nothing to confirm it against, and no known asteroid or bright star explains it.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 270532609,
+    "flag_names": [
+     "TRANSIENT",
+     "SOURCE",
+     "HALO"
+    ],
+    "nearest_gaia_g": 14.03,
+    "nearest_gaia_sep_arcsec": 10.9,
+    "edge_px": 44,
+    "in_adjacent_frame": null
+   },
+   "thumb": "thumbs/t132.png"
+  },
+  {
+   "id": "t133",
+   "ra": 150.018412,
+   "dec": 13.22979,
+   "mjd": 60998.94157,
+   "iso": "2025-11-19 22:35",
+   "obs_id": "2025W47_1A_0629_1",
+   "verdict": "unconfirmable",
+   "reason": "This visit has only one exposure, so there is nothing to confirm it against, and no known asteroid or bright star explains it.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 16.26,
+    "nearest_gaia_sep_arcsec": 7.7,
+    "edge_px": 111,
+    "in_adjacent_frame": null
+   },
+   "thumb": "thumbs/t133.png"
+  },
+  {
+   "id": "t134",
+   "ra": 150.288671,
+   "dec": 13.234806,
+   "mjd": 60998.94157,
+   "iso": "2025-11-19 22:35",
+   "obs_id": "2025W47_1A_0629_1",
+   "verdict": "unconfirmable",
+   "reason": "This visit has only one exposure, so there is nothing to confirm it against, and no known asteroid or bright star explains it.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 11.93,
+    "nearest_gaia_sep_arcsec": 10.6,
+    "edge_px": 10,
+    "in_adjacent_frame": null
+   },
+   "thumb": "thumbs/t134.png"
+  },
+  {
+   "id": "t135",
+   "ra": 150.048245,
+   "dec": 13.289583,
+   "mjd": 60998.94157,
+   "iso": "2025-11-19 22:35",
+   "obs_id": "2025W47_1A_0629_1",
+   "verdict": "unconfirmable",
+   "reason": "This visit has only one exposure, so there is nothing to confirm it against, and no known asteroid or bright star explains it.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 13.82,
+    "nearest_gaia_sep_arcsec": 9.8,
+    "edge_px": 76,
+    "in_adjacent_frame": null
+   },
+   "thumb": "thumbs/t135.png"
+  },
+  {
+   "id": "t136",
+   "ra": 150.064043,
+   "dec": 13.303249,
+   "mjd": 60998.94157,
+   "iso": "2025-11-19 22:35",
+   "obs_id": "2025W47_1A_0629_1",
+   "verdict": "unconfirmable",
+   "reason": "This visit has only one exposure, so there is nothing to confirm it against, and no known asteroid or bright star explains it.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 12.23,
+    "nearest_gaia_sep_arcsec": 10.5,
+    "edge_px": 68,
+    "in_adjacent_frame": null
+   },
+   "thumb": "thumbs/t136.png"
+  },
+  {
+   "id": "t137",
+   "ra": 150.021912,
+   "dec": 13.315206,
+   "mjd": 60998.94157,
+   "iso": "2025-11-19 22:35",
+   "obs_id": "2025W47_1A_0629_1",
+   "verdict": "unconfirmable",
+   "reason": "This visit has only one exposure, so there is nothing to confirm it against, and no known asteroid or bright star explains it.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 16.58,
+    "nearest_gaia_sep_arcsec": 2.8,
+    "edge_px": 61,
+    "in_adjacent_frame": null
+   },
+   "thumb": "thumbs/t137.png"
+  },
+  {
+   "id": "t138",
+   "ra": 150.069312,
+   "dec": 13.337415,
+   "mjd": 60998.94157,
+   "iso": "2025-11-19 22:35",
+   "obs_id": "2025W47_1A_0629_1",
+   "verdict": "unconfirmable",
+   "reason": "This visit has only one exposure, so there is nothing to confirm it against, and no known asteroid or bright star explains it.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 19.67,
+    "nearest_gaia_sep_arcsec": 1.7,
+    "edge_px": 48,
+    "in_adjacent_frame": null
+   },
+   "thumb": "thumbs/t138.png"
+  },
+  {
+   "id": "t139",
+   "ra": 149.999085,
+   "dec": 13.340828,
+   "mjd": 60998.94157,
+   "iso": "2025-11-19 22:35",
+   "obs_id": "2025W47_1A_0629_1",
+   "verdict": "unconfirmable",
+   "reason": "This visit has only one exposure, so there is nothing to confirm it against, and no known asteroid or bright star explains it.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 270532613,
+    "flag_names": [
+     "TRANSIENT",
+     "SUR_ERROR",
+     "SOURCE",
+     "HALO"
+    ],
+    "nearest_gaia_g": 19.17,
+    "nearest_gaia_sep_arcsec": 12.8,
+    "edge_px": 46,
+    "in_adjacent_frame": null
+   },
+   "thumb": "thumbs/t139.png"
+  },
+  {
+   "id": "t140",
+   "ra": 150.048244,
+   "dec": 13.373291,
+   "mjd": 60998.94157,
+   "iso": "2025-11-19 22:35",
+   "obs_id": "2025W47_1A_0629_1",
+   "verdict": "unconfirmable",
+   "reason": "This visit has only one exposure, so there is nothing to confirm it against, and no known asteroid or bright star explains it.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 17.98,
+    "nearest_gaia_sep_arcsec": 3.5,
+    "edge_px": 27,
+    "in_adjacent_frame": null
+   },
+   "thumb": "thumbs/t140.png"
+  },
+  {
+   "id": "t141",
+   "ra": 150.106194,
+   "dec": 13.390368,
+   "mjd": 60998.94157,
+   "iso": "2025-11-19 22:35",
+   "obs_id": "2025W47_1A_0629_1",
+   "verdict": "unconfirmable",
+   "reason": "This visit has only one exposure, so there is nothing to confirm it against, and no known asteroid or bright star explains it.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 14.48,
+    "nearest_gaia_sep_arcsec": 6.0,
+    "edge_px": 17,
+    "in_adjacent_frame": null
+   },
+   "thumb": "thumbs/t141.png"
+  },
+  {
+   "id": "t142",
+   "ra": 149.979756,
+   "dec": 13.397197,
+   "mjd": 60998.94157,
+   "iso": "2025-11-19 22:35",
+   "obs_id": "2025W47_1A_0629_1",
+   "verdict": "unconfirmable",
+   "reason": "This visit has only one exposure, so there is nothing to confirm it against, and no known asteroid or bright star explains it.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 20.56,
+    "nearest_gaia_sep_arcsec": 7.0,
+    "edge_px": 13,
+    "in_adjacent_frame": null
+   },
+   "thumb": "thumbs/t142.png"
+  },
+  {
+   "id": "t143",
+   "ra": 149.981511,
+   "dec": 13.400615,
+   "mjd": 60998.94157,
+   "iso": "2025-11-19 22:35",
+   "obs_id": "2025W47_1A_0629_1",
+   "verdict": "unconfirmable",
+   "reason": "This visit has only one exposure, so there is nothing to confirm it against, and no known asteroid or bright star explains it.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 15.25,
+    "nearest_gaia_sep_arcsec": 6.3,
+    "edge_px": 11,
+    "in_adjacent_frame": null
+   },
+   "thumb": "thumbs/t143.png"
+  },
+  {
+   "id": "t144",
+   "ra": 149.90248,
+   "dec": 13.409122,
+   "mjd": 60998.94157,
+   "iso": "2025-11-19 22:35",
+   "obs_id": "2025W47_1A_0629_1",
+   "verdict": "unconfirmable",
+   "reason": "This visit has only one exposure, so there is nothing to confirm it against, and no known asteroid or bright star explains it.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097152,
+    "flag_names": [
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 13.05,
+    "nearest_gaia_sep_arcsec": 9.2,
+    "edge_px": 6,
+    "in_adjacent_frame": null
+   },
+   "thumb": "thumbs/t144.png"
+  },
+  {
+   "id": "t145",
+   "ra": 150.046488,
+   "dec": 13.415998,
+   "mjd": 60998.94157,
+   "iso": "2025-11-19 22:35",
+   "obs_id": "2025W47_1A_0629_1",
+   "verdict": "edge_mask",
+   "reason": "It sits 2 pixels from the edge of the image cutout, where data are cut off, so a change here cannot be trusted.",
+   "evidence": {
+    "jpl_name": null,
+    "jpl_offset_arcsec": null,
+    "flags_bits": 2097216,
+    "flag_names": [
+     "NONFUNC",
+     "SOURCE"
+    ],
+    "nearest_gaia_g": 15.63,
+    "nearest_gaia_sep_arcsec": 4.1,
+    "edge_px": 2,
+    "in_adjacent_frame": null
+   },
+   "thumb": "thumbs/t145.png"
+  }
+ ]
+}

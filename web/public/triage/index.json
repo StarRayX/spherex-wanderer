@@ -1,0 +1,36 @@
+[
+ {
+  "slug": "ecliptic-150",
+  "name": "Near the ecliptic, RA 150, Dec +13",
+  "ra": 150.05,
+  "dec": 13.17,
+  "detector": "D1",
+  "date_first": "2025-11-14",
+  "date_last": "2025-11-19",
+  "counts": {
+   "known_asteroid": 2,
+   "star_residual": 59,
+   "cosmic_ray": 21,
+   "edge_mask": 17,
+   "unconfirmable": 41,
+   "unexplained": 5
+  }
+ },
+ {
+  "slug": "ecliptic-254",
+  "name": "On the ecliptic, RA 254, Dec -22.6",
+  "ra": 253.73,
+  "dec": -22.6,
+  "detector": "D1",
+  "date_first": "2026-03-01",
+  "date_last": "2026-03-06",
+  "counts": {
+   "known_asteroid": 4,
+   "star_residual": 709,
+   "cosmic_ray": 113,
+   "edge_mask": 82,
+   "unconfirmable": 173,
+   "unexplained": 11
+  }
+ }
+]

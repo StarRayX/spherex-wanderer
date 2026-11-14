@@ -14,7 +14,7 @@ SPHEREx Blink is a web tool built on NASA's SPHEREx all-sky survey. You type an 
 
 Two features go further, because IRSA's existing tools leave a gap. IRSA's MOST lists which SPHEREx images caught an asteroid or comet but measures nothing. IRSA's Spectrophotometry Tool measures a fixed position, so it cannot follow a mover. We give you the measured spectrum of a moving object as a table. Enter a designation. The pipeline asks JPL where the object was in each frame, measures it there, and returns a CSV or VOTable with one row per frame: MJD, predicted and measured RA/Dec, wavelength, flux, error, flags and aperture. We start with comet 3I/ATLAS, where a rough 97-point spectrum from December 2025 frames shows H2O at 2.7 um, C-H at 3.3 um, CO2 at 4.25 um and CO at 4.6 um, qualitatively matching a published result. TODO(number): shipped asteroid spectra count.
 
-The second feature, "vet this dot", takes a position and frame and returns a verdict with evidence: JPL match, FLAGS bits, nearest bright Gaia star, edge distance, and the adjacent frame. In one 145-change field it sorted 2 known asteroids, 59 star residuals, 21 cosmic rays, about 24 edge artefacts and 30 unconfirmable cases, with 0 unexplained.
+The second feature, "vet this dot", takes a position and frame and returns a verdict with evidence: JPL match, FLAGS bits, nearest bright Gaia star, edge distance, and the adjacent frame. In one 145-change field it sorted 2 known asteroids, 59 star residuals, 21 cosmic rays, 17 edge artefacts, 41 unconfirmable cases and 5 it could not explain, which it flags for a human rather than calling them new. SPHEREx's own TRANSIENT flag marked only 7 of the 21 cosmic rays it found.
 
 Who benefits: solar-system researchers who now spend about a day of scripting per object, and volunteers vetting candidates. Barnard's Star (10.55 +/- 0.71 arcsec/yr against Gaia's 10.36) is kept as a validation card, not a headline.
 
@@ -72,7 +72,7 @@ Space Apps allows AI to speed up work but not to come up with the solution idea.
    - Flux, not reflectance. Aperture stated.
 4. **Vet this dot.**
    - Verdict with evidence: JPL match, flags, bright-star residual, edge, adjacent frame.
-   - One field: 145 changes, 2 known asteroids, 59 star residuals, 21 cosmic rays, 30 unconfirmable, 0 unexplained.
+   - One field: 145 changes, 2 known asteroids, 59 star residuals, 21 cosmic rays, 41 unconfirmable, 5 unexplained (flagged for a human, not claimed).
 5. **RA/Dec flipbook and sky map.**
    - The challenge's must-have: SPHEREx frames of any spot as a short video.
    - Gaia overlays, difference images, wavelength matching, 12 showcase targets.

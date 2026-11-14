@@ -59,7 +59,7 @@ Ranked ideas:
   - Estimated 6 to 9 h to productise.
 - **research/movers/ (asteroid triage):**
   - Field RA 150.05, Dec +13.17, D1, Nov 15-20 2025.
-  - 145 changes: 2 known asteroids (213 Lilaea, 3721 Widorn, within 7″ of JPL), 59 star residuals, 21 cosmic rays, about 24 edge/mask artefacts, 30 unconfirmable, 0 unexplained.
+  - 145 changes: 2 known asteroids (213 Lilaea, 3721 Widorn, within 7″ of JPL), 59 star residuals, 21 cosmic rays, 17 edge or mask artefacts, 41 unconfirmable (including 11 one-pixel blobs), 5 unexplained (seen in 2 of 3 exposures of one visit, no known asteroid nearby, not shown to be real).
   - Depth is about V 18 to 19. About 2.5 min per field, so precompute.
   - Scripts: detect2.py, jplseq.py. Images: lilaea_jump.png, widorn_jump.png.
 - Python venv for the scripts: uv, with astropy, pyvo, numpy, requests, reproject, scipy and matplotlib.
