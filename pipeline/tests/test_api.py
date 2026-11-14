@@ -75,7 +75,7 @@ def test_identify_rejects(fake, q):
 
 
 def test_identify_ok_and_degrades(fake, monkeypatch):
-    monkeypatch.setattr(api.jpl, "identify", lambda ra, dec, mjd, fov_arcmin=2.0: ([{"name": "x"}], None))
+    monkeypatch.setattr(api.jpl, "identify", lambda ra, dec, mjd, fov_arcmin=2.0, vmag_lim=None: ([{"name": "x"}], None))
     assert api.handle(dict(identify="10,-5,60800", fov="3")) == (200, dict(bodies=[{"name": "x"}], reason=None))
 
     def down(*a, **k):
@@ -83,6 +83,17 @@ def test_identify_ok_and_degrades(fake, monkeypatch):
     monkeypatch.setattr(api.jpl, "identify", down)
     code, r = api.handle(dict(identify="10,-5,60800"))
     assert code == 200 and r["bodies"] == [] and "RuntimeError" in r["reason"]
+
+
+def test_identify_vmag(fake, monkeypatch):
+    seen = []
+    monkeypatch.setattr(api.jpl, "identify", lambda ra, dec, mjd, fov_arcmin=2.0, vmag_lim=None: (seen.append(vmag_lim), ([], None))[1])
+    assert api.handle(dict(identify="10,-5,60800"))[0] == 200
+    assert api.handle(dict(identify="10,-5,60800", vmag="18.5"))[0] == 200
+    assert seen == [22.0, 18.5]
+    for bad in ("abc", "5"):
+        assert api.handle(dict(identify="10,-5,60800", vmag=bad))[0] == 400
+    assert len(seen) == 2
 
 
 def test_showcase_and_end_to_end(fake):
@@ -173,6 +184,60 @@ def test_failed_build_can_be_retried_and_gaia_down_is_502(fake, monkeypatch):
     monkeypatch.setattr(api.rs, "gaia_astrometry", lambda *a: boom())
     code, r = api.handle(dict(ra="2", dec="2"))
     assert code == 502 and "Gaia" in r["error"] and len(fake) == 1  # no build started
+
+
+def test_waiter_gets_502_when_peer_build_errors(fake, monkeypatch, capsys):
+    import threading
+    half, finish = threading.Event(), threading.Event()
+    out = []
+
+    def build(slug, ra, dec, astro, out_dir, **k):
+        Path(out_dir).mkdir(parents=True, exist_ok=True)
+        (Path(out_dir) / "meta.json").write_text("")  # torn write left behind
+        k["progress"](1, 2, "half")
+        half.set()
+        assert finish.wait(5)
+        raise RuntimeError("irsa down")
+    monkeypatch.setattr(api.build, "build_target", build)
+    monkeypatch.setattr(api.time, "sleep", lambda s: None)
+    q = dict(ra="269.45", dec="4.73")
+    a = threading.Thread(target=lambda: out.append(("a", api.handle(q))))
+    a.start()
+    assert half.wait(5)
+    b = threading.Thread(target=lambda: out.append(("b", api.handle(q))))
+    b.start()
+    b.join(0.3)
+    assert b.is_alive()
+    finish.set()
+    a.join(5), b.join(5)
+    res = dict(out)
+    assert res["a"][0] == 502 and res["b"][0] == 502
+    assert res["b"][1] == dict(error="irsa down", slug=res["a"][1]["slug"])
+    assert "Traceback" not in capsys.readouterr().err
+
+
+def test_waiter_gets_502_when_peer_is_stale(fake, capsys):
+    import os
+    slug = "269.4500_+4.7300_6"
+    api._write_status(slug, "running", 1, 3, "visit 2/3")
+    (api.CACHE / slug).mkdir(exist_ok=True)
+    (api.CACHE / slug / "meta.json").write_text("")
+    p = api._status_path(slug)
+    os.utime(p, (p.stat().st_atime, p.stat().st_mtime - api.STALE_S - 1))
+    code, r = api.handle(dict(ra="269.45", dec="4.73"))
+    assert code == 502 and r == dict(error="build timed out or was killed", slug=slug) and not fake
+    assert "Traceback" not in capsys.readouterr().err
+
+
+def test_reply_encodes_non_finite_as_null(fake, monkeypatch):
+    import io
+    nan, inf = float("nan"), float("inf")
+    monkeypatch.setattr(api, "handle", lambda q: (200, dict(meta=dict(a=nan, b=[1.5, inf, dict(c=-inf)]), gaia=dict(pmra=nan))))
+    h = api.handler.__new__(api.handler)
+    h.path, h.wfile = "/api/blink?ra=1&dec=1", io.BytesIO()
+    h.send_response = h.send_header = h.end_headers = lambda *a: None
+    h.do_GET()
+    assert json.loads(h.wfile.getvalue()) == dict(meta=dict(a=None, b=[1.5, None, dict(c=None)]), gaia=dict(pmra=None))
 
 
 def test_file_serves_difference_png(fake):

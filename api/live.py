@@ -25,6 +25,7 @@ _LOCK = threading.RLock()  # guards claims and status.json I/O (a read must not 
 STALE_S = 330  # maxDuration is 300 s: a "running" job silent for longer was killed with its function
 SHOWCASE = ROOT / "web" / "public" / "showcase"
 SLUGS = ("barnards-star", "epsilon-indi-b", "r-draconis", "rw-aurigae", "wise-0855")
+IDENTIFY_VMAG = 22.0  # JPL sb_ident is much faster with a magnitude limit, and SPHEREx sees nothing fainter
 SIZE = 6.0  # arcmin: a 6' cutout costs about 4.4 MB against 4.0 MB at 2' (the EPSF table dominates)
 ASTRO = ("ra", "dec", "pmra", "pmdec", "parallax", "epoch_from")  # what build_target takes; the rest is for the reply
 # Wavelength matching reads one detector's lookup table; when pipeline/data is not deployed it costs one cutout
@@ -113,8 +114,9 @@ def handle(query):
                 raise BadRequest("identify must be ra,dec,mjd")
             ra, dec, mjd = (_num({k: x}, k, lo, hi) for x, (k, lo, hi) in zip(p, [("ra", 0, 360), ("dec", -90, 90), ("mjd", 59000, 70000)]))
             fov = _num(q, "fov", 0.5, 30) if "fov" in q else 2.0
+            vmag = _num(q, "vmag", 10, 30) if "vmag" in q else IDENTIFY_VMAG
             try:
-                bodies, reason = jpl.identify(ra, dec, mjd, fov_arcmin=fov)
+                bodies, reason = jpl.identify(ra, dec, mjd, fov_arcmin=fov, vmag_lim=vmag)
             except Exception as e:  # JPL trouble must never 500 the page
                 bodies, reason = [], f"JPL lookup failed: {type(e).__name__}"
             return 200, dict(bodies=bodies, reason=reason)
@@ -162,7 +164,13 @@ def handle(query):
                 _write_status(slug, "error", message=str(e))
                 return 502, dict(error=str(e), slug=slug)
             _write_status(slug, "done", message="done")
-        meta = json.loads((out / "meta.json").read_text())
+        try:
+            meta = json.loads((out / "meta.json").read_text())
+        except (OSError, ValueError):
+            if mine:
+                raise
+            # a peer's build ended in error (meta.json missing, or left torn by the failed write)
+            return 502, dict(error=(s or {}).get("message") or "build failed; try again", slug=slug)
         return 200, dict(meta=meta, slug=slug, label=label, gaia=astro, urls=_urls(meta, f"/api/blink?file={slug}/"))
     except BadRequest as e:
         return 400, dict(error=str(e))
@@ -200,6 +208,17 @@ def _build(slug, ra, dec, astro, out, size, spec):
     return meta
 
 
+def _finite(o):
+    """Copy of o with non-finite floats as None (NaN/Infinity are not valid JSON)."""
+    if isinstance(o, float):
+        return o if math.isfinite(o) else None
+    if isinstance(o, dict):
+        return {k: _finite(v) for k, v in o.items()}
+    if isinstance(o, (list, tuple)):
+        return [_finite(v) for v in o]
+    return o
+
+
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
         q = parse_qs(urlparse(self.path).query)
@@ -209,7 +228,7 @@ class handler(BaseHTTPRequestHandler):
             body = body or b"{}"
         else:
             code, d = handle(q)
-            body, ctype = json.dumps(d).encode(), "application/json"
+            body, ctype = json.dumps(_finite(d), allow_nan=False).encode(), "application/json"
         self.send_response(code)
         self.send_header("Content-Type", ctype)
         self.end_headers()

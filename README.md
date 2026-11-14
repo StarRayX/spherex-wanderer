@@ -105,4 +105,4 @@ Team NYSCP, Manila local event. More in [docs/](docs/): `HANDOFF.md`, `PLAN.md`,
 
 ## Licence
 
-Our code licence: TODO(decision). The sky map uses [Aladin Lite](https://aladin.cds.unistra.fr/AladinLite/) 3.8.2, which is GPL-3 or LGPL-3 depending on the version, so check compatibility before making the repo public. NASA, ESA and JPL data are used under their public data policies.
+Our code is licensed under the [GNU General Public License v3.0 or later](LICENSE) (GPL-3.0-or-later). The sky map bundles [Aladin Lite](https://aladin.cds.unistra.fr/AladinLite/) 3.8.2, whose package declares GPL-3 and ships LGPL-3 licence files; GPL-3.0 is compatible with both, so the deployed site can be distributed as one work. NASA, ESA and JPL data are used under their public data policies.

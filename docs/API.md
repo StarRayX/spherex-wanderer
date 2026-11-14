@@ -12,7 +12,7 @@ except `file`. Errors are `{"error": "..."}`. Params are checked in this order: 
 | `?ra=&dec=[&size=][&spectrum=1]` | `{meta, slug, label, gaia, urls}`. Runs the pipeline unless cached. |
 | `?name=[&size=][&spectrum=1]` | Same. `name` is a target name or coordinates, resolved server side; `label` is the resolved name. |
 | `?status=<slug>` | `{state, done, total, message}` |
-| `?identify=<ra>,<dec>,<mjd>[&fov=]` | `{bodies, reason}`. `bodies` = `[{name, designation, ra, dec, mag, distance_arcsec}]`, nearest first. |
+| `?identify=<ra>,<dec>,<mjd>[&fov=][&vmag=]` | `{bodies, reason}`. `bodies` = `[{name, designation, ra, dec, mag, distance_arcsec}]`, nearest first. |
 | `?file=<slug>/visit_NN.png` or `<slug>/diff_II_JJ.png` | `image/png` from the cache (only `.png` files inside it). |
 
 Showcase slugs: `barnards-star`, `epsilon-indi-b`, `r-draconis`, `rw-aurigae`, `wise-0855`.
@@ -27,9 +27,10 @@ Showcase slugs: `barnards-star`, `epsilon-indi-b`, `r-draconis`, `rw-aurigae`, `
 | `name` | 1..100 chars | |
 | `mjd` | 59000..70000 | required for identify |
 | `fov` | 0.5..30 arcmin | 2 |
+| `vmag` | 10..30 | 22 (identify: faster JPL search; SPHEREx cannot see fainter) |
 | `spectrum` | 0 or 1 | 0 |
 
-Numbers must be finite. `ra`, `dec` and `mjd` in `identify` are comma separated in one value.
+Numbers must be finite. Non-finite numbers in any JSON reply are sent as `null`. `ra`, `dec` and `mjd` in `identify` are comma separated in one value.
 
 ## Errors
 
@@ -38,6 +39,7 @@ Numbers must be finite. `ra`, `dec` and `mjd` in `identify` are comma separated 
 | 400 | A parameter is missing, not a number, out of range, or the slug is malformed. |
 | 404 | Unknown showcase slug, unknown `status` job, unresolvable `name`, missing `file`. |
 | 502 | The pipeline failed (IRSA down, no frames), or Gaia was unreachable (`error` only, nothing built). Pipeline failures have `error` and `slug`; the status file says `error`. |
+| 500 | Unexpected server error. Body `{"error": "internal error"}`, no details (the traceback goes to the server log). |
 
 `identify` never fails because of JPL: when JPL is down or empty you get 200 with `bodies: []` and a `reason`
 (`null` on success). Only bad input gives 400.
