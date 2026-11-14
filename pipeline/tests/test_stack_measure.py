@@ -43,10 +43,20 @@ def test_flagged_pixel_excluded(tmp_path):
     flags = np.zeros((N, N))
     bad = star(20, 20)
     bad[20, 20] = 1e6
-    flags[20, 20] = 1
+    flags[20, 20] = 64  # bit 6, NONFUNC
     write(tmp_path / "a.fits", bad, flags)
     write(tmp_path / "b.fits", star(20, 20), np.zeros((N, N)))
     img, w = stack_visit([tmp_path / "a.fits", tmp_path / "b.fits"], RA, DEC, N)
     assert np.nanmax(img) < 1000
     x, y = centroid(img, 21, 19)  # grid is centred on the star, so it should sit at the middle
     assert abs(x - 20) < 0.2 and abs(y - 20) < 0.2
+
+
+def test_centroid_saturated_core_masked():
+    rng = np.random.default_rng(2)
+    for sig in (0.7, 1.2):
+        img = star(20.3, 19.7, amp=3000, sig=sig) + rng.normal(0, 1, (41, 41))
+        yy, xx = np.indices(img.shape)
+        img[np.hypot(xx - 20.3, yy - 19.7) < 1.6] = np.nan  # lost core, like OVERFLOW pixels
+        x, y = centroid(img, 21.8, 18.2)  # guess 1.5 px off
+        assert abs(x - 20.3) < 0.2 and abs(y - 19.7) < 0.2

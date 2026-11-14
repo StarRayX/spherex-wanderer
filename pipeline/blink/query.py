@@ -5,7 +5,7 @@ import io
 import astropy.units as u
 import numpy as np
 import requests
-from astropy.coordinates import SkyCoord
+from astropy.coordinates import SkyCoord, get_body_barycentric
 from astropy.time import Time
 
 TAP = "https://irsa.ipac.caltech.edu/TAP/sync"
@@ -32,7 +32,7 @@ def find_frames(ra, dec):
             for x in csv.DictReader(io.StringIO(r.text))]
 
 
-def group_visits(frames, gap_days=20):
+def group_visits(frames, gap_days=60):
     """Split frames into visits: a new visit starts after a gap above gap_days."""
     visits = []
     for f in sorted(frames, key=lambda f: f["mjd"]):
@@ -43,14 +43,25 @@ def group_visits(frames, gap_days=20):
     return visits
 
 
+def parallax_offset(mjd, ra, dec, parallax):
+    """Apparent parallax shift (d_ra*cos dec, d_dec) in arcsec at each mjd, for Earth's barycentric position
+    (SPHEREx orbits Earth, so the offset is below 1e-4 arcsec off). parallax in mas."""
+    e = get_body_barycentric("earth", Time(np.atleast_1d(mjd), format="mjd"))
+    X, Y, Z = (np.asarray(c.to_value("au")) for c in (e.x, e.y, e.z))
+    a, d = np.radians(ra), np.radians(dec)
+    p = parallax / 1000
+    return p * (X * np.sin(a) - Y * np.cos(a)), p * (X * np.cos(a) * np.sin(d) + Y * np.sin(a) * np.sin(d) - Z * np.cos(d))
+
+
 def propagate(ra, dec, pmra, pmdec, parallax, epoch_from, mjd):
-    """RA/Dec (deg) at each mjd. pm in mas/yr (pmra includes cos dec, Gaia style), parallax in mas,
-    epoch_from a Julian year (Gaia DR3 = 2016.0). Radial velocity ignored (0)."""
+    """RA/Dec (deg) at each mjd, proper motion plus parallax. pm in mas/yr (pmra includes cos dec, Gaia style),
+    parallax in mas, epoch_from a Julian year (Gaia DR3 = 2016.0). Radial velocity ignored (0)."""
     c = SkyCoord(ra=ra * u.deg, dec=dec * u.deg, pm_ra_cosdec=pmra * u.mas / u.yr, pm_dec=pmdec * u.mas / u.yr,
                  distance=(1000 / parallax) * u.pc, radial_velocity=0 * u.km / u.s,
                  obstime=Time(epoch_from, format="jyear"))
     n = c.apply_space_motion(new_obstime=Time(np.atleast_1d(mjd), format="mjd"))
-    return n.ra.deg, n.dec.deg
+    dra, ddec = parallax_offset(mjd, n.ra.deg, n.dec.deg, parallax)
+    return n.ra.deg + dra / 3600 / np.cos(n.dec.rad), n.dec.deg + ddec / 3600
 
 
 if __name__ == "__main__":

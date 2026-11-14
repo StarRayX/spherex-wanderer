@@ -21,7 +21,7 @@ def test_render(tmp_path):
     m = json.loads((tmp_path / "meta.json").read_text())
     assert {"slug", "visits", "stretch", "pixel_scale_arcsec", "upsample", "motion"} <= m.keys()
     assert m["stretch"]["black"] < m["stretch"]["white"] and m["upsample"] == 4
-    assert set(m["visits"][0]) == {"file", "date", "mjd", "band", "wavelength_um",
+    assert set(m["visits"][0]) == {"file", "date", "mjd", "band", "wavelength_um", "wavelength_min_um", "wavelength_max_um",
                                    "star_xy", "predicted_xy", "flags_summary"}
     assert m["visits"][2]["star_xy"] is None and m["visits"][0]["star_xy"] == [10, 10]
     assert m["motion"]["gaia_arcsec_per_yr"] == 1.1

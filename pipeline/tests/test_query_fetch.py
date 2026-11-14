@@ -6,16 +6,24 @@ from blink.query import BARNARD, group_visits, propagate
 
 
 def test_group_visits():
-    f = [{"mjd": m} for m in (60900, 60901, 60905, 60925.5, 60926, 61100)]
-    assert [len(v) for v in group_visits(f)] == [3, 2, 1]  # 20 days apart exactly joins, 20.5 splits
-    f = [{"mjd": 60900}, {"mjd": 60920}, {"mjd": 60940.1}]
-    assert [len(v) for v in group_visits(f)] == [2, 1]
+    f = [{"mjd": m} for m in (60900, 60901, 60905, 60965.5, 60966, 61200)]
+    assert [len(v) for v in group_visits(f)] == [3, 2, 1]
+    f = [{"mjd": 60900}, {"mjd": 60960}, {"mjd": 61020.1}]
+    assert [len(v) for v in group_visits(f)] == [2, 1]  # 60 days joins, 60.1 splits
 
 
 def test_propagate_barnard():
-    ra, dec = propagate(**BARNARD, mjd=[60676.0, 60676.0 + 365.25])  # 2025-01-01 and a year later
+    from blink.query import parallax_offset
+    t0 = 60676.0
+    ra, dec = propagate(**BARNARD, mjd=[t0, t0 + 365.25])  # 2025-01-01 and a year later
     assert abs((dec[1] - dec[0]) * 3600 - 10.36) < 0.2  # mostly Dec, ~10.4 arcsec/yr
-    assert abs((ra[1] - ra[0]) * 3600) < 1.5
+    pr, pd = parallax_offset([60731.0, 60731.0 + 182.6], BARNARD["ra"], BARNARD["dec"], BARNARD["parallax"])
+    assert 0.4 < abs(pr[1] - pr[0]) < 1.1 and abs(pr).max() < 0.56  # parallax 0.547": about +-0.5 in RA, opposite signs half a year apart
+    assert pr[0] * pr[1] < 0
+    ra2 = propagate(**BARNARD, mjd=[60731.0])[0]
+    no_plx = propagate(**{**BARNARD, "parallax": 1e-6}, mjd=[60731.0])  # parallax ~0 (distance huge): proper motion only
+    assert abs((ra2[0] - no_plx[0][0]) * 3600 * np.cos(np.radians(BARNARD["dec"])) - pr[0]) < 0.01
+    assert (ra[1] - ra[0]) * 3600 < 0  # pmra is negative: -0.8"/yr, plus a little parallax
 
 
 class Resp:

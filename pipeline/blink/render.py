@@ -2,7 +2,7 @@
 
 meta.json: {slug, pixel_scale_arcsec: 6.15, upsample: 4,
   stretch: {kind: "asinh", black, white, softening},   # same for every visit
-  visits: [{file, date, mjd, band, wavelength_um,
+  visits: [{file, date, mjd, band, wavelength_um (mean of frames), wavelength_min_um, wavelength_max_um,
             star_xy: [x,y]|null,        # null = not detected, draw no marker
             predicted_xy: [x,y],        # Gaia-propagated; pixel coords of the un-upsampled image
             flags_summary}],
@@ -36,7 +36,7 @@ def render_target(slug, visits, out_dir, motion=None):
         name = f"visit_{i:02d}.png"
         img.save(out / name)
         rows.append({"file": name, **{k: v.get(k) for k in (
-            "date", "mjd", "band", "wavelength_um", "star_xy", "predicted_xy", "flags_summary")}})
+            "date", "mjd", "band", "wavelength_um", "wavelength_min_um", "wavelength_max_um", "star_xy", "predicted_xy", "flags_summary")}})
     meta = {"slug": slug, "pixel_scale_arcsec": PIXEL_SCALE, "upsample": UPSAMPLE,
             "stretch": {"kind": "asinh", "black": black, "white": white, "softening": SOFTENING},
             "visits": rows, "motion": motion}
