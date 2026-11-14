@@ -46,6 +46,9 @@ Split screen. Left: a naive SPHEREx flipbook of Barnard's Star, flickering. Righ
 - Frontend: React with a canvas flipbook; Aladin Lite optional for context only.
 - New releases: releases appear as `obs_collection` values (qr2, qr3 today). Adding the next one should be a filter change; verify when it ships.
 
+## Award fit
+Best Use of Data is described as "the project that best makes space data accessible or leverages it to a unique application". Our pitch is the first half: SPHEREx data for any coordinates, with no login, in a form a teacher can read. Say it that way in the project text.
+
 ## Words to use in all public text
 | Avoid | Use |
 |---|---|

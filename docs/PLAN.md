@@ -1,10 +1,11 @@
 # PLAN (planning gate, answered Sat Nov 14, 16:30 Manila)
 
 ## Deadline
-- Provisional: **Sun Nov 15, 23:59 Manila**. Clarence is confirming the real time with the Manila local event. Recompute the freeze times when it arrives.
+- **Sun Nov 15, 23:59 Manila**, confirmed in the official 2026 Project Submission Guide (11:59 p.m. in the Local Event's time zone). Anything saved or submitted after it is ineligible.
 - About 31.5 hours from the planning gate.
+- Ask the Local Lead whether local judging has an earlier cutoff. That does not change the global deadline.
 
-## Freeze times (Manila, provisional)
+## Freeze times (Manila)
 | Time | Milestone |
 |---|---|
 | Sun 05:00 | Core working: Barnard's Star showcase end to end, deployed |
@@ -47,4 +48,10 @@ Split screen of Barnard's Star. The left side is a plain SPHEREx flipbook that f
 - creating accounts or entering passwords
 - the final Space Apps submit
 
-**Commits** end with the `Co-Authored-By: Claude` line.
+**Commits** carry no `Co-Authored-By: Claude` line.
+
+## Early checks
+- Everyone on the team is registered for the same Manila Local Event, not waitlisted, and listed on the team's Members tab. Otherwise the project is not eligible for global judging.
+- Request a FortiGuard Web Filter Classification for the hosted site once it has a URL (see `RULES.md`), so judges can open it.
+- Demo and project link must be public with no login. Test both in a private window.
+- No one under 18 in the demo or project.

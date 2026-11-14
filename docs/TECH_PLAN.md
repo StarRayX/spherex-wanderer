@@ -8,7 +8,7 @@ Related docs in this folder:
 - `RULES.md`: deliverables, judging and the challenge's required features.
 - `evidence_notes.md`: every fact we rely on, with its source and status.
 
-The challenge Resources tab (posted Nov 13) did not load when this plan was written. Check it first. If it names data products or tools, update section 2.
+The challenge Resources tab (read Nov 14) names no new data products. It links the IRSA SPHEREx page, the [SPHEREx tutorial notebooks](https://caltech-ipac.github.io/irsa-tutorials/spherex/) (use them as a reference for the TAP and cutout code), [WiseView](http://byw.tools/wiseview) ("a model or inspiration"), and Gaia DR3 (the latest release). It also lists Canadian Space Agency NEOSSat and CADC resources, which we do not use.
 
 ## 1. What we ship
 

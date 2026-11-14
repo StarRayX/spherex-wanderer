@@ -7,7 +7,7 @@ Status key. OPENED: the page or data was read directly. SNIPPET: seen only in a 
 - Required: user enters RA and Dec; the tool shows a series of SPHEREx images of that patch "like a little video" so moving objects are easy to spot.
 - Required test targets: Barnard's Star, Epsilon Indi B, WISE 0855 (RA 08h55m10.831s, Dec -7d14m42.53s), RW Aurigae, R Draconis.
 - Optional considerations: easy to update with new releases; per-detector co-adds for signal-to-noise; "extra kudos" for spectra on the fly; add or subtract images taken at different times; user-chosen field of view; Gaia or WISE overlays; coordinates in the URL for embedding; show contamination flags; Astropy and Aladin suggested.
-- Resources tab: "Resources will be available on Friday, November 13."
+- Resources tab (OPENED 2026-11-14): IRSA SPHEREx page, SPHEREx tutorial notebooks (https://caltech-ipac.github.io/irsa-tutorials/spherex/), WiseView, Gaia DR3 ("use the latest data release"), plus CSA NEOSSat/CADC items we do not use. No new data products.
 
 ## The data (TESTED unless marked)
 
@@ -25,7 +25,7 @@ Status key. OPENED: the page or data was read directly. SNIPPET: seen only in a 
 | R Draconis (near the north ecliptic pole) is covered almost every month: Jun, Jul, Nov, Dec 2025, May, Jun, Jul 2026 | TESTED | TAP query |
 | WISE 0855 is covered by 256 frames across May 2025, Oct to Dec 2025, Apr to May 2026 | TESTED | TAP query |
 | IRSA already has a SPHEREx Data Explorer (image list auto-play, 3-color, catalog overlays, quick-look spectrum), a cutout tool, MOST (known solar system objects), Spectrophotometry and Source Discovery tools | SNIPPET (subagent read the pages; we did not) | https://irsa.ipac.caltech.edu/Missions/spherex.html |
-| WiseView does the RA/Dec-to-blink workflow for unWISE, not SPHEREx | SNIPPET | https://ascl.net/1806.004 |
+| WiseView does the RA/Dec-to-blink workflow for WISE data, not SPHEREx. The challenge Resources tab recommends it as "a model or inspiration" and says the public has made hundreds of discoveries with it | OPENED (Resources tab, 2026-11-14) | https://www.spaceappschallenge.org/2026/challenges/planet-x-and-spherex/?tab=resources |
 | No public SPHEREx blink or epoch-differencing tool was found | SNIPPET (absence of evidence) | subagent search |
 | JPL Small-Body Identification API returns known asteroids in a SPHEREx frame (6 with V<18.5 in frame 2025W17_4B_0043_1 D1) | TESTED | https://ssd-api.jpl.nasa.gov/sb_ident.api |
 
