@@ -1,6 +1,12 @@
 # BRAND: Observatory instrument
 
-> **Updated Nov 14, evening: light theme on LAMBAT's layout.** Clarence found the dark instrument look too generic and chose to rebuild on LAMBAT's web layout (sidebar shell, white cards, stat strips, tabs, skeletons), recoloured light: deep navy `#0B1F4D` sidebar and buttons, page `#EEF1F5`, white cards, cyan `#00B8D9` for accents on dark and `#00728A` for cyan text on light, IBM Plex Sans with Plex Mono for numbers. Image wells and the sky map stay dark (`#05070C`). Tokens live in `web/src/styles.css` `:root`. The rest of this file is the earlier dark brief, kept for history.
+> **Current look (decided Nov 14, late evening): deep-space frosted glass on LAMBAT's layout.**
+> - Palette: `#020305` near-black page, `#0160E7` blue for buttons and active controls, `#4DD0F8` light cyan for accents (reticle, trail, spectrum, active icons). No gradients.
+> - Surfaces: frosted glass (`rgba(255,255,255,.055)`, 22 px backdrop blur, hairline white border), including the sidebar. Image wells and the sky map are dark with a hairline edge.
+> - Type: LAMBAT's two fonts only, Space Grotesk for headings and every number, Public Sans for text.
+> - Layout: LAMBAT's sidebar shell, cards, stat strip, tabs and skeletons; no eyebrow labels.
+> - Tokens live in `web/src/styles.css` `:root`. Palette A (Sky Blue) and the light navy trial were dropped.
+> - The rest of this file is the earlier dark-instrument brief, kept for history.
 
 
 Chosen by the team on Nov 14. The product should look like real mission software: precise, calm and dark, with one accent colour. This is a starting system. Samantha may refine it.

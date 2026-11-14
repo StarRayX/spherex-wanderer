@@ -56,7 +56,6 @@ export default function App() {
   return (
     <div className="app">
       <Nav active={key} />
-      {import.meta.env.DEV && <ThemeSwitch />}
       <main id="view" tabIndex={-1}>
         {Page ? (
           <Suspense fallback={<PageSkel />}>
@@ -163,17 +162,3 @@ function NotFound({ onReady }: { onReady: () => void }) {
 }
 
 
-// Theme trial, dev builds only. The page default is "glass"; index.html applies the saved choice before first paint.
-const THEMES = [['glass', 'Glass'], ['', 'A · Sky']] as const
-function ThemeSwitch() {
-  const [theme, setTheme] = useState(() => document.documentElement.dataset.theme ?? 'glass')
-  useEffect(() => {
-    document.documentElement.dataset.theme = theme
-    try { localStorage.setItem('blink.theme', theme) } catch { /* private mode */ }
-  }, [theme])
-  return (
-    <div className="seg theme-switch" role="group" aria-label="Theme trial">
-      {THEMES.map(([id, label]) => <button key={label} onClick={() => setTheme(id)} aria-pressed={theme === id}>{label}</button>)}
-    </div>
-  )
-}
