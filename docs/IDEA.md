@@ -12,7 +12,7 @@ SPHEREx photographs a star through a different slice of infrared light every tim
 A SPHEREx flipbook is only honest if it knows which wavelength each frame saw. We build the blink tool that does, and check it against Gaia on the challenge's own test targets.
 
 ## Demo moment (30-second video)
-Split screen. Left: a naive SPHEREx flipbook of Barnard's Star, flickering. Right: our version, steady, with the star sliding along a glowing trail across Aug 2025, Mar 2026 and Aug 2026, a dotted line projecting where it will be in 2030, and a caption: "SPHEREx: 10.5 +/- 0.7 arcsec per year. Gaia: 10.4." (3 visits, 4.9 um, wavelength matched; from `meta.json`)
+Split screen. Left: a naive SPHEREx flipbook of Barnard's Star, flickering. Right: our version, steady, with the star sliding along a glowing trail across Aug 2025, Mar 2026 and Aug 2026, a dotted line projecting where it will be in 2030, and a caption: "SPHEREx: 10.5 +/- 0.7 arcsec per year northward. Gaia: 10.4." (3 visits, 4.9 um, wavelength matched; from `meta.json`)
 
 ## Who it is for (honest)
 - Teachers and students: see a real star move with your own eyes, from a NASA telescope launched in 2025.
@@ -27,9 +27,9 @@ Split screen. Left: a naive SPHEREx flipbook of Barnard's Star, flickering. Righ
 3. **Showcase cache.** All five test targets precomputed and served from our own storage, so IRSA throttling (503s seen in testing) cannot break the demo. Build this first.
 4. **Test-target gallery.** One card per target with what SPHEREx shows and what it does not:
    - Barnard's Star: motion, measured.
-   - Epsilon Indi B: detected in all 4 visits near 1.27 um; drift 3.74 +/- 0.24 (RA) vs Gaia 3.98 arcsec/yr. Epsilon Indi A is about 400 arcsec away, outside the 2 arcmin field, so no common-motion view.
-   - WISE 0855: the hardest target, at 4.4 to 5 um. Seen at S/N 8.1 and 7.9 in 2 of 3 visits, but only 2 to 3 is expected and a background star sits 1.3 pixels away: a candidate, not a detection. No motion fit.
-   - R Draconis: too bright. It saturates SPHEREx in every band checked (about 70 Jy at 2 um), so we show the monthly images and say plainly that no brightness can be measured.
+   - Epsilon Indi B: detected in all 4 visits near 1.27 um (the Apr 2026 visit is at 1.33 um, a different colour); eastward drift 3.74 +/- 0.24 (RA) vs Gaia 3.98 arcsec/yr. Epsilon Indi A is about 400 arcsec away, outside the 2 arcmin field, so no common-motion view.
+   - WISE 0855: the hardest target, at 4.4 to 5 um. Not separately detected: about 2 sigma per visit (0.39, 0.67 and 0.31 mJy, expected 0.47), consistent with the expected flux plus a blended background star 1.3 pixels away. Two visits are at a different wavelength. No motion fit.
+   - R Draconis: too bright. It saturates SPHEREx in every band checked (about 70 Jy at 2 um), so we show the monthly images, mark the filled core "too bright" and say plainly that no brightness can be measured.
    - RW Aurigae: saturated near 0.9 um; clean only near 0.75 um, where it is 2.5x brighter in Sep 2026 (182.6 mJy) than Sep 2025 (72.2 mJy) while a field star stays at 3.3 mJy. One frame per visit, March 2026 missing, not independently validated. A and B unresolved.
 
 **Second (if core is done by hour 30):**
@@ -38,13 +38,13 @@ Split screen. Left: a naive SPHEREx flipbook of Barnard's Star, flickering. Righ
 7. **Candidate card.** One click copies RA/Dec, measured motion and links to SIMBAD, Legacy Survey and WiseView; saved in the browser; CSV export.
 
 **Stretch (only if validated):**
-8. **Spectrum on the fly**, minimum honest version: aperture photometry per frame at the target pixel's wavelength, local sky annulus, flags masked, VARIANCE errors, converted to Jy. Ship it only if it matches IRSA's own spectrophotometry tool for one test star.
+8. **Spectrum on the fly**, minimum honest version: aperture photometry per frame at the target pixel's wavelength, local sky annulus, flags masked, VARIANCE errors, converted to Jy. It matched IRSA's Spectrophotometry Tool within 10 percent only for uncrowded stars of K 10.4 to 10.6; it failed on a K 8.64 star (one near-saturated frame), a faint K 11.93 star (reads 11.7 percent high) and a K 11.18 star with a 5x neighbour (4.8 percent high, one point +21 percent), so faint or crowded stars can read 5 to 25 percent high. Absolute calibration agrees with catalogs within the 5 percent those can test, and dropping saturated frames is right. Epsilon Indi B is a faint blended pair outside that range: label its spectrum preliminary.
 9. **Difference image** between visits, labelled as a qualitative aid.
 
 ## Architecture
-- Python backend (FastAPI, Astropy, pyvo, reproject): TAP query on `spherex.obscore`, cutout fetch with retry and backoff, reprojection to a common grid, stacking, centroiding. Cache by (RA, Dec, size, release).
+- Python backend (FastAPI, Astropy, pyvo, reproject): TAP query on `spherex.obscore`, cutout fetch with retry and backoff, reprojection to a common grid, stacking, centroiding. Cache by (RA, Dec, size).
 - Frontend: React with a canvas flipbook; Aladin Lite optional for context only.
-- New releases: releases appear as `obs_collection` values (qr2, qr3 today). Adding the next one should be a filter change; verify when it ships.
+- New releases: releases appear as `obs_collection` values (`spherex_dr1`, `spherex_dr1_deep`, `spherex_qr3`, `spherex_qr3_deep` on 2026-11-14). A build uses all of them; the exposures do not repeat across them at the positions checked. Adding the next one needs no change; verify when it ships.
 
 ## Award fit
 Best Use of Data is described as "the project that best makes space data accessible or leverages it to a unique application". Our pitch is the first half: SPHEREx data for any coordinates, with no login, in a form a teacher can read. Say it that way in the project text.
