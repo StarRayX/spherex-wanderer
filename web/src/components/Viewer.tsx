@@ -57,7 +57,7 @@ export default function Viewer({ meta, src, autoplay = true, compact = false }: 
   const median = [...visits.map(x => x.wavelength_um)].sort((a, b) => a - b)[Math.floor(visits.length / 2)]
   const offColour = Math.abs(v.wavelength_um - median) > 0.04 * median
   const saturated = (meta.notes ?? []).some(n => /whole core is masked|saturates on this star/i.test(n))
-  const showLabel = (i: number) => visits.length <= 4 || i === 0 || i === visits.length - 1 || i === idx
+  const showLabel = (i: number) => visits.length <= (compact ? 3 : 4) || i === 0 || i === visits.length - 1 || i === idx
 
   const fov = native * meta.pixel_scale_arcsec
   const scaleArcsec = fov > 200 ? 60 : 30

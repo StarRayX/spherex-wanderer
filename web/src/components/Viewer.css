@@ -8,3 +8,6 @@
 /* Compact panel: short dates ("Aug '25") and a scrubber that shrinks instead of sliding under the 2x chip. */
 .viewer .controls .scrub { min-width: 0; flex: 1 1 auto; }
 .viewer .controls .stop:not(:first-child):not(:last-child) { align-items: center; }
+/* The control row never wraps: the scrubber gives up width (and hides middle dates) before the 2x chip moves. */
+.viewer .controls { flex-wrap: nowrap; }
+.viewer .controls .stop { min-width: 0; }
