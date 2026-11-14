@@ -1,0 +1,395 @@
+{
+  "slug": "r-draconis",
+  "pixel_scale_arcsec": 6.15,
+  "upsample": 4,
+  "stretch": {
+    "kind": "asinh",
+    "black": -9.547016848681155,
+    "white": 1118.4412831966174,
+    "softening": 10.0
+  },
+  "visits": [
+    {
+      "file": "visit_00.png",
+      "date": "2025-06-06",
+      "mjd": 60832.4746335,
+      "band": "SPHEREx-D1",
+      "wavelength_um": 0.9529453133307846,
+      "wavelength_min_um": 0.9417656090599327,
+      "wavelength_max_um": 0.9641250176016365,
+      "star_xy": [
+        10.116978975749051,
+        9.910769662568496
+      ],
+      "predicted_xy": [
+        9.99854918390257,
+        9.999971675199149
+      ],
+      "flags_summary": "2/2 frames, bits [1, 2, 21, 26]"
+    },
+    {
+      "file": "visit_01.png",
+      "date": "2025-07-18",
+      "mjd": 60874.159052999996,
+      "band": "SPHEREx-D1",
+      "wavelength_um": 0.9286563760811972,
+      "wavelength_min_um": 0.9176733883941134,
+      "wavelength_max_um": 0.9396393637682809,
+      "star_xy": [
+        10.034682761105106,
+        9.815069164011852
+      ],
+      "predicted_xy": [
+        9.9990576477051,
+        10.000025457092079
+      ],
+      "flags_summary": "2/2 frames, bits [0, 1, 2, 21, 26]"
+    },
+    {
+      "file": "visit_02.png",
+      "date": "2025-10-19",
+      "mjd": 60967.0391315,
+      "band": "SPHEREx-D1",
+      "wavelength_um": 0.930437837625603,
+      "wavelength_min_um": 0.9194917970159531,
+      "wavelength_max_um": 0.9413838782352528,
+      "star_xy": [
+        10.026864671655291,
+        9.92244512641084
+      ],
+      "predicted_xy": [
+        9.999905086270333,
+        9.999990086839286
+      ],
+      "flags_summary": "2/2 frames, bits [0, 1, 2, 21, 26]"
+    },
+    {
+      "file": "visit_03.png",
+      "date": "2025-11-02",
+      "mjd": 60981.913671500006,
+      "band": "SPHEREx-D1",
+      "wavelength_um": 0.9401180230830168,
+      "wavelength_min_um": 0.931643408516883,
+      "wavelength_max_um": 0.9485926376491508,
+      "star_xy": [
+        9.963923593408452,
+        9.879438410997578
+      ],
+      "predicted_xy": [
+        10.0,
+        9.999999999997947
+      ],
+      "flags_summary": "2/2 frames, bits [1, 2, 21, 26]"
+    },
+    {
+      "file": "visit_04.png",
+      "date": "2026-07-10",
+      "mjd": 61231.6953695,
+      "band": "SPHEREx-D1",
+      "wavelength_um": 0.9390263756772861,
+      "wavelength_min_um": 0.9377446194875019,
+      "wavelength_max_um": 0.9403081318670702,
+      "star_xy": [
+        10.030576761306,
+        10.00218259236011
+      ],
+      "predicted_xy": [
+        10.002324301381362,
+        10.001021679928447
+      ],
+      "flags_summary": "2/2 frames, bits [0, 1, 2, 21, 26]"
+    },
+    {
+      "file": "visit_05.png",
+      "date": "2026-08-24",
+      "mjd": 61276.5943985,
+      "band": "SPHEREx-D1",
+      "wavelength_um": 0.9415175063981756,
+      "wavelength_min_um": 0.9414367160953216,
+      "wavelength_max_um": 0.9415982967010295,
+      "star_xy": [
+        10.117569252902666,
+        9.748798455816596
+      ],
+      "predicted_xy": [
+        10.002811321952569,
+        10.001013733150232
+      ],
+      "flags_summary": "2/2 frames, bits [1, 2, 21, 26]"
+    },
+    {
+      "file": "visit_06.png",
+      "date": "2026-09-17",
+      "mjd": 61300.453964500004,
+      "band": "SPHEREx-D1",
+      "wavelength_um": 0.9495580929635656,
+      "wavelength_min_um": 0.9383959939984723,
+      "wavelength_max_um": 0.9607201919286589,
+      "star_xy": [
+        9.98912900829589,
+        9.922143637485014
+      ],
+      "predicted_xy": [
+        10.003025456830285,
+        10.000996957395415
+      ],
+      "flags_summary": "2/2 frames, bits [1, 2, 21, 26]"
+    }
+  ],
+  "motion": null,
+  "detected": [
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true
+  ],
+  "photometry": [
+    {
+      "date": "2025-06-06",
+      "mjd": 60832.4746335,
+      "band": "SPHEREx-D1",
+      "wavelength_min_um": 0.9417656090599327,
+      "wavelength_max_um": 0.9641250176016365,
+      "aperture_mjy": 3007.8986794876723,
+      "error_mjy": 6.309381117450757,
+      "scatter_mjy": 1039.1158835799934,
+      "frames_used": 2,
+      "masked_pixels": 46,
+      "lower_limit": true,
+      "aperture_pixels": 60,
+      "snr_stack": 491.46390769782556,
+      "frames": [
+        {
+          "mjd": 60832.473887,
+          "wavelength_um": 0.9417656090599327,
+          "aperture_mjy": 3742.6645672057366,
+          "error_mjy": 9.713859879354965,
+          "masked_pixels": 22
+        },
+        {
+          "mjd": 60832.47538,
+          "wavelength_um": 0.9641250176016365,
+          "aperture_mjy": 2273.132791769608,
+          "error_mjy": 8.054445144467406,
+          "masked_pixels": 24
+        }
+      ]
+    },
+    {
+      "date": "2025-07-18",
+      "mjd": 60874.159052999996,
+      "band": "SPHEREx-D1",
+      "wavelength_min_um": 0.9176733883941134,
+      "wavelength_max_um": 0.9396393637682809,
+      "aperture_mjy": 3937.7911247093334,
+      "error_mjy": 6.985712592777422,
+      "scatter_mjy": 727.6109098688621,
+      "frames_used": 2,
+      "masked_pixels": 26,
+      "lower_limit": true,
+      "aperture_pixels": 56,
+      "snr_stack": 745.2663394035832,
+      "frames": [
+        {
+          "mjd": 60873.448251,
+          "wavelength_um": 0.9176733883941134,
+          "aperture_mjy": 3423.292516275747,
+          "error_mjy": 9.318049628378578,
+          "masked_pixels": 17
+        },
+        {
+          "mjd": 60874.869855,
+          "wavelength_um": 0.9396393637682809,
+          "aperture_mjy": 4452.289733142919,
+          "error_mjy": 10.410315693514296,
+          "masked_pixels": 9
+        }
+      ]
+    },
+    {
+      "date": "2025-10-19",
+      "mjd": 60967.0391315,
+      "band": "SPHEREx-D1",
+      "wavelength_min_um": 0.9194917970159531,
+      "wavelength_max_um": 0.9413838782352528,
+      "aperture_mjy": 1849.2579075184258,
+      "error_mjy": 4.74981982611631,
+      "scatter_mjy": 813.5757491855917,
+      "frames_used": 2,
+      "masked_pixels": 24,
+      "lower_limit": true,
+      "aperture_pixels": 57,
+      "snr_stack": 1406.2478299641393,
+      "frames": [
+        {
+          "mjd": 60967.038385,
+          "wavelength_um": 0.9194917970159531,
+          "aperture_mjy": 2424.5428367764835,
+          "error_mjy": 7.670212587662386,
+          "masked_pixels": 12
+        },
+        {
+          "mjd": 60967.039878,
+          "wavelength_um": 0.9413838782352528,
+          "aperture_mjy": 1273.972978260368,
+          "error_mjy": 5.604551041995763,
+          "masked_pixels": 12
+        }
+      ]
+    },
+    {
+      "date": "2025-11-02",
+      "mjd": 60981.913671500006,
+      "band": "SPHEREx-D1",
+      "wavelength_min_um": 0.931643408516883,
+      "wavelength_max_um": 0.9485926376491508,
+      "aperture_mjy": 3331.6736413636736,
+      "error_mjy": 6.3868330543561145,
+      "scatter_mjy": 1063.104227921,
+      "frames_used": 2,
+      "masked_pixels": 25,
+      "lower_limit": true,
+      "aperture_pixels": 57,
+      "snr_stack": 1114.1592797269575,
+      "frames": [
+        {
+          "mjd": 60978.991046,
+          "wavelength_um": 0.9485926376491508,
+          "aperture_mjy": 2579.945432692645,
+          "error_mjy": 8.041718162046454,
+          "masked_pixels": 13
+        },
+        {
+          "mjd": 60984.836297,
+          "wavelength_um": 0.931643408516883,
+          "aperture_mjy": 4083.4018500347015,
+          "error_mjy": 9.924581344272193,
+          "masked_pixels": 12
+        }
+      ]
+    },
+    {
+      "date": "2026-07-10",
+      "mjd": 61231.6953695,
+      "band": "SPHEREx-D1",
+      "wavelength_min_um": 0.9377446194875019,
+      "wavelength_max_um": 0.9403081318670702,
+      "aperture_mjy": 2960.8954234602943,
+      "error_mjy": 6.247012844504366,
+      "scatter_mjy": 412.9556850842738,
+      "frames_used": 2,
+      "masked_pixels": 23,
+      "lower_limit": true,
+      "aperture_pixels": 60,
+      "snr_stack": 1071.8163212972584,
+      "frames": [
+        {
+          "mjd": 61230.946453,
+          "wavelength_um": 0.9377446194875019,
+          "aperture_mjy": 2668.891658207668,
+          "error_mjy": 8.630204721396586,
+          "masked_pixels": 12
+        },
+        {
+          "mjd": 61232.444286,
+          "wavelength_um": 0.9403081318670702,
+          "aperture_mjy": 3252.899188712921,
+          "error_mjy": 9.034392308528238,
+          "masked_pixels": 11
+        }
+      ]
+    },
+    {
+      "date": "2026-08-24",
+      "mjd": 61276.5943985,
+      "band": "SPHEREx-D1",
+      "wavelength_min_um": 0.9414367160953216,
+      "wavelength_max_um": 0.9415982967010295,
+      "aperture_mjy": 4525.580418118526,
+      "error_mjy": 7.582694263216176,
+      "scatter_mjy": 874.7852184720895,
+      "frames_used": 2,
+      "masked_pixels": 35,
+      "lower_limit": true,
+      "aperture_pixels": 58,
+      "snr_stack": 648.1043680873264,
+      "frames": [
+        {
+          "mjd": 61275.745048,
+          "wavelength_um": 0.9415982967010295,
+          "aperture_mjy": 5144.146978181896,
+          "error_mjy": 11.443300594418092,
+          "masked_pixels": 17
+        },
+        {
+          "mjd": 61277.443749,
+          "wavelength_um": 0.9414367160953216,
+          "aperture_mjy": 3907.013858055156,
+          "error_mjy": 9.951878248021151,
+          "masked_pixels": 18
+        }
+      ]
+    },
+    {
+      "date": "2026-09-17",
+      "mjd": 61300.453964500004,
+      "band": "SPHEREx-D1",
+      "wavelength_min_um": 0.9383959939984723,
+      "wavelength_max_um": 0.9607201919286589,
+      "aperture_mjy": 3287.072628802672,
+      "error_mjy": 6.454108715153008,
+      "scatter_mjy": 1024.7661941793026,
+      "frames_used": 2,
+      "masked_pixels": 42,
+      "lower_limit": true,
+      "aperture_pixels": 56,
+      "snr_stack": 503.0679067014247,
+      "frames": [
+        {
+          "mjd": 61300.453218,
+          "wavelength_um": 0.9383959939984723,
+          "aperture_mjy": 4011.6917538375874,
+          "error_mjy": 10.039020596089788,
+          "masked_pixels": 20
+        },
+        {
+          "mjd": 61300.454711,
+          "wavelength_um": 0.9607201919286589,
+          "aperture_mjy": 2562.453503767757,
+          "error_mjy": 8.114193903237775,
+          "masked_pixels": 22
+        }
+      ]
+    }
+  ],
+  "notes": [
+    "Near the north ecliptic pole SPHEREx sees this star almost continuously; 'visits' here are 30-day bins.",
+    "R Dra saturates SPHEREx even at 0.94 um: the core is masked in every frame, so the aperture sums are lower limits and NOT a brightness measurement.",
+    "No motion fit: 7 detected visits, expected drift 0.0 arcsec over the detected span (need 3 visits and half a pixel, 3.1 arcsec).",
+    "Each frame saw a different wavelength at the star's pixel (ranges per visit); a brightness change between visits mixes real change with colour. Not a light curve.",
+    "Per visit, only frames with no masked pixel in the aperture are averaged (frames_used); 7 visits had none, so their sums are lower limits.",
+    "Frame-to-frame scatter within a visit (scatter_mjy) is far above the VARIANCE error: the error bars understate the real uncertainty.",
+    "Up to 77% of aperture pixels are masked (saturated core): these sums do NOT measure brightness and must not be compared between visits.",
+    "Photometry: forced 3 px (18.5 arcsec) radius aperture sum on each frame, local sky annulus, VARIANCE errors, no aperture correction, mean per visit."
+  ],
+  "cutouts_mb": 55.4,
+  "size_arcmin": 2.0,
+  "frames_per_visit": 2,
+  "frame_selection": "wavelength",
+  "target": {
+    "name": "R Draconis",
+    "claim": "Images about monthly at matched wavelengths; saturated, so no brightness measurement.",
+    "astrometry": {
+      "ra": 248.1673783672889,
+      "dec": 66.75500674547219,
+      "pmra": -20.642811719160797,
+      "pmdec": 6.148818852711324,
+      "parallax": 1.2509180143740992,
+      "epoch_from": 2016.0
+    },
+    "astrometry_source": "Gaia DR3 1648328016354496384 (G 6.37, RUWE 1.30); Gaia DR3 archive TAP (gea.esac.esa.int, gaiadr3.gaia_source), fetched 2026-11-14"
+  }
+}

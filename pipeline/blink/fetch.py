@@ -31,12 +31,18 @@ def _fits_url(url):
     return str(t["access_url"][list(t["semantics"]).index("#this")])
 
 
+def cache_path(url, ra, dec, size_arcmin, cache_dir=CACHE):
+    """Where fetch_cutout keeps this cutout (exists() = no download needed). Size 2 and 2.0 share a key."""
+    size_arcmin = int(size_arcmin) if float(size_arcmin).is_integer() else float(size_arcmin)
+    key =hashlib.sha1(repr((url, round(ra, 6), round(dec, 6), size_arcmin)).encode()).hexdigest()[:20]
+    return Path(cache_dir) / f"{key}.fits"
+
+
 def fetch_cutout(url, ra, dec, size_arcmin, cache_dir=CACHE):
     """Return the path of a cached cutout FITS, downloading it on a miss."""
     cache_dir = Path(cache_dir)
     cache_dir.mkdir(parents=True, exist_ok=True)
-    key = hashlib.sha1(repr((url, round(ra, 6), round(dec, 6), size_arcmin)).encode()).hexdigest()[:20]
-    out = cache_dir / f"{key}.fits"
+    out = cache_path(url, ra, dec, size_arcmin, cache_dir)
     if out.exists():
         return out
     cut = f"{_fits_url(url)}?center={ra},{dec}&size={size_arcmin}arcmin"

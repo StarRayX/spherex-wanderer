@@ -6,7 +6,8 @@ meta.json: {slug, pixel_scale_arcsec: 6.15, upsample: 4,
             star_xy: [x,y]|null,        # null = not detected, draw no marker
             predicted_xy: [x,y],        # Gaia-propagated; pixel coords of the un-upsampled image
             flags_summary}],
-  motion: {measured_arcsec_per_yr, error_arcsec_per_yr, gaia_arcsec_per_yr} | null}
+  motion: {measured_arcsec_per_yr, error_arcsec_per_yr, gaia_arcsec_per_yr, ...optional extras} | null,
+  optional (blink.build): target, notes [str], photometry [per visit], detected, cutouts_mb (size of the cutouts used)}
 Pixel coords are in original pixels (multiply by `upsample` for PNG pixels).
 """
 import json
@@ -20,7 +21,8 @@ UPSAMPLE = 4
 SOFTENING = 10.0
 
 
-def render_target(slug, visits, out_dir, motion=None):
+def render_target(slug, visits, out_dir, motion=None, extra=None):
+    """extra: optional new top-level meta keys (e.g. photometry, notes); never overrides the keys above."""
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
     allpix = np.concatenate([np.asarray(v["image"], float).ravel() for v in visits])
@@ -40,5 +42,6 @@ def render_target(slug, visits, out_dir, motion=None):
     meta = {"slug": slug, "pixel_scale_arcsec": PIXEL_SCALE, "upsample": UPSAMPLE,
             "stretch": {"kind": "asinh", "black": black, "white": white, "softening": SOFTENING},
             "visits": rows, "motion": motion}
+    meta.update({k: v for k, v in (extra or {}).items() if k not in meta})
     (out / "meta.json").write_text(json.dumps(meta, indent=2))
     return meta
