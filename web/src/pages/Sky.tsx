@@ -40,6 +40,18 @@ const MELLINGER: Host[] = [
   { url: 'https://alaskybis.cds.unistra.fr/MellingerRGB', name: 'Mellinger', probe: '/Norder3/Allsky.jpg', credit: 'Mellinger colour optical survey (Axel Mellinger; HiPS by CDS)' },
 ]
 const WIDE_FOV = 15
+const DSS2_CUTS: [number, number] = [20, 230]
+
+// Apply per-survey colour cuts after a survey change (the new base layer is created by setImageSurvey).
+function tune(v: AladinView, url: string) {
+  const fix = () => {
+    const layer = (v as any).getBaseImageLayer?.()
+    if (!layer?.setCuts) return
+    if (url.includes('DSS2') || url.includes('DSSColor')) layer.setCuts(...DSS2_CUTS)
+  }
+  fix()
+  setTimeout(fix, 300)
+}
 
 // Probe every host at once and keep the most preferred one that answered, so a dead server costs one
 // timeout (5 s) instead of one per host in turn.
@@ -62,10 +74,10 @@ const accent = () => getComputedStyle(document.documentElement).getPropertyValue
 
 const STEPS = ['Finding a sky image server', 'Loading the sky map', 'Placing the five test stars']
 
-const WHOLE_SKY_FOV = 175
+// Stereographic projection: the view from the centre of the sky sphere, like a skybox camera. Capped at 100
+// degrees across, about a normal camera's field; wider than that the edges stretch as you pan.
+const WHOLE_SKY_FOV = 100
 const TARGET_FOV = 0.25
-const CUTOUT_DEG = 2 / 60
-const DRIFT_YEARS = 1000
 
 // Aladin Lite ships no types; this is the part of its API used here.
 interface AladinView {
@@ -74,9 +86,20 @@ interface AladinView {
   getFoV(): [number, number]
   getRaDec(): [number, number]
   setImageSurvey(id: string): void
+  setFoVRange(min: number, max: number): void
   addCatalog(c: unknown): void
   addOverlay(o: unknown): void
   on(event: string, fn: (arg: any) => void): void
+}
+
+function writeHud(el: HTMLDivElement | null, ra: number, dec: number, fov: number) {
+  if (!el) return
+  const [a, b, c] = el.children as unknown as HTMLElement[]
+  const label = fov >= 1 ? `${fmt(fov, fov >= 10 ? 0 : 1)}°` : `${fmt(fov * 60, 1)}′`
+  const scale = fov > 60 ? 'a big patch of sky' : fov > 5 ? 'constellation' : fov > 0.5 ? 'a few full Moons' : 'SPHEREx cutout scale'
+  a.textContent = `RA ${raHms(((ra % 360) + 360) % 360)}`
+  b.textContent = `Dec ${decDms(dec)}`
+  c.textContent = `Field ${label} · ${scale}`
 }
 
 export default function Sky({ params, onReady }: PageProps) {
@@ -91,7 +114,9 @@ export default function Sky({ params, onReady }: PageProps) {
   const [wideVis, setWideVis] = useState<Host | null>(null)
   const layerRef = useRef<'ir' | 'vis'>('ir')
   const surveyRef = useRef<string>('')
-  const [pos, setPos] = useState({ ra: 0, dec: 0, fov: WHOLE_SKY_FOV })
+  const [wide, setWide] = useState(true)
+  const wideRef = useRef(true)
+  const hud = useRef<HTMLDivElement>(null)
   const [picked, setPicked] = useState<Meta | null>(null)
   const [step, setStep] = useState(0)
   const [sheet, setSheet] = useState(false) // phones: the cards are a bottom sheet over the map
@@ -111,18 +136,32 @@ export default function Sky({ params, onReady }: PageProps) {
     // like Barnard's Star (about 100 arcsec since 2016) would sit outside its own 2 arcmin box.
     const k = 1 / Math.cos((a.dec * Math.PI) / 180)
     const [ra, dec] = at(a, midYear(m))
-    const h = CUTOUT_DEG / 2
-    ov.add(A.polygon([[ra - h * k, dec - h], [ra + h * k, dec - h], [ra + h * k, dec + h], [ra - h * k, dec + h]]))
+    // Plain annotations: a blue circle where the star is now, and for a fast mover a white circle where it was
+    // in 1999 with an arrow between them. Nothing that needs an astronomy background to read.
+    const name = TARGETS.find(t => t.slug === slug)?.name ?? 'The star'
+    const year = Math.round(midYear(m))
+    const r = 15 / 3600
+    ov.add(A.circle(ra, dec, r, { color: accent(), lineWidth: 2.5 }))
     const d = totalDrift(a)
     if (d && d > 1) {
-      // The path from 1999 (when the 2MASS background photo was taken) through today and 1,000 years on.
-      const then = at(a, THEN), later = at(a, midYear(m) + DRIFT_YEARS)
-      ov.add(A.polyline([then, [ra, dec], later], { color: accent(), lineWidth: 2 }))
-      ov.add(A.circle(then[0], then[1], 15 / 3600, { color: '#FFFFFF', lineWidth: 1.5 }))
+      const then = at(a, THEN)
+      // the arrow runs between the two circles' edges, with a two-stroke head at the "now" end
+      const dx = (ra - then[0]) / k, dy = dec - then[1], len = Math.hypot(dx, dy)
+      const ux = dx / len, uy = dy / len
+      const p0: [number, number] = [then[0] + ux * r * 1.2 * k, then[1] + uy * r * 1.2]
+      const p1: [number, number] = [ra - ux * r * 1.2 * k, dec - uy * r * 1.2]
+      const hl = Math.min(len * 0.12, 25 / 3600)
+      const head = (sgn: number): [number, number] => [
+        p1[0] + (-ux * 0.87 - sgn * uy * 0.5) * hl * k, p1[1] + (-uy * 0.87 + sgn * ux * 0.5) * hl]
+      ov.add(A.polyline([p0, p1], { color: '#FFFFFF', lineWidth: 2 }))
+      ov.add(A.polyline([head(1), p1, head(-1)], { color: '#FFFFFF', lineWidth: 2 }))
+      ov.add(A.circle(then[0], then[1], r, { color: '#FFFFFF', lineWidth: 2 }))
       epochs.current?.addSources([
-        A.source(then[0], then[1], { name: `Here in ${THEN}` }),
-        A.source(ra + h * k, dec + h, { name: 'Here now (SPHEREx)' }),
+        A.source(then[0] - r * 1.4 * k, then[1] - r * 1.4, { name: `${name} in ${THEN}` }),
+        A.source(ra - r * 1.4 * k, dec - r * 1.4, { name: `Now (${year})` }),
       ])
+    } else {
+      epochs.current?.addSources([A.source(ra - r * 1.4 * k, dec - r * 1.4, { name: `Now (${year})` })])
     }
     // Frame today's square and, for a fast mover, its 1999 position too.
     let cra = ra, cdec = dec, fov = TARGET_FOV
@@ -157,13 +196,15 @@ export default function Sky({ params, onReady }: PageProps) {
         layerRef.current = ir ? 'ir' : 'vis'
         surveyRef.current = first.url
         const v: AladinView = A.aladin(box.current, {
-          survey: first.url, fov: WHOLE_SKY_FOV, target: '266.4 -28.9', projection: 'SIN', cooFrame: 'ICRSd',
+          survey: first.url, fov: WHOLE_SKY_FOV, target: '266.4 -28.9', projection: 'STG', cooFrame: 'ICRSd',
           showReticle: false, showZoomControl: false, showFullscreenControl: false, showLayersControl: false,
           showGotoControl: false, showFrame: false, showCooGridControl: false, showSimbadPointerControl: false,
           showProjectionControl: false, showContextMenu: false, showSettingsControl: false, showShareControl: false,
           showStatusBar: false, showCooLocation: false, showFov: false, backgroundColor: 'rgb(5,7,12)',
         })
         view.current = v
+        v.setFoVRange(0.02, WHOLE_SKY_FOV)
+        tune(v, first.url)
         setStep(2)
         const metas = await Promise.all(TARGETS.map(t => loadMeta(t.slug).catch(() => null)))
         const cat = A.catalog({ name: 'Test targets', sourceSize: 22, color: accent(), shape: 'circle',
@@ -182,11 +223,13 @@ export default function Sky({ params, onReady }: PageProps) {
         v.on('objectClicked', (o: any) => { if (o?.data?.slug) void fly(o.data.slug) })
         const sync = () => {
           const [ra, dec] = v.getRaDec(), fov = v.getFoV()[0]
-          setPos({ ra, dec, fov })
+          writeHud(hud.current, ra, dec, fov)
+          const w = fov > WIDE_FOV
+          if (w !== wideRef.current) { wideRef.current = w; setWide(w) }
           // Visible light: the smooth Mellinger mosaic when zoomed out, detailed DSS2 when zoomed in.
           if (layerRef.current === 'vis' && mel && vis) {
             const want = fov > WIDE_FOV ? mel.url : vis.url
-            if (want !== surveyRef.current) { surveyRef.current = want; v.setImageSurvey(want) }
+            if (want !== surveyRef.current) { surveyRef.current = want; v.setImageSurvey(want); tune(v, want) }
           }
         }
         v.on('positionChanged', sync)
@@ -214,14 +257,12 @@ export default function Sky({ params, onReady }: PageProps) {
     if (!h) return
     setLayer(k)
     layerRef.current = k
-    const url = k === 'vis' && wideVis && pos.fov > WIDE_FOV ? wideVis.url : h.url
+    const url = k === 'vis' && wideVis && wideRef.current ? wideVis.url : h.url
     surveyRef.current = url
-    view.current?.setImageSurvey(url)
+    if (view.current) { view.current.setImageSurvey(url); tune(view.current, url) }
   }
 
-  const shown = layer === 'vis' && wideVis && pos.fov > WIDE_FOV ? wideVis : hosts[layer]
-  const fovLabel = pos.fov >= 1 ? `${fmt(pos.fov, pos.fov >= 10 ? 0 : 1)}°` : `${fmt(pos.fov * 60, 1)}′`
-  const scale = pos.fov > 90 ? 'whole sky' : pos.fov > 5 ? 'constellation' : pos.fov > 0.5 ? 'a few full Moons' : 'SPHEREx cutout scale'
+  const shown = layer === 'vis' && wideVis && wide ? wideVis : hosts[layer]
   const info = picked ? TARGETS.find(t => t.slug === picked.slug)! : null
 
   return (
@@ -243,10 +284,8 @@ export default function Sky({ params, onReady }: PageProps) {
             </div>
           </div>
         )}
-        <div className="sky-hud" aria-hidden>
-          <span>RA {raHms(((pos.ra % 360) + 360) % 360)}</span>
-          <span>Dec {decDms(pos.dec)}</span>
-          <span>Field {fovLabel} · {scale}</span>
+        <div className="sky-hud" aria-hidden ref={hud}>
+          <span /><span /><span />
         </div>
         {shown && <p className="sky-credit">Sky: {shown.credit}. Map: Aladin Lite (CDS).</p>}
         <div className="sky-tools">
@@ -257,7 +296,7 @@ export default function Sky({ params, onReady }: PageProps) {
               ))}
             </div>
           )}
-          <button className="btn sm" onClick={wholeSky}>Whole sky</button>
+          <button className="btn sm" onClick={wholeSky}>Zoom out</button>
         </div>
       </div>
 
@@ -284,9 +323,9 @@ export default function Sky({ params, onReady }: PageProps) {
               </div>
               <Viewer meta={picked} src={f => imageUrl(picked.slug, f)} compact />
               <p className="caption" style={{ marginTop: 12 }}>
-                On the map, the cyan square is the 2 arcminute patch these photos show.
-                {(totalDrift(picked.target?.astrometry) ?? 0) > 1 && <> The white circle is where the star was in {THEN}, and the cyan line carries its drift 1,000 years on.</>}
-                {(totalDrift(picked.target?.astrometry) ?? 0) > 1 && shown?.name === '2MASS' && <> The background is a 2MASS photo from around {THEN}, so there the star sits in the circle, not in the square.</>}
+                {(totalDrift(picked.target?.astrometry) ?? 0) > 1
+                  ? <>On the map, the star has moved from the white circle ({THEN}) to the blue circle (today).{shown?.name === '2MASS' && <> The background photo is from {THEN}, so it still shows the star in the white circle.</>}</>
+                  : <>On the map, the blue circle shows where the star is today.</>}
               </p>
               <a className="btn sm" href={`#/target/${picked.slug}`}>Open the full dashboard</a>
             </div>
