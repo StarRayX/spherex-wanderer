@@ -48,3 +48,15 @@
 .target-list .tn, .target-list .th { overflow-wrap: break-word; text-wrap: pretty; }
 .target-list button > span { min-width: 0; }
 @media (max-width: 767px) { .handle-t { padding: 0 var(--s3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } }
+
+/* The 1999-to-now slider is a quiet "where the star was" control, not a second player. */
+.glide { flex-wrap: wrap; gap: 4px 10px; margin-top: 12px; }
+.glide-label { flex: none; font: 500 var(--t-xs) var(--f-text); color: var(--muted); }
+.glide input[type=range] { flex: 1; min-width: 90px; height: 24px; }
+.glide-year { min-width: 4ch; font-family: var(--f-mono, ui-monospace, monospace); color: var(--ink); }
+
+/* Back arrow before the star name. */
+.back-head { justify-content: flex-start; gap: 4px; margin-left: -10px; }
+.back-btn { flex: none; width: 44px; height: 44px; border: 0; outline: 0; border-radius: 50%; background: transparent; color: #E8EEF6; display: grid; place-items: center; cursor: pointer; }
+.back-btn:hover { background: rgba(255, 255, 255, .08); }
+.back-btn:focus-visible { background: rgba(255, 255, 255, .14); }

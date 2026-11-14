@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { Meta } from '../lib/types'
 import { fmt, monthYear } from '../lib/format'
+import './Viewer.css'
 
 interface Props {
   meta: Meta
@@ -67,6 +68,7 @@ export default function Viewer({ meta, src, autoplay = true, compact = false }: 
         <b>Visit {idx + 1} of {visits.length}</b>
         <span>{monthYear(v.date)}</span>
         <span className="mono">λ {fmt(v.wavelength_um)} µm</span>
+        {compact && (<>{diffs.some(d => d.file) && ( <button className="chip-btn" onClick={() => setLayer(l => (l === 'changes' ? 'images' : 'changes'))} aria-pressed={layer === 'changes'} title="Show only what changed since the last visit">Changes</button> )}</>)}
       </div>
 
       <div className="frame" ref={frameRef}>
@@ -107,15 +109,12 @@ export default function Viewer({ meta, src, autoplay = true, compact = false }: 
           {visits.map((x, i) => (
             <button key={x.file} className={'stop' + (i === idx ? ' on' : '')} onClick={() => { setIdx(i); setPlaying(false) }}
               aria-label={`Visit ${i + 1}, ${monthYear(x.date)}`}>
-              <i /><span>{showLabel(i) ? monthYear(x.date, visits.length > 4) : ''}</span>
+              <i /><span>{showLabel(i) ? monthYear(x.date, compact || visits.length > 4) : ''}</span>
             </button>
           ))}
         </div>
         <button className="chip-btn" onClick={() => setZoom(z => (z === 2 ? 1 : 2))} aria-pressed={zoom === 2} title="Zoom in on the star">2×</button>
-        {diffs.some(d => d.file) && (
-          <button className="chip-btn" onClick={() => setLayer(l => (l === 'changes' ? 'images' : 'changes'))} aria-pressed={layer === 'changes'}
-            title="Show only what changed since the last visit">Changes</button>
-        )}
+        {!compact && (<>{diffs.some(d => d.file) && ( <button className="chip-btn" onClick={() => setLayer(l => (l === 'changes' ? 'images' : 'changes'))} aria-pressed={layer === 'changes'} title="Show only what changed since the last visit">Changes</button> )}</>)}
       </div>
 
       {!compact && (

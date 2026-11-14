@@ -305,7 +305,6 @@ export default function Sky({ params, onReady }: PageProps) {
   const fastPick = useRef<any>(null) // a one-source catalogue drawn as a ring round the clicked fast mover
   const glideCat = useRef<any>(null) // one source drawn as a filled dot, moved along the star's path
   const glide = useRef<{ id: number; a: any; year1: number; on: boolean }>({ id: 0, a: null, year1: 0, on: false })
-  const [gliding, setGliding] = useState(false)
   const slider = useRef<HTMLInputElement>(null)
   const yearLabel = useRef<HTMLSpanElement>(null)
   const layers = useRef<{ names: string[]; token: number; cur: number }>({ names: [], token: 0, cur: 0 }) // SPHEREx photos pinned on the map
@@ -339,20 +338,18 @@ export default function Sky({ params, onReady }: PageProps) {
     if (slider.current) slider.current.value = String(year)
     if (yearLabel.current) yearLabel.current.textContent = String(Math.floor(year))
   }
-  const stopGlide = () => { cancelAnimationFrame(glide.current.id); setGliding(false) }
+  const stopGlide = () => { cancelAnimationFrame(glide.current.id) }
   const clearGlide = () => { stopGlide(); glide.current.a = null; setMarker(null) }
   const playGlide = () => {
     const g = glide.current
     if (!g.a) return
     cancelAnimationFrame(g.id)
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { setMarker(g.year1); return }
-    setGliding(true)
     const t0 = performance.now()
     const step = (now: number) => {
       const t = Math.min(1, (now - t0) / GLIDE_MS)
       setMarker(THEN + (g.year1 - THEN) * easeInOut(t))
       if (t < 1) g.id = requestAnimationFrame(step)
-      else setGliding(false)
     }
     g.id = requestAnimationFrame(step)
   }
@@ -464,6 +461,7 @@ export default function Sky({ params, onReady }: PageProps) {
     if (slider.current) { slider.current.min = String(THEN); slider.current.max = String(yNow); slider.current.value = String(yNow) }
     if (yearLabel.current) yearLabel.current.textContent = String(Math.floor(yNow))
     flyTo(v, cra, cdec, fov, anim)
+    if (d && d > 1) playGlide() // one automatic sweep from 1999 to now; the slider takes over after
   }, [])
 
   // The fast-mover layer: loaded after the map is ready, so a slow or missing file never holds the map up.
@@ -786,9 +784,11 @@ export default function Sky({ params, onReady }: PageProps) {
         </button>
           {picked && info ? (
             <div className="card">
-              <div className="picked-head">
+              <div className="picked-head back-head">
+                <button className="back-btn" onClick={wholeSky} aria-label="Back to all stars" title="Back to all stars">
+                  <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden><path d="M10 3 5 8l5 5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                </button>
                 <h2>{info.name}</h2>
-                <button className="linkbtn" onClick={wholeSky}>All targets</button>
               </div>
               <span className={`badge ${info.status}`} style={{ marginTop: 8 }}><span className="dot" />{STATUS_LABEL[info.status]}</span>
               <div className="picked-stats">
@@ -804,10 +804,8 @@ export default function Sky({ params, onReady }: PageProps) {
               <div ref={viewerBox}><Viewer meta={picked} src={f => imageUrl(picked.slug, f)} compact /></div>
               {hasGlide && (
                 <div className="glide">
-                  <button className="icon-btn" onClick={playGlide} aria-label="Play the star's path from 1999 to now">
-                    {gliding ? <Pause /> : <Play />}
-                  </button>
-                  <input ref={slider} type="range" min={THEN} max={nowYear(picked)} step="0.01" defaultValue={nowYear(picked)} aria-label="Year"
+                  <span className="glide-label" id="glide-label">Where the star was:</span>
+                  <input ref={slider} type="range" min={THEN} max={nowYear(picked)} step="0.01" defaultValue={nowYear(picked)} aria-labelledby="glide-label"
                     onInput={e => { stopGlide(); setMarker(Number(e.currentTarget.value)) }} />
                   <span className="glide-year mono" ref={yearLabel}>{Math.floor(nowYear(picked))}</span>
                 </div>
@@ -889,5 +887,3 @@ function FastCard({ s, onClose }: { s: FastStar; onClose: () => void }) {
   )
 }
 
-const Play = () => <svg viewBox="0 0 16 16" width="14" height="14"><path d="M4.5 2.5v11l9-5.5z" fill="currentColor" /></svg>
-const Pause = () => <svg viewBox="0 0 16 16" width="14" height="14"><path d="M4 2.5h3v11H4zM9 2.5h3v11H9z" fill="currentColor" /></svg>
