@@ -1,0 +1,363 @@
+{
+  "slug": "kapteyns-star",
+  "pixel_scale_arcsec": 6.15,
+  "upsample": 4,
+  "stretch": {
+    "kind": "asinh",
+    "black": -0.1934339602228514,
+    "white": 365.6962712549212,
+    "softening": 10.0
+  },
+  "visits": [
+    {
+      "file": "visit_00.png",
+      "date": "2025-09-04",
+      "mjd": 60922.054151,
+      "band": "SPHEREx-D6",
+      "wavelength_um": 4.89808256757246,
+      "wavelength_min_um": 4.862098936863069,
+      "wavelength_max_um": 4.9339591069653155,
+      "star_xy": [
+        10.393832305933898,
+        10.423467845230316
+      ],
+      "predicted_xy": [
+        10.373258472103057,
+        10.421866313028453
+      ],
+      "flags_summary": "3/3 frames, bits [1, 21]",
+      "saturated_pixels": [],
+      "saturated_core_xy": null,
+      "colour_matched": true,
+      "colour_note": "4.898 um, +0.000 um from the visits' median 4.898 um (tolerance 0.061 um): same colour"
+    },
+    {
+      "file": "visit_01.png",
+      "date": "2026-02-06",
+      "mjd": 61077.36597233333,
+      "band": "SPHEREx-D6",
+      "wavelength_um": 4.906365881464847,
+      "wavelength_min_um": 4.872850159485613,
+      "wavelength_max_um": 4.939319382550883,
+      "star_xy": [
+        10.056132471206567,
+        10.023197108315477
+      ],
+      "predicted_xy": [
+        10.0,
+        9.999999999997947
+      ],
+      "flags_summary": "3/3 frames, bits [0, 1, 2, 21, 26]",
+      "saturated_pixels": [],
+      "saturated_core_xy": null,
+      "colour_matched": true,
+      "colour_note": "4.906 um, +0.008 um from the visits' median 4.898 um (tolerance 0.061 um): same colour"
+    },
+    {
+      "file": "visit_02.png",
+      "date": "2026-09-02",
+      "mjd": 61285.90151266666,
+      "band": "SPHEREx-D6",
+      "wavelength_um": 4.888986180992699,
+      "wavelength_min_um": 4.853023542741435,
+      "wavelength_max_um": 4.924919221218212,
+      "star_xy": [
+        9.288008432397548,
+        9.53761857311752
+      ],
+      "predicted_xy": [
+        9.32156268661741,
+        9.498421977961987
+      ],
+      "flags_summary": "3/3 frames, bits [1, 21]",
+      "saturated_pixels": [],
+      "saturated_core_xy": null,
+      "colour_matched": true,
+      "colour_note": "4.889 um, -0.009 um from the visits' median 4.898 um (tolerance 0.061 um): same colour"
+    }
+  ],
+  "motion": {
+    "measured_arcsec_per_yr": 6.907371571614206,
+    "error_arcsec_per_yr": 0.9508911559708467,
+    "gaia_arcsec_per_yr": 6.491223339061598,
+    "axis": "ra",
+    "caption_note": "eastward drift (RA component), not the total proper motion",
+    "parallax_corrected": {
+      "measured_arcsec_per_yr": 6.862308255286555,
+      "error_arcsec_per_yr": 0.41528890617379194
+    },
+    "per_axis": {
+      "ra": {
+        "measured_arcsec_per_yr": 6.907371571614206,
+        "error_arcsec_per_yr": 0.9508911559708467,
+        "gaia_arcsec_per_yr": 6.491223339061598
+      },
+      "dec": {
+        "measured_arcsec_per_yr": -5.455706303721771,
+        "error_arcsec_per_yr": 0.15672613760399395,
+        "gaia_arcsec_per_yr": -5.708614150045243
+      }
+    },
+    "residuals_vs_gaia_arcsec": [
+      [
+        -0.12652736732362646,
+        0.009850873038885766
+      ],
+      [
+        -0.3452144586573391,
+        0.14266250560410754
+      ],
+      [
+        0.2063566276528599,
+        0.24106334664111273
+      ]
+    ],
+    "visits_used": 3,
+    "frame_offsets_arcsec": [
+      [
+        [
+          0.21,
+          -0.04
+        ],
+        [
+          0.09,
+          0.03
+        ],
+        [
+          -0.3,
+          0.01
+        ]
+      ],
+      [
+        [
+          0.14,
+          0.21
+        ],
+        [
+          -0.05,
+          -0.15
+        ],
+        [
+          -0.09,
+          -0.06
+        ]
+      ],
+      [
+        [
+          0.02,
+          0.13
+        ],
+        [
+          0.16,
+          -0.05
+        ],
+        [
+          -0.17,
+          -0.08
+        ]
+      ]
+    ],
+    "visit_sem_arcsec": [
+      [
+        0.15,
+        0.02
+      ],
+      [
+        0.07,
+        0.11
+      ],
+      [
+        0.1,
+        0.06
+      ]
+    ]
+  },
+  "detected": [
+    true,
+    true,
+    true
+  ],
+  "photometry": [
+    {
+      "date": "2025-09-04",
+      "mjd": 60922.054151,
+      "band": "SPHEREx-D6",
+      "wavelength_min_um": 4.862098936863069,
+      "wavelength_max_um": 4.9339591069653155,
+      "aperture_mjy": 790.4478579132201,
+      "error_mjy": 1.1390284690184143,
+      "scatter_mjy": 306.7281292593042,
+      "frames_used": 3,
+      "masked_pixels": 10,
+      "lower_limit": true,
+      "aperture_pixels": 83,
+      "snr_stack": 1247.0585222198529,
+      "frames": [
+        {
+          "mjd": 60922.052659,
+          "wavelength_um": 4.862098936863069,
+          "aperture_mjy": 466.74155934880724,
+          "error_mjy": 1.5080458565458974,
+          "masked_pixels": 5
+        },
+        {
+          "mjd": 60922.054151,
+          "wavelength_um": 4.898189658888995,
+          "aperture_mjy": 827.8308522135683,
+          "error_mjy": 2.0467093915814427,
+          "masked_pixels": 3
+        },
+        {
+          "mjd": 60922.055643,
+          "wavelength_um": 4.9339591069653155,
+          "aperture_mjy": 1076.7711621772849,
+          "error_mjy": 2.283254484300199,
+          "masked_pixels": 2
+        }
+      ]
+    },
+    {
+      "date": "2026-02-06",
+      "mjd": 61077.36597233333,
+      "band": "SPHEREx-D6",
+      "wavelength_min_um": 4.872850159485613,
+      "wavelength_max_um": 4.939319382550883,
+      "aperture_mjy": 949.6125798393326,
+      "error_mjy": 3.0741732042678973,
+      "scatter_mjy": 358.4563048467651,
+      "frames_used": 3,
+      "masked_pixels": 8,
+      "lower_limit": true,
+      "aperture_pixels": 84,
+      "snr_stack": 1149.8512058882484,
+      "frames": [
+        {
+          "mjd": 61065.45888,
+          "wavelength_um": 4.939319382550883,
+          "aperture_mjy": 1363.372474201654,
+          "error_mjy": 8.815066375242505,
+          "masked_pixels": 2
+        },
+        {
+          "mjd": 61083.318772,
+          "wavelength_um": 4.872850159485613,
+          "aperture_mjy": 733.0897675571014,
+          "error_mjy": 1.9409475314130011,
+          "masked_pixels": 3
+        },
+        {
+          "mjd": 61083.320265,
+          "wavelength_um": 4.9069281023580436,
+          "aperture_mjy": 752.3754977592425,
+          "error_mjy": 1.8926688798940774,
+          "masked_pixels": 3
+        }
+      ]
+    },
+    {
+      "date": "2026-09-02",
+      "mjd": 61285.90151266666,
+      "band": "SPHEREx-D6",
+      "wavelength_min_um": 4.853023542741435,
+      "wavelength_max_um": 4.924919221218212,
+      "aperture_mjy": 840.5051554423295,
+      "error_mjy": 1.1717145351962888,
+      "scatter_mjy": 166.55687212989028,
+      "frames_used": 3,
+      "masked_pixels": 8,
+      "lower_limit": true,
+      "aperture_pixels": 84,
+      "snr_stack": 799.1176670875282,
+      "frames": [
+        {
+          "mjd": 61285.90002,
+          "wavelength_um": 4.853023542741435,
+          "aperture_mjy": 1032.3949844514555,
+          "error_mjy": 2.2227619605362565,
+          "masked_pixels": 2
+        },
+        {
+          "mjd": 61285.901513,
+          "wavelength_um": 4.889015779018451,
+          "aperture_mjy": 755.7366355187098,
+          "error_mjy": 1.9405589226735738,
+          "masked_pixels": 3
+        },
+        {
+          "mjd": 61285.903005,
+          "wavelength_um": 4.924919221218212,
+          "aperture_mjy": 733.3838463568234,
+          "error_mjy": 1.9104436401886584,
+          "masked_pixels": 3
+        }
+      ]
+    }
+  ],
+  "notes": [
+    "Detection: forced S/N in a 2 px aperture on the stack against the scatter of the same aperture at blank positions of that stack (reprojection correlates pixels, so a per-pixel noise would overstate S/N); needs S/N 5 and the centre within 1.5 px of the prediction.",
+    "Each frame saw a different wavelength at the star's pixel (ranges per visit); a brightness change between visits mixes real change with colour. Not a light curve.",
+    "Per visit, only frames with no masked pixel in the aperture are averaged (frames_used); 3 visits had none, so their sums are lower limits.",
+    "Frame-to-frame scatter within a visit (scatter_mjy) is far above the VARIANCE error: the error bars understate the real uncertainty.",
+    "Photometry: forced 3 px (18.5 arcsec) radius aperture sum on each frame, local sky annulus, VARIANCE errors, no aperture correction, mean per visit."
+  ],
+  "cutouts_mb": 35.6,
+  "size_arcmin": 2.0,
+  "frames_per_visit": 3,
+  "frame_selection": "wavelength",
+  "differences": [
+    {
+      "file": "diff_00_01.png",
+      "visits": [
+        0,
+        1
+      ],
+      "dates": [
+        "2025-09-04",
+        "2026-02-06"
+      ],
+      "wave_a_um": 4.8981,
+      "wave_b_um": 4.9064,
+      "noise": 0.07478950571111116,
+      "n_above_5sigma": 15,
+      "skipped": null,
+      "note": "A visual aid: the later visit minus the earlier, at the same wavelength. Static stars leave residuals of up to about 17% of their peak (the PSF is undersampled), so a change under about 10% of a star's peak cannot be flagged. Distances must come from the motion fit, not from these patches."
+    },
+    {
+      "file": "diff_01_02.png",
+      "visits": [
+        1,
+        2
+      ],
+      "dates": [
+        "2026-02-06",
+        "2026-09-02"
+      ],
+      "wave_a_um": 4.9064,
+      "wave_b_um": 4.889,
+      "noise": 0.10740260091845985,
+      "n_above_5sigma": 41,
+      "skipped": null,
+      "note": "A visual aid: the later visit minus the earlier, at the same wavelength. Static stars leave residuals of up to about 17% of their peak (the PSF is undersampled), so a change under about 10% of a star's peak cannot be flagged. Distances must come from the motion fit, not from these patches."
+    }
+  ],
+  "difference_stretch": {
+    "kind": "asinh_symmetric",
+    "limit": 216.08454373348223,
+    "softening": 10.0
+  },
+  "spectrum": null,
+  "spectrum_reason": "Not built: a star this bright saturates SPHEREx below about 4.4 um, so most points would be dropped.",
+  "target": {
+    "name": "Kapteyn's Star",
+    "claim": "The star's drift across the sky, measured from SPHEREx and compared with Gaia.",
+    "astrometry": {
+      "ra": 77.9599373502188,
+      "dec": -45.0438126993602,
+      "pmra": 6491.223339061598,
+      "pmdec": -5708.614150045243,
+      "parallax": 254.19859326384577,
+      "epoch_from": 2016.0
+    },
+    "astrometry_source": "Gaia DR3 4810594479418041856 (G 8.06, RUWE 1.17); Gaia DR3 archive TAP (gea.esac.esa.int, gaiadr3.gaia_source), fetched 2026-11-14"
+  }
+}

@@ -1,0 +1,272 @@
+{
+  "slug": "luhman-16",
+  "pixel_scale_arcsec": 6.15,
+  "upsample": 4,
+  "stretch": {
+    "kind": "asinh",
+    "black": -0.15565599795356833,
+    "white": 21.596405949771654,
+    "softening": 10.0
+  },
+  "visits": [
+    {
+      "file": "visit_00.png",
+      "date": "2025-06-10",
+      "mjd": 60836.809233,
+      "band": "SPHEREx-D2",
+      "wavelength_um": 1.2776054614470058,
+      "wavelength_min_um": 1.2471734214260075,
+      "wavelength_max_um": 1.3081789184860395,
+      "star_xy": [
+        10.181050928571612,
+        10.130571304837137
+      ],
+      "predicted_xy": [
+        9.892532647482573,
+        10.039130932861726
+      ],
+      "flags_summary": "3/3 frames, bits [17, 21]",
+      "saturated_pixels": [],
+      "saturated_core_xy": null,
+      "colour_matched": true,
+      "colour_note": "1.278 um, +0.005 um from the visits' median 1.273 um (tolerance 0.016 um): same colour"
+    },
+    {
+      "file": "visit_01.png",
+      "date": "2025-12-29",
+      "mjd": 61038.85956333333,
+      "band": "SPHEREx-D2",
+      "wavelength_um": 1.2663397709925193,
+      "wavelength_min_um": 1.2363086656673299,
+      "wavelength_max_um": 1.2966164977508174,
+      "star_xy": [
+        10.23843270055569,
+        10.089513473155145
+      ],
+      "predicted_xy": [
+        10.0,
+        9.999999999997947
+      ],
+      "flags_summary": "3/3 frames, bits [21]",
+      "saturated_pixels": [],
+      "saturated_core_xy": null,
+      "colour_matched": true,
+      "colour_note": "1.266 um, -0.006 um from the visits' median 1.273 um (tolerance 0.016 um): same colour"
+    },
+    {
+      "file": "visit_02.png",
+      "date": "2026-07-02",
+      "mjd": 61223.32626433333,
+      "band": "SPHEREx-D2",
+      "wavelength_um": 1.2727986216425806,
+      "wavelength_min_um": 1.2627499265816686,
+      "wavelength_max_um": 1.2927959844832557,
+      "star_xy": [
+        10.612914766786503,
+        10.276478041682953
+      ],
+      "predicted_xy": [
+        10.360076816375871,
+        10.123405187200472
+      ],
+      "flags_summary": "3/3 frames, bits [21]",
+      "saturated_pixels": [],
+      "saturated_core_xy": null,
+      "colour_matched": true,
+      "colour_note": "1.273 um, +0.000 um from the visits' median 1.273 um (tolerance 0.016 um): same colour"
+    }
+  ],
+  "motion": null,
+  "detected": [
+    true,
+    true,
+    true
+  ],
+  "photometry": [
+    {
+      "date": "2025-06-10",
+      "mjd": 60836.809233,
+      "band": "SPHEREx-D2",
+      "wavelength_min_um": 1.2471734214260075,
+      "wavelength_max_um": 1.3081789184860395,
+      "aperture_mjy": 103.36011730456585,
+      "error_mjy": 0.5170719782899905,
+      "scatter_mjy": null,
+      "frames_used": 1,
+      "masked_pixels": 3,
+      "lower_limit": false,
+      "aperture_pixels": 84,
+      "snr_stack": 59.87054314343035,
+      "frames": [
+        {
+          "mjd": 60830.809119,
+          "wavelength_um": 1.2774640444289707,
+          "aperture_mjy": 103.36011730456585,
+          "error_mjy": 0.5170719782899905,
+          "masked_pixels": 0
+        },
+        {
+          "mjd": 60830.810611,
+          "wavelength_um": 1.3081789184860395,
+          "aperture_mjy": 55.77471919952747,
+          "error_mjy": 0.4367645927832066,
+          "masked_pixels": 2
+        },
+        {
+          "mjd": 60848.807969,
+          "wavelength_um": 1.2471734214260075,
+          "aperture_mjy": 96.99272296332957,
+          "error_mjy": 0.3957342229449043,
+          "masked_pixels": 1
+        }
+      ]
+    },
+    {
+      "date": "2025-12-29",
+      "mjd": 61038.85956333333,
+      "band": "SPHEREx-D2",
+      "wavelength_min_um": 1.2363086656673299,
+      "wavelength_max_um": 1.2966164977508174,
+      "aperture_mjy": 105.44191197398276,
+      "error_mjy": 0.34536328141006345,
+      "scatter_mjy": 10.98645694880999,
+      "frames_used": 2,
+      "masked_pixels": 1,
+      "lower_limit": false,
+      "aperture_pixels": 87,
+      "snr_stack": 60.39406195574353,
+      "frames": [
+        {
+          "mjd": 61038.858071,
+          "wavelength_um": 1.2363086656673299,
+          "aperture_mjy": 97.67331376426515,
+          "error_mjy": 0.4509470170585522,
+          "masked_pixels": 0
+        },
+        {
+          "mjd": 61038.859563,
+          "wavelength_um": 1.2660941495594105,
+          "aperture_mjy": 110.02860992980445,
+          "error_mjy": 0.43362870664836717,
+          "masked_pixels": 1
+        },
+        {
+          "mjd": 61038.861056,
+          "wavelength_um": 1.2966164977508174,
+          "aperture_mjy": 113.21051018370036,
+          "error_mjy": 0.5232112120275143,
+          "masked_pixels": 0
+        }
+      ]
+    },
+    {
+      "date": "2026-07-02",
+      "mjd": 61223.32626433333,
+      "band": "SPHEREx-D2",
+      "wavelength_min_um": 1.2627499265816686,
+      "wavelength_max_um": 1.2927959844832557,
+      "aperture_mjy": 107.1640653574285,
+      "error_mjy": 0.2768329356325674,
+      "scatter_mjy": 3.8762854162531024,
+      "frames_used": 3,
+      "masked_pixels": 0,
+      "lower_limit": false,
+      "aperture_pixels": 86,
+      "snr_stack": 57.98964880716391,
+      "frames": [
+        {
+          "mjd": 61196.827232,
+          "wavelength_um": 1.2628499538628175,
+          "aperture_mjy": 104.12385466123798,
+          "error_mjy": 0.4646553750782678,
+          "masked_pixels": 0
+        },
+        {
+          "mjd": 61236.202459,
+          "wavelength_um": 1.2627499265816686,
+          "aperture_mjy": 105.83927565994946,
+          "error_mjy": 0.46721208578804924,
+          "masked_pixels": 0
+        },
+        {
+          "mjd": 61236.949102,
+          "wavelength_um": 1.2927959844832557,
+          "aperture_mjy": 111.52906575109803,
+          "error_mjy": 0.5055061993318792,
+          "masked_pixels": 0
+        }
+      ]
+    }
+  ],
+  "notes": [
+    "Luhman 16 A and B (about 1.5 arcsec apart in this era) are one blended source at 6.15 arcsec per pixel.",
+    "Gaia DR3 has only a position for the pair (2-parameter solution). The proper motion and parallax used to place the cutouts are Bedin et al. 2024, not Gaia.",
+    "Frames matched to 1.27 um as for Epsilon Indi B (another L/T brown dwarf pair).",
+    "Detection: forced S/N in a 2 px aperture on the stack against the scatter of the same aperture at blank positions of that stack (reprojection correlates pixels, so a per-pixel noise would overstate S/N); needs S/N 5 and the centre within 1.5 px of the prediction.",
+    "No motion fit: 3 detected visits, expected drift 3.0 arcsec over the detected span (need 3 visits and half a pixel, 3.1 arcsec).",
+    "Each frame saw a different wavelength at the star's pixel (ranges per visit); a brightness change between visits mixes real change with colour. Not a light curve.",
+    "Per visit, only frames with no masked pixel in the aperture are averaged (frames_used); 0 visits had none, so their sums are lower limits.",
+    "Frame-to-frame scatter within a visit (scatter_mjy) is far above the VARIANCE error: the error bars understate the real uncertainty.",
+    "Photometry: forced 3 px (18.5 arcsec) radius aperture sum on each frame, local sky annulus, VARIANCE errors, no aperture correction, mean per visit."
+  ],
+  "cutouts_mb": 35.6,
+  "size_arcmin": 2.0,
+  "frames_per_visit": 3,
+  "frame_selection": "wavelength",
+  "differences": [
+    {
+      "file": "diff_00_01.png",
+      "visits": [
+        0,
+        1
+      ],
+      "dates": [
+        "2025-06-10",
+        "2025-12-29"
+      ],
+      "wave_a_um": 1.2776,
+      "wave_b_um": 1.2663,
+      "noise": 0.029992199267557168,
+      "n_above_5sigma": 3,
+      "skipped": null,
+      "note": "A visual aid: the later visit minus the earlier, at the same wavelength. Static stars leave residuals of up to about 17% of their peak (the PSF is undersampled), so a change under about 10% of a star's peak cannot be flagged. Distances must come from the motion fit, not from these patches."
+    },
+    {
+      "file": "diff_01_02.png",
+      "visits": [
+        1,
+        2
+      ],
+      "dates": [
+        "2025-12-29",
+        "2026-07-02"
+      ],
+      "wave_a_um": 1.2663,
+      "wave_b_um": 1.2728,
+      "noise": 0.029096409079493218,
+      "n_above_5sigma": 13,
+      "skipped": null,
+      "note": "A visual aid: the later visit minus the earlier, at the same wavelength. Static stars leave residuals of up to about 17% of their peak (the PSF is undersampled), so a change under about 10% of a star's peak cannot be flagged. Distances must come from the motion fit, not from these patches."
+    }
+  ],
+  "difference_stretch": {
+    "kind": "asinh_symmetric",
+    "limit": 4.907923002924122,
+    "softening": 10.0
+  },
+  "spectrum": null,
+  "spectrum_reason": "Not requested for this target (opt-in); a spectrum would be of A and B blended.",
+  "target": {
+    "name": "Luhman 16",
+    "claim": "Detected in every visit. No drift fit: the visits span about a year, and the expected 3.0 arcsec drift is under the half pixel (3.1 arcsec) the fit needs.",
+    "astrometry": {
+      "ra": 162.3084022291181,
+      "dec": -53.3180447534979,
+      "pmra": -2768.511,
+      "pmdec": 358.472,
+      "parallax": 500.993,
+      "epoch_from": 2016.0
+    },
+    "astrometry_source": "Position: Gaia DR3 5353626573555863424 (G 16.92), a 2-parameter solution with no proper motion or parallax: Gaia lists only one blended source for the A+B pair. Proper motion and parallax: Bedin et al. 2024, Astron. Nachr. 345, e230158, as quoted on en.wikipedia.org/wiki/Luhman_16 (CDS was down, so not checked in SIMBAD); Gaia DR3 archive TAP (gea.esac.esa.int, gaiadr3.gaia_source), fetched 2026-11-14"
+  }
+}

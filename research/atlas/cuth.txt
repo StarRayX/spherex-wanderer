@@ -1,0 +1,9 @@
+HTTP/1.1 200 OK
+Server: nginx
+Date: Sat, 14 Nov 2026 14:11:24 GMT
+Content-Type: application/fits
+Transfer-Encoding: chunked
+Connection: keep-alive
+content-disposition: attachment; filename=level2_2025W50_1A_0002_1D1_spx_l2b-v20-2025-342.fits
+x-request-id: cf430213bb9719abe2a7a5d407b6ef4f
+
