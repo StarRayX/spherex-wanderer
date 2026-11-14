@@ -1,7 +1,9 @@
 /* Home: the tool pitch first, the star viewer as secondary entries. Solid cards, no borders, no gradients. */
-.hm-tools { display: grid; gap: var(--s2); grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: var(--s4); }
-.hm-tool { display: flex; flex-direction: column; gap: var(--s1); color: var(--ink); text-decoration: none; transition: background .15s; }
-.hm-tool:hover { background: var(--card-2); color: var(--ink); }
+.hm-hero { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: var(--s3) var(--s4); align-items: center; margin-top: var(--s1); }
+.hm-tools { display: grid; gap: var(--s4) var(--s3); grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: var(--s4); }
+.hm-tool { display: flex; flex-direction: column; gap: var(--s1); color: var(--ink); text-decoration: none; min-height: 44px; transition: color .15s; }
+.hm-tool:hover { color: var(--ink); }
+.hm-tool:hover h2, .hm-valid:hover h2 { color: var(--cyan); }
 .hm-tool h2 { font-size: var(--t-lg); }
 .hm-tool p { margin: 0; }
 .hm-go { margin-top: auto; padding-top: var(--s1); display: inline-flex; align-items: center; gap: var(--s1); font-weight: 700; color: var(--cyan); }
@@ -12,13 +14,15 @@
 .hm-more a:first-child { margin-left: calc(-1 * var(--s1)); }
 .home .pv-strip figcaption { font-size: var(--t-xs); }
 
-.hm-valid { display: grid; gap: var(--s2) var(--s3); grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; margin-top: var(--s4); }
-.hm-valid p.hm-num { font: 700 var(--t-lg) var(--f-display); color: var(--ink); }
+.home .hm-valid { background: none; box-shadow: none; border-radius: 0; padding: 0; transform: none; color: var(--ink); text-decoration: none; display: grid; gap: var(--s2) var(--s3); grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; margin-top: var(--s5); }
+.hm-valid p.hm-num { font: 700 var(--t-lg) var(--f-mono); color: var(--ink); }
 .hm-valid h2 { font-size: var(--t-md); margin-bottom: var(--s1); }
 .hm-valid p { font-size: var(--t-sm); margin: 0 0 var(--s1); }
 .hm-valid .pv-cap { margin: 0; font-size: var(--t-sm); color: var(--cyan); }
 
 @media (max-width: 800px) {
+  .hm-hero { grid-template-columns: minmax(0, 1fr); gap: var(--s2); }
+  .hm-hero .hb { margin: 0 auto; }
   .hm-tools, .hm-valid { grid-template-columns: minmax(0, 1fr); }
 }
 @media (prefers-reduced-motion: reduce) { .hm-tool { transition: none; } }

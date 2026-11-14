@@ -13,7 +13,7 @@
 .tg-card:hover { background: var(--card-2); color: var(--ink); }
 .tg-card p { margin: 0; }
 .tg-total { font-size: var(--t-sm); }
-.tg-total b { font: 700 var(--t-lg) var(--f-display); margin-right: 4px; }
+.tg-total b { font: 700 var(--t-lg) var(--f-mono); margin-right: 4px; }
 .tg-open { margin-top: auto; padding-top: var(--s1); font-weight: 700; color: var(--cyan); }
 .tg-open::after { content: '\00a0\2192'; }
 .tg-empty { max-width: 560px; display: flex; flex-direction: column; gap: var(--s1); align-items: flex-start; }
@@ -35,7 +35,7 @@
 .tg-sw { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 8px; flex: none; }
 .tg-chips { display: flex; flex-wrap: wrap; gap: var(--s1); margin: var(--s2) 0; }
 .tg-chips button { display: inline-flex; align-items: center; min-height: 40px; padding: 0 14px; border: 0; border-radius: 999px; background: var(--card-2); font-size: var(--t-sm); font-weight: 600; cursor: pointer; }
-.tg-chips button b { font-family: var(--f-display); margin-left: 8px; color: var(--muted); }
+.tg-chips button b { font-family: var(--f-mono); margin-left: 8px; color: var(--muted); }
 .tg-chips button:hover { background: #26324A; }
 .tg-chips button[aria-pressed='true'] { background: var(--navy); color: #fff; }
 .tg-chips button[aria-pressed='true'] b { color: #fff; }
@@ -60,13 +60,13 @@
 .tg-ev { margin: 0; display: grid; gap: var(--s1) var(--s3); grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
 .tg-ev div { display: flex; flex-direction: column; }
 .tg-ev dt { font-size: var(--t-xs); color: var(--muted); }
-.tg-ev dd { margin: 0; font: 500 var(--t-sm) var(--f-display); }
+.tg-ev dd { margin: 0; font: 500 var(--t-sm) var(--f-mono); }
 
 /* table */
 .tg-scroll { border-radius: var(--radius-sm); overflow-x: auto; }
 .tg-table { width: 100%; border-collapse: collapse; font-size: var(--t-sm); }
 .tg-table th { text-align: left; font: 600 var(--t-xs) var(--f-text); color: var(--muted); padding: var(--s1) var(--s2); background: var(--card-2); }
-.tg-table td { padding: 10px var(--s2); vertical-align: middle; font-family: var(--f-display); }
+.tg-table td { padding: 10px var(--s2); vertical-align: middle; font-family: var(--f-mono); }
 .tg-table td.tg-why { font-family: var(--f-text); min-width: 220px; }
 .tg-table tbody tr:nth-child(odd) { background: rgba(255, 255, 255, .03); }
 .tg-table img { display: block; width: 56px; height: 56px; border-radius: 6px; background: var(--sky); image-rendering: pixelated; }

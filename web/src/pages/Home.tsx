@@ -4,6 +4,7 @@ import { imageUrl, loadMeta } from '../lib/targets'
 import type { Meta } from '../lib/types'
 import { monthYear } from '../lib/format'
 import Mark from '../components/Mark'
+import HeroBlink from '../components/HeroBlink'
 import './Home.css'
 
 // Fallbacks for the validation card if the Barnard's Star file cannot load (values from the pipeline run, docs/evidence_notes.md).
@@ -29,18 +30,21 @@ export default function Home({ onReady }: PageProps) {
       <div className="home-bg" aria-hidden><div className="stars" /></div>
       <div className="home-inner">
         <div className="brand-line"><Mark size={32} /><span><b>Wanderer</b></span></div>
-        <h1>
-          MOST tells you which SPHEREx images caught an asteroid or comet.
-          <span className="h1-2">We give you its measured spectrum as a table.</span>
-        </h1>
-        <p className="def">Wanderer is a tool for NASA SPHEREx data. MOST is IRSA's Moving Object Search Tool. IRSA's fixed-position tool cannot measure something that moves from image to image. SPHEREx is a NASA space telescope that maps the whole sky in infrared light.</p>
+        <div className="hm-hero">
+          <h1>
+            MOST tells you which SPHEREx images caught an asteroid or comet.
+            <span className="h1-2">We give you its measured spectrum as a table.</span>
+          </h1>
+          <HeroBlink />
+        </div>
+        <p className="def">Wanderer measures comets and asteroids in NASA SPHEREx images. IRSA's tools list the images; we measure the object in each one.</p>
         <div className="hm-tools">
-          <a className="card hm-tool" href="#/movers">
+          <a className="hm-tool" href="#/movers">
             <h2>Moving objects</h2>
             <p>Pick a comet or an asteroid. Get its brightness at every infrared colour SPHEREx saw, with error bars, as a table you can download as CSV, VOTable or JSON.</p>
             <span className="hm-go">Moving objects {ARROW}</span>
           </a>
-          <a className="card hm-tool" href="#/triage">
+          <a className="hm-tool" href="#/triage">
             <h2>Vet a field</h2>
             <p>Shows every change between visits in two pre-run fields, sorted with evidence.</p>
             <span className="hm-go">Vet a field {ARROW}</span>
@@ -56,7 +60,7 @@ export default function Home({ onReady }: PageProps) {
           <a href="#/method">Method</a>
         </p>
 
-        <a className="preview hm-valid" href="#/target/barnards-star/visits">
+        <a className="hm-valid" href="#/target/barnards-star/visits">
           <div className="hm-valid-text">
             <h2>Validation: Barnard's Star</h2>
             <p className="hm-num">{measured.toFixed(2)} ± {error.toFixed(2)} arcsec per year, Gaia {gaia.toFixed(2)}</p>

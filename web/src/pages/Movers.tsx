@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import type { KeyboardEvent, PointerEvent, ReactNode } from 'react'
 import type { PageProps } from '../lib/router'
 import { getJson, joinUrl } from '../lib/download'
+import { wlColor } from '../lib/wavelength'
 import './Movers.css'
 
 // Where the precomputed files live. Switch to '/movers' to test with fixtures.
@@ -165,7 +166,7 @@ function Spark({ slug, kind }: { slug: string; kind: string }) {
     const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys)
     const X = (v: number) => P + ((v - x0) / (x1 - x0 || 1)) * (W - 2 * P)
     const Y = (v: number) => H - P - ((yv(v) - y0) / (y1 - y0 || 1)) * (H - 2 * P)
-    body = d.map((p, i) => <circle key={i} cx={X(p.w)} cy={Y(p.f)} r={1.6} />)
+    body = d.map((p, i) => <circle key={i} cx={X(p.w)} cy={Y(p.f)} r={1.6} style={{ fill: wlColor(p.w) }} />)
   }
   return (
     <div className="mv-spark" ref={ref}>
@@ -206,7 +207,7 @@ function Detail({ slug, onReady }: { slug: string; onReady: () => void }) {
         <a className="mv-back" href="#/movers">All moving objects</a>
         <span className="skel skel-big" style={{ width: '40%' }} />
         <span className="skel skel-line" style={{ width: '60%' }} />
-        <div className="card mv-block"><span className="skel skel-box" style={{ ['--ar' as string]: '2.2' }} /></div>
+        <div className="mv-block"><span className="skel skel-box" style={{ ['--ar' as string]: '2.2' }} /></div>
       </div>
     )
   }
@@ -240,7 +241,7 @@ function Detail({ slug, onReady }: { slug: string; onReady: () => void }) {
         </div>
       </header>
 
-      <section className="card mv-block" aria-labelledby="mv-plot-h">
+      <section className="mv-block" aria-labelledby="mv-plot-h">
         <h2 id="mv-plot-h" className="card-title">Measured spectrum</h2>
         <p className="caption">
           How bright {meta.name} looked at each infrared colour, in <Gloss tip="Microjanskys, a unit of brightness">µJy</Gloss> (microjanskys, a unit of brightness), with error bars. Each point is one SPHEREx image. Thin lines mark colours where common ices and gases absorb or glow.
@@ -249,12 +250,12 @@ function Detail({ slug, onReady }: { slug: string; onReady: () => void }) {
         <p className="mv-limit"><b>Brightness, not reflectance.</b>{meta.kind === 'comet' ? ' Comet values depend on the aperture size, the circle we add the light inside.' : ' We did not divide out the Sun.'}</p>
       </section>
 
-      <section className="card mv-block" aria-labelledby="mv-blink-h">
+      <section className="mv-block" aria-labelledby="mv-blink-h">
         <h2 id="mv-blink-h" className="card-title">Blink the images</h2>
         <Blink frames={frames} base={base} name={meta.name} />
       </section>
 
-      <details className="card mv-block mv-sec">
+      <details className="mv-block mv-sec">
         <summary>How the numbers were made</summary>
         <dl className="mv-facts mv-facts-col">
           <div><dt>Measurements</dt><dd>{meta.n_rows}</dd></div>
@@ -267,14 +268,14 @@ function Detail({ slug, onReady }: { slug: string; onReady: () => void }) {
         <p className="muted sm mv-sec-p">Aperture (the circle we add the light inside): {f1(meta.aperture_arcsec, 1)} arcseconds. Sky ring, used to subtract the background: {meta.annulus_arcsec?.[0]} to {meta.annulus_arcsec?.[1]} arcseconds. Orbit source: {meta.ephemeris}.</p>
       </details>
 
-      <details className="card mv-block mv-sec">
+      <details className="mv-block mv-sec">
         <summary>Limits</summary>
         <ul className="notes-list">
           {(meta.caveats ?? []).map((c, i) => <li key={i}>{c}</li>)}
         </ul>
       </details>
 
-      <details className="card mv-block mv-sec">
+      <details className="mv-block mv-sec">
         <summary>All {rows.length} measurements</summary>
         <RowsTable rows={rows} />
       </details>
@@ -327,6 +328,7 @@ function Plot({ rows, bands }: { rows: Row[]; bands: { um: number; label: string
   }, [rows])
   const [on, setOn] = useState<string[] | null>(null)
   const active = on ?? (epochs.length ? [epochs.reduce((a, b) => (b.n > a.n ? b : a)).key] : [])
+  const single = active.length === 1
   const colorOf = (k: string) => epochs.find(e => e.key === k)?.color ?? EPOCH_COLORS[0]
 
   const shown = useMemo(() => rows.filter(r => active.includes(r.iso.slice(0, 7))), [rows, active])
@@ -435,13 +437,18 @@ function Plot({ rows, bands }: { rows: Row[]; bands: { um: number; label: string
             </g>
           ))}
           {vis.map((r, i) => {
-            const c = colorOf(r.iso.slice(0, 7))
+            const c = single ? wlColor(r.wavelength_um) : colorOf(r.iso.slice(0, 7))
             return (
               <g key={i} className={i === sel ? 'pt on' : 'pt'}>
-                <line className="eb" style={{ stroke: c }} x1={x(r.wavelength_um)} x2={x(r.wavelength_um)} y1={y(r.flux_ujy - (r.flux_err_ujy || 0))} y2={y(r.flux_ujy + (r.flux_err_ujy || 0))} />
+                <line className="eb" style={single ? undefined : { stroke: c }} x1={x(r.wavelength_um)} x2={x(r.wavelength_um)} y1={y(r.flux_ujy - (r.flux_err_ujy || 0))} y2={y(r.flux_ujy + (r.flux_err_ujy || 0))} />
                 <circle className={mark && r.flags ? 'flagged' : ''} cx={x(r.wavelength_um)} cy={y(r.flux_ujy)} r={i === sel ? 5 : 3} style={mark && r.flags ? { stroke: c } : { fill: c }} />
               </g>
             )
+          })}
+          {single && Array.from({ length: 8 }, (_, k) => {
+            const x0p = PAD.l + (k * (w - PAD.l - PAD.r)) / 8, x1p = PAD.l + ((k + 1) * (w - PAD.l - PAD.r)) / 8
+            const mid = g.x0 + ((k + 0.5) / 8) * (g.x1 - g.x0)
+            return <rect key={'wk' + k} x={x0p} y={H - PAD.b} width={x1p - x0p} height={4} style={{ fill: wlColor(Math.max(mid, 0.01)) }} />
           })}
           <text className="axl" x={(PAD.l + w - PAD.r) / 2} y={H - 8} textAnchor="middle">Wavelength (µm)</text>
           <text className="axl" transform={`translate(12 ${(PAD.t + H - PAD.b) / 2}) rotate(-90)`} textAnchor="middle">{log ? 'Flux (µJy, log scale)' : 'Flux (µJy)'}</text>
@@ -464,7 +471,7 @@ function Plot({ rows, bands }: { rows: Row[]; bands: { um: number; label: string
       </p>
       {log && <p className="caption">The flux axis is logarithmic because brightness spans more than a factor of {LOG_RATIO}. Gridlines step by about a factor of 3.{hidden > 0 ? ` ${hidden} measurement${hidden > 1 ? 's' : ''} at or below zero cannot be drawn on a log axis. They are still in the table.` : ''}</p>}
       <ul className="legend mv-legend">
-        <li><span className="mv-dot" /> Measurement with error bar</li>
+        <li><span className="mv-dot" style={single ? { background: wlColor(2.5) } : undefined} /> {single ? 'Measurement with error bar. Dot colour shows wavelength.' : 'Measurement with error bar'}</li>
         {mark && <li><span className="mv-dot open" /> SPHEREx flagged some pixels in the aperture</li>}
         {labelled.length > 0 && <li><span className="mv-bandkey" /> Colour of a known feature</li>}
       </ul>
@@ -496,7 +503,7 @@ function Blink({ frames, base, name }: { frames: Frame[]; base: string; name: st
         ))}
         <svg viewBox="0 0 100 100" aria-hidden><path d="M50 36v8M50 56v8M36 50h8M56 50h8" /></svg>
       </div>
-      <p className="mv-cap"><b>{when(f.iso)} UTC</b>. {f1(f.wavelength_um, 2)} µm. Image {i + 1} of {frames.length}.</p>
+      <p className="mv-cap"><b>{when(f.iso)} UTC</b>. <span className="mv-wl"><span className="mv-wsw" style={{ background: wlColor(f.wavelength_um) }} aria-hidden />{f1(f.wavelength_um, 2)} µm</span>. Image {i + 1} of {frames.length}.</p>
       <div className="mv-ctl">
         <button className="btn sm quiet" onClick={() => setPlay(p => !p)} aria-pressed={play}>{play ? 'Pause' : 'Play'}</button>
         <input type="range" min={0} max={frames.length - 1} value={i} onChange={e => { setPlay(false); setI(+e.target.value) }} aria-label="Choose an image" />
