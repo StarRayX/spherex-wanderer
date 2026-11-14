@@ -1,0 +1,8 @@
+pipeline/cache
+**/.venv
+**/node_modules
+web/dist
+research
+**/__pycache__
+.git
+*.fits
