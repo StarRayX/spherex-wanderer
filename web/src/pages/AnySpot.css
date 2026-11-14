@@ -7,9 +7,9 @@
 .as-h { font-family: var(--f-display); font-size: var(--t-sm); font-weight: 600; color: var(--muted); margin: 0 0 var(--s1); }
 
 .as-examples { display: flex; flex-direction: column; gap: 4px; }
-.as-ex { display: block; width: 100%; text-align: left; border: 0; background: transparent; color: var(--ink); border-radius: 8px; padding: 10px 12px; cursor: pointer; font: inherit; position: relative; }
-.as-ex:hover { background: rgba(77, 208, 248, .06); }
-.as-ex[aria-pressed="true"] { background: rgba(77, 208, 248, .1); }
+.as-ex { display: block; width: 100%; text-align: left; border: 0; background: var(--card-2); color: var(--ink); border-radius: 8px; padding: 10px 12px; cursor: pointer; font: inherit; position: relative; }
+.as-ex:hover { background: #222E42; }
+.as-ex[aria-pressed="true"] { background: #1B3347; }
 .as-ex:focus-visible, .as-seg button:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
 .as-ex-name { display: block; font-family: var(--f-display); font-size: 15px; font-weight: 600; }
 .as-ex-sub { display: block; font-size: 13px; line-height: 1.4; color: var(--muted); margin-top: 2px; }

@@ -191,7 +191,7 @@ export default function Sky({ params, onReady }: PageProps) {
     const name = TARGETS.find(t => t.slug === slug)?.name ?? 'The star'
     const year = Math.round(midYear(m))
     const r = 15 / 3600
-    ov.add(A.circle(ra, dec, r, { color: accent(), lineWidth: 2.5 }))
+    ov.add(A.circle(ra, dec, r, { color: accent(), hoverColor: accent(), selectionColor: accent(), lineWidth: 2.5 }))
     const d = totalDrift(a)
     if (d && d > 1) {
       const then = at(a, THEN)
@@ -203,9 +203,10 @@ export default function Sky({ params, onReady }: PageProps) {
       const hl = Math.min(len * 0.12, 25 / 3600)
       const head = (sgn: number): [number, number] => [
         p1[0] + (-ux * 0.87 - sgn * uy * 0.5) * hl * k, p1[1] + (-uy * 0.87 + sgn * ux * 0.5) * hl]
-      ov.add(A.polyline([p0, p1], { color: '#FFFFFF', lineWidth: 2 }))
-      ov.add(A.polyline([head(1), p1, head(-1)], { color: '#FFFFFF', lineWidth: 2 }))
-      ov.add(A.circle(then[0], then[1], r, { color: '#FFFFFF', lineWidth: 2 }))
+      const w = { color: '#FFFFFF', hoverColor: '#FFFFFF', selectionColor: '#FFFFFF', lineWidth: 2 }
+      ov.add(A.polyline([p0, p1], w))
+      ov.add(A.polyline([head(1), p1, head(-1)], w))
+      ov.add(A.circle(then[0], then[1], r, w))
       epochs.current?.addSources([
         A.source(then[0] - r * 1.4 * k, then[1] - r * 1.4, { name: `${name} in ${THEN}` }),
         A.source(ra - r * 1.4 * k, dec - r * 1.4, { name: `${name}, now (${year})` }),
@@ -274,7 +275,7 @@ export default function Sky({ params, onReady }: PageProps) {
         epochs.current = A.catalog({ name: 'Then and now', sourceSize: 8, color: 'rgba(0,0,0,0)', shape: 'square',
           displayLabel: true, labelColumn: 'name', labelColor: '#FFFFFF', labelFont: '600 12px Public Sans' })
         v.addCatalog(epochs.current)
-        overlay.current = A.graphicOverlay({ color: accent(), lineWidth: 1.5 })
+        overlay.current = A.graphicOverlay({ color: accent(), hoverColor: accent(), selectionColor: accent(), lineWidth: 1.5 })
         v.addOverlay(overlay.current)
         v.on('objectClicked', (o: any) => { if (o?.data?.slug) void fly(o.data.slug) })
         const sync = () => {
@@ -387,7 +388,7 @@ export default function Sky({ params, onReady }: PageProps) {
               <Viewer meta={picked} src={f => imageUrl(picked.slug, f)} compact />
               <p className="caption" style={{ marginTop: 12 }}>
                 {(totalDrift(picked.target?.astrometry) ?? 0) > 1
-                  ? <>On the map, the star has moved from the white circle ({THEN}) to the blue circle (today).{shown?.name === '2MASS' && <> The background photo is from {THEN}, so it still shows the star in the white circle.</>}</>
+                  ? <>On the map, the star has moved from the white circle ({THEN}) to the blue circle (today).{shown?.name === '2MASS' && <> The background photo is from {THEN}, so it still shows the star in the white circle.</>}{layer === 'vis' && <> The visible-light photo is older, taken between the 1950s and 1990s, so the star appears further back along its path, outside both circles.</>}</>
                   : <>On the map, the blue circle shows where the star is today.</>}
               </p>
               <a className="btn sm" href={`#/target/${picked.slug}`}>Open the full dashboard</a>
