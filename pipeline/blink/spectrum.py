@@ -1,6 +1,11 @@
-"""Validated against IRSA's SPHEREx Spectrophotometry Tool (Tractor PSF-fit forced photometry) for ONE unsaturated star
-(K 10.42, 0.96-4.89 um, all six bands): 11 of 11 same-exposure points within 3.3%, median +0.2%, scatter 1.5%, no trend
-with wavelength. Not validated for saturated or blended stars, or any other star. See STRETCH_NOTES.md.
+"""Validated against IRSA's SPHEREx Spectrophotometry Tool (Tractor PSF-fit forced photometry) for TWO unsaturated, uncrowded
+stars near K 10.5 in the Barnard field, 0.76-4.91 um, all six bands: K 10.42 isolated (11/11 points within 3.3%, median
++0.2%) and K 10.57 with an equal-brightness star 5.8 px away in the sky annulus (12/12 within 7.7%, median -0.6%).
+NOT validated (failed the 10% bar, see STRETCH_NOTES.md): fainter stars in crowded fields (K 11.2-11.9 read +5 to +12% high,
+single points to +24%: faint neighbours IRSA fits separately sit in our aperture), a 5x brighter annulus neighbour (one point
++21%), and near-saturated frames (K 8.6: a D2 frame with TRANSIENT/SUR_ERROR core pixels differs by 40%, the catalogs side
+with us there). Saturated frames are dropped, rightly: on Barnard's Star the kept sum is ~57% low and IRSA's fit fails too.
+Absolute flux is IRSA's calibration, consistent with 2MASS/AllWISE/Gaia within the ~5% interpolation floor.
 
 Spectrum on the fly: each frame sees a different wavelength at the star, so per-frame aperture flux vs wavelength
 is a low-resolution spectrum.
