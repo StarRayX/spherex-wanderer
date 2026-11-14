@@ -54,7 +54,8 @@
 .mv-plot .band { stroke: rgba(255, 255, 255, .28); stroke-width: 1; }
 .mv-plot .band-t { fill: #fff; font: 600 12px var(--f-text); }
 .mv-plot .band-bg { fill: #131B29; opacity: .92; }
-.mv-plot .eb { stroke: var(--muted); stroke-width: 1.2; opacity: .7; }
+.mv-plot .eb { stroke: var(--muted); stroke-width: 1.2; opacity: .7; fill: none; }
+.mv-plot .band-shade { fill: #fff; opacity: .06; }
 .mv-plot circle { fill: var(--cyan); }
 .mv-plot circle.flagged { fill: var(--card); stroke: var(--cyan); stroke-width: 1.5; }
 .mv-plot .on .eb { opacity: 1; stroke-width: 2; }
@@ -96,7 +97,7 @@
 
 /* epoch chips */
 .mv-epochs { display: flex; flex-wrap: wrap; gap: var(--s1); margin: 0 0 var(--s2); }
-.mv-epochs button { display: inline-flex; align-items: center; min-height: 40px; padding: 0 14px; border: 0; border-radius: 999px; background: var(--card-2); font-size: var(--t-sm); font-weight: 600; cursor: pointer; }
+.mv-epochs button { display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border: 0; border-radius: 999px; background: var(--card-2); font-size: var(--t-sm); font-weight: 600; cursor: pointer; }
 .mv-epochs button b { font-family: var(--f-mono); margin-left: 8px; color: var(--muted); }
 .mv-epochs button[aria-pressed="true"] { background: #26324A; }
 .mv-epochs button[aria-pressed="false"] { color: var(--muted); }
@@ -132,3 +133,13 @@
 @media (max-width: 800px) {
   .mv-sec > summary { font-size: var(--t-md); padding: var(--s1) 0; }
 }
+
+/* plot notes, chips label, prose width */
+.mv-sub-t { margin: 0 0 var(--s1); font-size: var(--t-sm); max-width: 70ch; }
+.mv-prose, .mv-note, .mv-lede, .mv-disclaimer, .mv-sec-p, .mv-sec .notes-list { max-width: 70ch; }
+.mv-epochs { align-items: center; }
+.mv-epochs-l { font-size: var(--t-sm); color: var(--muted); font-weight: 600; margin-right: var(--s0); }
+.mv-legend { gap: 6px 22px; margin: var(--s1) 0 var(--s0); }
+.mv-legend .mv-dot + .mv-dot { margin-left: -4px; }
+.mv-capline { margin: var(--s0) 0 0; }
+.mv-dl .btn.quiet { min-height: 44px; }

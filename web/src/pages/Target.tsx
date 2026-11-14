@@ -68,18 +68,20 @@ function Overview({ m }: { m: Meta }) {
   const a = m.target?.astrometry
   const mo = m.motion
   const ly = lightYears(a), moon = yearsPerMoon(a)
-  const inside = mo && Math.abs(mo.measured_arcsec_per_yr - mo.gaia_arcsec_per_yr) <= mo.error_arcsec_per_yr
+  const gap = mo ? Math.abs(mo.measured_arcsec_per_yr - mo.gaia_arcsec_per_yr) : 0
+  const verdict = !mo ? '' : gap <= mo.error_arcsec_per_yr ? 'Gaia sits inside our error bar.' : gap <= 2 * mo.error_arcsec_per_yr ? 'Gaia sits just outside our error bar.' : 'Gaia sits well outside our error bar.'
 
   return (
     <div className="grid3 ov">
       <div className="card stat">
         <span className="stat-label">How far it moves each year</span>
         {mo ? <>
+          <strong className="t-verdict">{verdict}</strong>
           <div className="t-pair">
-            <div><span className="stat-value">{fmt(mo.measured_arcsec_per_yr)} ± {fmt(mo.error_arcsec_per_yr)}<small> arcseconds</small></span><span className="stat-label">Our measurement</span></div>
-            <div><span className="stat-value">{fmt(mo.gaia_arcsec_per_yr)}<small> arcseconds</small></span><span className="stat-label">Gaia</span></div>
+            <div><span className="stat-label">Our measurement</span><span className="stat-value">{fmt(mo.measured_arcsec_per_yr)} ± {fmt(mo.error_arcsec_per_yr)}<small> arcseconds</small></span></div>
+            <div><span className="stat-label">Gaia</span><span className="stat-value">{fmt(mo.gaia_arcsec_per_yr)}<small> arcseconds</small></span></div>
           </div>
-          <span className="stat-label">{inside ? 'Gaia sits inside our error bar.' : 'Gaia sits just outside our error bar.'} It moves {axisWords(mo)}.</span>
+          <span className="stat-label">It moves {axisWords(mo)}.</span>
         </> : <><span className="stat-value">None</span><span className="stat-label">Not measured</span></>}
       </div>
       <div className="card stat">

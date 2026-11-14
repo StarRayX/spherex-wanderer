@@ -187,17 +187,12 @@ function Detail({ slug, onReady }: { slug: string; onReady: () => void }) {
           <p className="muted tg-for">{CHANGE_GLOSS} {D1_GLOSS}</p>
         </div>
         <div className="tg-dl" role="group" aria-label="Download the table">
-          <a className="btn sm" href={joinUrl(base, 'triage.csv')} download>Download CSV</a>
+          <a className="btn sm quiet" href={joinUrl(base, 'triage.csv')} download>Download CSV</a>
           <a className="btn sm quiet" href={joinUrl(base, 'triage.json')} download>Download JSON</a>
         </div>
       </header>
 
-      {meta.depth_note && (
-        <aside className="tg-depth" aria-label="How deep these images go">
-          <h2>What an empty result does not tell you</h2>
-          <p>{meta.depth_note}</p>
-        </aside>
-      )}
+      <p className="tg-depthline">Sees down to about magnitude 18 to 19, so this is not a Planet X search.</p>
 
       {crowded && (
         <p className="tg-crowd">This field is crowded. {pct}% of its changes ({counts.star_residual} of {n}) are bright-star leftovers, so most of what you see here is subtraction noise, not new objects.</p>
@@ -212,14 +207,21 @@ function Detail({ slug, onReady }: { slug: string; onReady: () => void }) {
         <Table rows={rows} counts={counts} base={base} slug={meta.slug} />
       </section>
 
+      <section className="card tg-block tg-limits" aria-labelledby="tg-lim-h">
+        <h2 id="tg-lim-h" className="card-title">Limits</h2>
+        <details className="tg-fold">
+          <summary>What an empty result does not tell you</summary>
+          {meta.depth_note && <p>{meta.depth_note}</p>}
+          {(meta.caveats ?? []).length > 0 && <ul className="notes-list">{(meta.caveats ?? []).map((c, i) => <li key={i}>{c}</li>)}</ul>}
+        </details>
+      </section>
+
       <section className="card tg-block" aria-labelledby="tg-how-h">
         <h2 id="tg-how-h" className="card-title">How we checked</h2>
         <details className="tg-fold">
           <summary>Method</summary>
           <p>{meta.method}</p>
         </details>
-        <h3 className="tg-sub">Limits</h3>
-        <ul className="notes-list">{(meta.caveats ?? []).map((c, i) => <li key={i}>{c}</li>)}</ul>
       </section>
     </div>
   )
@@ -232,19 +234,26 @@ function Check({ rows, meta, base }: { rows: Row[]; meta: Meta; base: string }) 
   const [ra, setRa] = useState('')
   const [dec, setDec] = useState('')
   const [date, setDate] = useState('')
+  const [dateErr, setDateErr] = useState('')
   const [res, setRes] = useState<Result | null>(null)
 
   function run(e?: FormEvent, raT = ra, decT = dec) {
     e?.preventDefault()
+    const dt = date.trim()
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dt)
+    const dObj = m ? new Date(Date.UTC(+m[1], +m[2] - 1, +m[3])) : null
+    const dateOk = !dt || (!!m && !!dObj && dObj.getUTCFullYear() === +m[1] && dObj.getUTCMonth() === +m[2] - 1 && dObj.getUTCDate() === +m[3])
+    setDateErr(dateOk ? '' : 'Use the format YYYY-MM-DD, like 2025-07-14.')
+    if (!dateOk) { setRes(null); return }
     const r = parseCoord(raT, true), d = parseCoord(decT, false)
     if (r === null || d === null) {
       setRes({ kind: 'bad', msg: 'Enter RA and Dec as decimal degrees, like 210.6 and -11.9. RA can also be hours, like 14:02:24.' })
       return
     }
     const near = rows.map(row => ({ row, sep: sepArcsec(r, d, row.ra, row.dec) })).filter(x => x.sep <= MATCH_ARCSEC).sort((a, b) => a.sep - b.sep)
-    const onDay = date ? near.filter(x => day(x.row.iso) === date) : near
+    const onDay = dt ? near.filter(x => day(x.row.iso) === dt) : near
     if (!onDay.length) {
-      setRes({ kind: 'none', elsewhere: date && near.length ? day(near[0].row.iso) : undefined })
+      setRes({ kind: 'none', elsewhere: dt && near.length ? day(near[0].row.iso) : undefined })
       return
     }
     setRes({ kind: 'hit', row: onDay[0].row, sep: onDay[0].sep, others: onDay.length - 1 })
@@ -253,7 +262,7 @@ function Check({ rows, meta, base }: { rows: Row[]; meta: Meta; base: string }) 
     const r = rows[0]
     if (!r) return
     const a = deg(r.ra, 5), b = deg(r.dec, 5)
-    setRa(a); setDec(b); setDate('')
+    setRa(a); setDec(b); setDate(''); setDateErr('')
     run(undefined, a, b)
   }
 
@@ -264,7 +273,7 @@ function Check({ rows, meta, base }: { rows: Row[]; meta: Meta; base: string }) 
       <form className="tg-form" onSubmit={run}>
         <label>RA<input inputMode="decimal" value={ra} onChange={e => setRa(e.target.value)} placeholder="210.6 or 14:02:24" autoComplete="off" /></label>
         <label>Dec<input inputMode="decimal" value={dec} onChange={e => setDec(e.target.value)} placeholder="-11.9" autoComplete="off" /></label>
-        <label>Date, optional<input type="date" value={date} onChange={e => setDate(e.target.value)} min={day(meta.date_first)} max={day(meta.date_last)} /></label>
+        <label>Date, optional<input inputMode="numeric" value={date} onChange={e => { setDate(e.target.value); setDateErr('') }} placeholder="YYYY-MM-DD" autoComplete="off" aria-invalid={!!dateErr} aria-describedby={dateErr ? 'tg-date-err' : undefined} />{dateErr && <span id="tg-date-err" className="tg-err" role="alert">{dateErr}</span>}</label>
         <button className="btn" type="submit">Check</button>
       </form>
       {rows.length > 0 && <p className="tg-try"><button type="button" className="linkbtn" onClick={example}>Try a position from this field</button></p>}
@@ -279,7 +288,7 @@ function Check({ rows, meta, base }: { rows: Row[]; meta: Meta; base: string }) 
         )}
         {res?.kind === 'hit' && (
           <>
-            <p className="tg-near">Nearest change: {res.sep.toFixed(1)} arcseconds from your position.{res.others > 0 ? ` ${res.others} more within ${MATCH_ARCSEC} arcseconds${date ? ' on that date' : ' on other dates or frames'}.` : ''}</p>
+            <p className="tg-near">Nearest change: {res.sep.toFixed(1)} arcseconds from your position.{res.others > 0 ? ` ${res.others} more within ${MATCH_ARCSEC} arcseconds${date.trim() ? ' on that date' : ' on other dates or frames'}.` : ''}</p>
             <VerdictCard row={res.row} base={base} />
           </>
         )}
@@ -341,13 +350,6 @@ function Table({ rows, counts, base, slug }: { rows: Row[]; counts: Counts; base
   return (
     <>
       <CountBar counts={shownCounts} />
-      <dl className="tg-defs">
-        <div><dt>Bright-star leftover</dt><dd>a bright star that did not subtract cleanly.</dd></div>
-        <div><dt>Cosmic ray</dt><dd>a particle hit that lights up one exposure.</dd></div>
-        <div><dt>Detector edge or mask</dt><dd>too close to the edge of the detector, or to a patch we hide, to trust.</dd></div>
-        <div><dt>FLAGS bits</dt><dd>quality markers the SPHEREx pipeline puts on each pixel.</dd></div>
-        <div><dt>TRANSIENT</dt><dd>the pipeline&apos;s marker for a pixel that spiked in one exposure.</dd></div>
-      </dl>
       <div className="tg-chips" role="group" aria-label="Filter by cause">
         <button aria-pressed={filter === 'all'} onClick={() => { setFilter('all'); setLimit(PAGE) }}>All <b>{rows.length}</b></button>
         {VERDICTS.map(v => (
@@ -356,23 +358,29 @@ function Table({ rows, counts, base, slug }: { rows: Row[]; counts: Counts; base
           </button>
         ))}
       </div>
+      <dl className="tg-defs">
+        <div><dt>Bright-star leftover</dt><dd>a bright star that did not subtract cleanly.</dd></div>
+        <div><dt>Cosmic ray</dt><dd>a particle hit that lights up one exposure.</dd></div>
+        <div><dt>Detector edge or mask</dt><dd>too close to the edge of the detector, or to a patch we hide, to trust.</dd></div>
+        <div><dt>FLAGS bits</dt><dd>quality markers the SPHEREx pipeline puts on each pixel.</dd></div>
+        <div><dt>TRANSIENT</dt><dd>the pipeline&apos;s marker for a pixel that spiked in one exposure.</dd></div>
+      </dl>
 
       {list.length === 0 ? <p className="muted">No changes with this verdict.</p> : (
         <div className="tg-scroll">
           <table className="tg-table">
-            <thead><tr><th scope="col">Cutout</th><th scope="col">Verdict</th><th scope="col">RA, Dec</th><th scope="col">Date (UTC)</th><th scope="col">Why</th></tr></thead>
+            <thead><tr><th scope="col">Cutout</th><th scope="col">Verdict</th><th scope="col">Why</th></tr></thead>
             <tbody>
               {list.slice(0, limit).map(r => (
                 <Fragment key={r.id}>
                   <tr>
                     <td data-l="Cutout"><img src={joinUrl(base, r.thumb)} alt="" width={56} height={56} loading="lazy" /></td>
                     <td data-l="Verdict" className="tg-v"><span><Swatch v={r.verdict} />{V[r.verdict]?.label ?? r.verdict}</span>
+                      <span className="tg-meta">{deg(r.ra, 4)}, {deg(r.dec, 4)} · {day(r.iso)} UTC</span>
                       <button className="linkbtn" aria-expanded={open === r.id} onClick={() => setOpen(open === r.id ? null : r.id)}>{open === r.id ? 'Hide evidence' : 'Evidence'}</button></td>
-                    <td data-l="RA, Dec" className="nb">{deg(r.ra, 4)}, {deg(r.dec, 4)}</td>
-                    <td data-l="Date" className="nb">{day(r.iso)}</td>
                     <td data-l="Why" className="tg-why">{r.reason}</td>
                   </tr>
-                  {open === r.id && <tr className="tg-ev-row"><td colSpan={5}><VerdictCard row={r} base={base} /></td></tr>}
+                  {open === r.id && <tr className="tg-ev-row"><td colSpan={3}><VerdictCard row={r} base={base} /></td></tr>}
                 </Fragment>
               ))}
             </tbody>

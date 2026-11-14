@@ -27,7 +27,7 @@ interface Meta extends IndexEntry {
   ephemeris: string
   method: string
   caveats: string[]
-  bands: { um: number; label: string }[]
+  bands: Band[]
 }
 interface Row {
   mjd: number
@@ -46,6 +46,7 @@ interface Row {
   snr: number | null
   flags: number
 }
+interface Band { um: number; label: string; lo_um?: number; hi_um?: number }
 interface Frame { file: string; iso: string; wavelength_um: number; ra: number; dec: number; size_deg: number }
 
 const f1 = (n: number | null | undefined, d = 2) => (n === null || n === undefined || !Number.isFinite(n) ? '' : n.toFixed(d))
@@ -235,7 +236,7 @@ function Detail({ slug, onReady }: { slug: string; onReady: () => void }) {
           <p className="mv-note">{meta.note}</p>
         </div>
         <div className="mv-dl" role="group" aria-label="Download the table">
-          <a className="btn sm" href={joinUrl(base, 'spectrum.csv')} download>Download CSV</a>
+          <a className="btn sm quiet" href={joinUrl(base, 'spectrum.csv')} download>Download CSV</a>
           <a className="btn sm quiet" href={joinUrl(base, 'spectrum.vot')} download>Download VOTable</a>
           <a className="btn sm quiet" href={joinUrl(base, 'spectrum.json')} download>Download JSON</a>
         </div>
@@ -243,11 +244,11 @@ function Detail({ slug, onReady }: { slug: string; onReady: () => void }) {
 
       <section className="mv-block" aria-labelledby="mv-plot-h">
         <h2 id="mv-plot-h" className="card-title">Measured spectrum</h2>
-        <p className="caption">
-          How bright {meta.name} looked at each infrared colour, in <Gloss tip="Microjanskys, a unit of brightness">µJy</Gloss> (microjanskys, a unit of brightness), with error bars. Each point is one SPHEREx image. Thin lines mark colours where common ices and gases absorb or glow.
+        <p className="mv-sub-t"><b>Brightness, not reflectance.</b>{meta.kind === 'comet' ? ' Comet values depend on the aperture size, the circle we add the light inside.' : ' We did not divide out the Sun.'}</p>
+        <p className="caption mv-prose">
+          How bright {meta.name} looked at each infrared colour, in <Gloss tip="Microjanskys, a unit of brightness">µJy</Gloss> (microjanskys, a unit of brightness). Each point is one SPHEREx image. Shaded bands mark colours where common ices and gases absorb or glow.
         </p>
         <Plot rows={rows} bands={meta.bands ?? []} />
-        <p className="mv-limit"><b>Brightness, not reflectance.</b>{meta.kind === 'comet' ? ' Comet values depend on the aperture size, the circle we add the light inside.' : ' We did not divide out the Sun.'}</p>
       </section>
 
       <section className="mv-block" aria-labelledby="mv-blink-h">
@@ -305,7 +306,9 @@ const epochName = (k: string) => `${MONTHS[+k.slice(5, 7) - 1] ?? k.slice(5, 7)}
 const LOG_RATIO = 30
 const HOVER_PX = 14
 
-function Plot({ rows, bands }: { rows: Row[]; bands: { um: number; label: string }[] }) {
+const BAND_RANGE: Record<string, [number, number]> = { H2O: [2.6, 2.85], CO2: [4.18, 4.34], CO: [4.55, 4.75] }
+
+function Plot({ rows, bands }: { rows: Row[]; bands: Band[] }) {
   const box = useRef<HTMLDivElement>(null)
   const [w, setW] = useState(720)
   const [sel, setSel] = useState<number | null>(null)
@@ -342,7 +345,7 @@ function Plot({ rows, bands }: { rows: Row[]; bands: { um: number; label: string
   const mark = rows.some(r => !r.flags) && rows.some(r => r.flags)
 
   const H = w < 520 ? 290 : 360
-  const PAD = { l: log ? 76 : w < 520 ? 52 : 62, r: 14, t: 20, b: 48 }
+  const PAD = { l: log ? 76 : w < 520 ? 64 : 66, r: 14, t: 20, b: 48 }
 
   const g = useMemo(() => {
     if (!vis.length) return null
@@ -361,6 +364,7 @@ function Plot({ rows, bands }: { rows: Row[]; bands: { um: number; label: string
 
   const chips = (
     <div className="mv-epochs" role="group" aria-label="Show observation epochs">
+      <span className="mv-epochs-l">Show visits from:</span>
       {epochs.map(e => (
         <button key={e.key} aria-pressed={active.includes(e.key)}
           onClick={() => { setSel(null); setOn(active.includes(e.key) ? active.filter(k => k !== e.key) : [...active, e.key]) }}>
@@ -388,7 +392,9 @@ function Plot({ rows, bands }: { rows: Row[]; bands: { um: number; label: string
     const px = x(b.um), half = b.label.length * 3.9 + 3
     const lvl = px - half > rowEnd[0] ? 0 : px - half > rowEnd[1] ? 1 : 0
     rowEnd[lvl] = px + half
-    return { ...b, px, lvl, half, anchor: px < PAD.l + half ? 'start' : px > w - PAD.r - half ? 'end' : 'middle' }
+    const rg: [number, number] = b.lo_um !== undefined && b.hi_um !== undefined ? [b.lo_um, b.hi_um] : BAND_RANGE[b.label.replace(/[^A-Za-z0-9]/g, '').toUpperCase()] ?? [b.um - 0.08, b.um + 0.08]
+    const bx0 = Math.max(PAD.l, x(rg[0])), bx1 = Math.min(w - PAD.r, x(rg[1]))
+    return { ...b, px, lvl, half, bx0, bw: Math.max(2, bx1 - bx0), anchor: px < PAD.l + half ? 'start' : px > w - PAD.r - half ? 'end' : 'middle' }
   })
 
   // Mouse: highlight only when within HOVER_PX of a point. Touch: tap selects the nearest point within a larger reach.
@@ -429,9 +435,9 @@ function Plot({ rows, bands }: { rows: Row[]; bands: { um: number; label: string
             </g>
           ))}
           {!log && g.lo < 0 && <line className="zero" x1={PAD.l} x2={w - PAD.r} y1={y(0)} y2={y(0)} />}
+          {labelled.map(b => <rect key={'bs' + b.um + b.label} className="band-shade" x={b.bx0} y={PAD.t} width={b.bw} height={H - PAD.t - PAD.b} />)}
           {labelled.map(b => (
             <g key={b.um + b.label}>
-              <line className="band" x1={b.px} x2={b.px} y1={PAD.t} y2={H - PAD.b} />
               <rect className="band-bg" x={b.anchor === 'start' ? b.px : b.anchor === 'end' ? b.px - 2 * b.half : b.px - b.half} y={PAD.t + 3 + b.lvl * 18} width={2 * b.half} height={16} rx={4} />
               <text className="band-t" x={b.anchor === 'start' ? b.px + b.half : b.anchor === 'end' ? b.px - b.half : b.px} y={PAD.t + 15 + b.lvl * 18} textAnchor="middle">{b.label}</text>
             </g>
@@ -440,7 +446,7 @@ function Plot({ rows, bands }: { rows: Row[]; bands: { um: number; label: string
             const c = single ? wlColor(r.wavelength_um) : colorOf(r.iso.slice(0, 7))
             return (
               <g key={i} className={i === sel ? 'pt on' : 'pt'}>
-                <line className="eb" style={single ? undefined : { stroke: c }} x1={x(r.wavelength_um)} x2={x(r.wavelength_um)} y1={y(r.flux_ujy - (r.flux_err_ujy || 0))} y2={y(r.flux_ujy + (r.flux_err_ujy || 0))} />
+                <path className="eb" style={single ? undefined : { stroke: c }} d={`M${x(r.wavelength_um)} ${y(r.flux_ujy - (r.flux_err_ujy || 0))}V${y(r.flux_ujy + (r.flux_err_ujy || 0))}M${x(r.wavelength_um) - 3} ${y(r.flux_ujy - (r.flux_err_ujy || 0))}h6M${x(r.wavelength_um) - 3} ${y(r.flux_ujy + (r.flux_err_ujy || 0))}h6`} />
                 <circle className={mark && r.flags ? 'flagged' : ''} cx={x(r.wavelength_um)} cy={y(r.flux_ujy)} r={i === sel ? 5 : 3} style={mark && r.flags ? { stroke: c } : { fill: c }} />
               </g>
             )
@@ -466,16 +472,14 @@ function Plot({ rows, bands }: { rows: Row[]; bands: { um: number; label: string
       <p className="sr-only" aria-live="polite">
         {s ? `${f1(s.wavelength_um, 3)} microns. Flux ${f1(s.flux_ujy, 1)} plus or minus ${f1(s.flux_err_ujy, 1)} microjanskys. Signal to noise ${f1(s.snr, 1)}. ${when(s.iso)} UTC. ${epochName(s.iso.slice(0, 7))}.${s.flags ? ' Flagged.' : ''}` : ''}
       </p>
-      <p className="mv-read">
-        <span className="muted">Point at a dot or tap it to read its values.</span>
-      </p>
-      {log && <p className="caption">The flux axis is logarithmic because brightness spans more than a factor of {LOG_RATIO}. Gridlines step by about a factor of 3.{hidden > 0 ? ` ${hidden} measurement${hidden > 1 ? 's' : ''} at or below zero cannot be drawn on a log axis. They are still in the table.` : ''}</p>}
       <ul className="legend mv-legend">
-        <li><span className="mv-dot" style={single ? { background: wlColor(2.5) } : undefined} /> {single ? 'Measurement with error bar. Dot colour shows wavelength.' : 'Measurement with error bar'}</li>
-        {mark && <li><span className="mv-dot open" /> SPHEREx flagged some pixels in the aperture</li>}
-        {labelled.length > 0 && <li><span className="mv-bandkey" /> Colour of a known feature</li>}
+        <li><span className="mv-dot" style={single ? { background: wlColor(2.5) } : undefined} /> Measurement with error bar</li>
+        {mark && <li><span className="mv-dot open" /> Flagged by SPHEREx</li>}
+        <li><span className="mv-dot" style={{ background: '#4DD0F8' }} /><span className="mv-dot" style={{ background: '#FFB384' }} /> {single ? 'Colour is wavelength' : 'Colour is epoch'}</li>
       </ul>
-      {epochs.length > 1 && <p className="caption">Each epoch is a separate set of visits, and the object's brightness can change a lot between them, so epochs are plotted apart. The table and downloads include every epoch.</p>}
+      <p className="caption mv-prose mv-capline">
+        Point at a dot or tap it to read its values.{log ? ` Flux axis is logarithmic (brightness spans over ${LOG_RATIO}x).` : ''}{hidden > 0 ? ` ${hidden} value${hidden > 1 ? 's' : ''} at or below zero cannot be drawn on it, but ${hidden > 1 ? 'are' : 'is'} in the table.` : ''}{epochs.length > 1 ? ' Epochs are plotted apart because brightness can change a lot between visits.' : ''}
+      </p>
     </div>
   )
 }

@@ -192,7 +192,7 @@ export default function AnySpot({ params, onReady }: PageProps) {
     )
   } else {
     result = (
-      <div className="as-empty">
+      <div className="as-empty as-hide-phone">
         <h2>Nothing is fetched yet</h2>
         <p>Enter a position or tap an example, then press Show photos. The photos and the star's motion appear here.</p>
         <p className="muted">Want a star we already checked? Open Test stars in the menu.</p>
@@ -211,9 +211,9 @@ export default function AnySpot({ params, onReady }: PageProps) {
             <h2 className="as-h">Try an example</h2>
             <div className="as-chips">
               {EXAMPLES.map(t => (
-                <button key={t.slug} type="button" className="as-chip" aria-pressed={ra === coord(metas[t.slug]?.target?.astrometry?.ra ?? NaN) && dec === coord(metas[t.slug]?.target?.astrometry?.dec ?? NaN)} onClick={() => pick(t.slug)} disabled={!metas[t.slug]}>{t.name}</button>
+                <button key={t.slug} type="button" className="as-chip" aria-pressed={ra === coord(metas[t.slug]?.target?.astrometry?.ra ?? NaN) && dec === coord(metas[t.slug]?.target?.astrometry?.dec ?? NaN)} onClick={() => pick(t.slug)} disabled={!metas[t.slug]}>{t.name} <span className="as-tag">instant</span></button>
               ))}
-              <button type="button" className="as-chip" aria-pressed={ra === LIVE_EXAMPLE.ra && dec === LIVE_EXAMPLE.dec} onClick={() => fill(LIVE_EXAMPLE.ra, LIVE_EXAMPLE.dec)}>{LIVE_EXAMPLE.name}</button>
+              <button type="button" className="as-chip" aria-pressed={ra === LIVE_EXAMPLE.ra && dec === LIVE_EXAMPLE.dec} onClick={() => fill(LIVE_EXAMPLE.ra, LIVE_EXAMPLE.dec)}>{LIVE_EXAMPLE.name} <span className="as-tag">live, 1 to 2 min</span></button>
             </div>
             <p className="as-hint">The first three are ready at once. {LIVE_EXAMPLE.name} is fetched live.</p>
           </div>

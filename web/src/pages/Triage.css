@@ -24,10 +24,13 @@
 .tg-head p { margin: 0 0 var(--s1); }
 .tg-dl { display: flex; flex-wrap: wrap; gap: var(--s1); }
 
-/* the depth note is the most important caveat, so it is large and tinted */
-.tg-depth { background: var(--warn-bg); color: var(--ink); border-radius: var(--radius); padding: var(--s3); margin-bottom: var(--s2); }
-.tg-depth h2 { font-size: var(--t-md); color: var(--warn-ink); margin: 0 0 var(--s1); }
-.tg-depth p { margin: 0; font-size: 1.125rem; line-height: 1.45; max-width: 66ch; }
+/* one short visible line for the depth limit; the full note lives in Limits */
+.tg-depthline { margin: 0 0 var(--s2); font-weight: 600; color: var(--warn-ink); }
+.tg-limits .tg-fold p { margin: var(--s1) 0; }
+.tg-limits .notes-list { margin: var(--s1) 0 0; }
+.tg-err { font-weight: 500; color: var(--warn-ink); }
+.tg-form input[aria-invalid='true'] { background: var(--warn-bg); }
+.tg p, .tg li { max-width: 70ch; }
 
 /* count bar and filter chips */
 .tg-bar { display: flex; gap: 2px; height: 14px; border-radius: 7px; overflow: hidden; margin: var(--s1) 0; }
@@ -67,10 +70,11 @@
 .tg-table { width: 100%; border-collapse: collapse; font-size: var(--t-sm); }
 .tg-table th { text-align: left; font: 600 var(--t-xs) var(--f-text); color: var(--muted); padding: var(--s1) var(--s2); background: var(--card-2); }
 .tg-table td { padding: 10px var(--s2); vertical-align: middle; font-family: var(--f-mono); }
-.tg-table td.tg-why { font-family: var(--f-text); min-width: 220px; }
+.tg-table td.tg-why { font-family: var(--f-text); min-width: 0; }
 .tg-table tbody tr:nth-child(odd) { background: rgba(255, 255, 255, .03); }
 .tg-table img { display: block; width: 56px; height: 56px; border-radius: 6px; background: var(--sky); image-rendering: pixelated; }
-.tg-v span { display: flex; align-items: center; font-weight: 600; white-space: nowrap; }
+.tg-v > span:first-child { display: flex; align-items: center; font-weight: 600; white-space: nowrap; }
+.tg-v .tg-meta { display: block; font: 400 var(--t-xs) var(--f-mono); color: var(--muted); white-space: nowrap; margin: 2px 0; }
 .tg-v .linkbtn { font-size: var(--t-xs); min-height: 28px; text-align: left; }
 .tg-table .tg-ev-row { background: transparent !important; }
 .tg-table .tg-ev-row td { padding: 0 0 var(--s1); }
@@ -81,15 +85,12 @@
   .tg-form { grid-template-columns: 1fr 1fr; }
   .tg-form .btn, .tg-form label:nth-child(3) { grid-column: 1 / -1; }
   .tg-dl .btn { flex: 1 1 auto; }
-  .tg-depth { padding: var(--s2); }
-  .tg-depth p { font-size: var(--t-md); }
   /* each row becomes a small card */
   .tg-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
   .tg-table, .tg-table tbody, .tg-table tr, .tg-table td { display: block; width: 100%; }
   .tg-table tbody tr { margin-bottom: var(--s1); border-radius: var(--radius-sm); background: var(--card-2); display: grid; grid-template-columns: 64px minmax(0, 1fr); column-gap: var(--s1); padding: var(--s1); }
   .tg-table td { padding: 2px 0; }
-  .tg-table td:first-child { grid-row: 1 / span 4; }
-  .tg-table td[data-l='Date'], .tg-table td[data-l='RA, Dec'] { font-size: var(--t-xs); color: var(--muted); }
+  .tg-table td:first-child { grid-row: 1 / span 2; }
   .tg-table td.tg-why { min-width: 0; }
   .tg-table .tg-ev-row { display: block; padding: 0; background: transparent; }
   .tg-table .tg-ev-row td { grid-row: auto; }

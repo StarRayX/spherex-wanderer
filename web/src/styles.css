@@ -40,6 +40,9 @@ html { -webkit-text-size-adjust: 100%; scrollbar-width: thin; scrollbar-color: #
 body { margin: 0; background: var(--bg); color: var(--ink); font: 400 var(--t-md)/1.5 var(--f-text); font-variant-numeric: tabular-nums; }
 h1, h2, h3, h4 { margin: 0; line-height: 1.15; font-family: var(--f-display); font-weight: 700; letter-spacing: -.01em; }
 p { margin: 0 0 var(--s2); }
+/* Running text stays readable; plots, tables, grids and the sky map keep full width. :where keeps specificity at zero so a local max-width wins. */
+:where(p, li, .lede, .def, .caption) { max-width: 70ch; }
+:where(td, th) :where(p, li) { max-width: none; }
 a { color: var(--cyan-ink); }
 a:hover { color: var(--navy); }
 button, input, select { font: inherit; color: inherit; }
@@ -124,7 +127,7 @@ select.field { appearance: auto; }
 .tabs [role="tab"][aria-selected="true"] { color: var(--navy); border-bottom-color: var(--pop); }
 .stat { display: flex; flex-direction: column; gap: var(--s0); }
 .stat-value { font: 700 clamp(1.75rem, 3vw, 2.25rem)/1.05 var(--f-mono); letter-spacing: -.01em; }
-.stat-value small { font-size: .5em; color: var(--muted); letter-spacing: 0; }
+.stat-value small { font-size: .5em; color: var(--muted); letter-spacing: 0; white-space: nowrap; }
 .stat-label { font-size: var(--t-sm); color: var(--muted); }
 .grid3 { display: grid; gap: var(--s2); grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .grid2 { display: grid; gap: var(--s2); grid-template-columns: repeat(2, minmax(0, 1fr)); }
