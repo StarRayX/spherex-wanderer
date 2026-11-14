@@ -25,7 +25,11 @@
         9.998156918191857,
         10.002452040814608
       ],
-      "flags_summary": "1/1 frames, bits [21]"
+      "flags_summary": "1/1 frames, bits [21]",
+      "saturated_pixels": [],
+      "saturated_core_xy": null,
+      "colour_matched": true,
+      "colour_note": "0.745 um, +0.000 um from the visits' median 0.745 um (tolerance 0.009 um): same colour"
     },
     {
       "file": "visit_01.png",
@@ -43,7 +47,11 @@
         10.0,
         9.999999999997947
       ],
-      "flags_summary": "1/1 frames, bits [21]"
+      "flags_summary": "1/1 frames, bits [21]",
+      "saturated_pixels": [],
+      "saturated_core_xy": null,
+      "colour_matched": true,
+      "colour_note": "0.739 um, -0.006 um from the visits' median 0.745 um (tolerance 0.009 um): same colour"
     },
     {
       "file": "visit_02.png",
@@ -61,7 +69,11 @@
         9.99770906418708,
         9.997939059139101
       ],
-      "flags_summary": "1/1 frames, bits [21]"
+      "flags_summary": "1/1 frames, bits [21]",
+      "saturated_pixels": [],
+      "saturated_core_xy": null,
+      "colour_matched": true,
+      "colour_note": "0.752 um, +0.007 um from the visits' median 0.745 um (tolerance 0.009 um): same colour"
     }
   ],
   "motion": null,
@@ -100,6 +112,7 @@
     "One frame per visit at 0.75 um, so no within-visit scatter; March 2026 has no frame near 0.75 um, so there is no point for it (that visit's image is at a different wavelength and is not measured).",
     "RW Aur itself is not independently validated: the SPHEREx calibration was checked against 2MASS/WISE on a field star (about 4%, D3), not on RW Aur, whose 2MASS epoch predates its dimming. A field star in the same frames stays at about 3.3 mJy, so the 2.5x brightening is the star, not the calibration.",
     "Earlier sums of 65 to 90 mJy at 0.90 to 0.94 um were a masking artifact (the saturated peak was left out) and are not brightness.",
+    "Detection: forced S/N in a 2 px aperture on the stack against the scatter of the same aperture at blank positions of that stack (reprojection correlates pixels, so a per-pixel noise would overstate S/N); needs S/N 5 and the centre within 1.5 px of the prediction.",
     "No motion fit: 3 detected visits, expected drift 0.0 arcsec over the detected span (need 3 visits and half a pixel, 3.1 arcsec).",
     "Photometry: 3 px aperture, sky annulus 5-8 px, no aperture correction, only frames within 0.009 um of 0.75 um; saturated or masked frames are dropped, not guessed."
   ],

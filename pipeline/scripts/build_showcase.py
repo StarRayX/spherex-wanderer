@@ -42,7 +42,9 @@ TARGETS = {
         spectrum_caveats=["Ba and Bb are one blended source: the spectrum is Ba+Bb.",
                           "A T dwarf pair, far redder than the one star the method was validated on (deep water and "
                           "methane absorption): not validated for a spectrum like this.",
-                          "Faint below 1 um: the 0.75 um point is about 1 sigma."],
+                          "Faint below 1 um: the 0.75 um point is about 1 sigma.",
+                          "A faint, blended pair (about K 11), outside the validated brightness range (K 10.4 to 10.6): "
+                          "the flux scale may read 5 to 25% high."],
         claim="Detected in every visit; its drift is reported with the error bar, no further claim.",
         notes=["Ba and Bb (0.6 arcsec apart) are one blended source at 6.15 arcsec per pixel.",
                "Epsilon Indi A is about 400 arcsec away, outside this 2 arcmin field: no common-motion view here.",
@@ -55,13 +57,24 @@ TARGETS = {
                 "(Kirkpatrick et al. 2021, ApJS 253, 7). The challenge coordinates 08h55m10.831s -7d14m42.53s are the "
                 "WISE All-Sky position at epoch 2010.338, not J2000: see pipeline/blink/WISE0855_NOTES.md."),
         band="SPHEREx-D6", frames_per_visit=4, size_arcmin=4.0,
-        spectrum_reason="Too faint: expected S/N about 2 to 3 per visit (not even detected in one), and blended with a "
+        spectrum_reason="Too faint: expected S/N about 2 to 3 per visit (not separately detected in any), and blended with a "
                         "background star; per-frame points would be noise.",
-        claim="The hardest target: what SPHEREx sees at 4.4 to 5 um at the predicted position.",
+        claim="Not separately detected: about 2 sigma per visit in forced photometry (0.39 +/- 0.20, 0.67 +/- 0.28 and "
+              "0.31 +/- 0.14 mJy; S/N 2.0, 5.1 and 4.9 in the visit stacks), consistent with the expected 0.47 mJy plus "
+              "a blended background star.",
+        # the stack rule passes once (Nov 2025, S/N 5.1) only with the background star's flux in the aperture
+        not_detected="the S/N includes a blended background star (W2 15.05, about 0.16 mJy, a quarter of the expected "
+                     "blend), so it is not a detection of WISE 0855",
         notes=["Expected brightness is only marginal: W2 13.9 (about 0.47 mJy) gives an expected S/N of about 2 to 3 per visit.",
-               "A faint background star (AllWISE J085501.95-071428.1, W2 15.05) sits about 1.3 pixels from the 2025-26 "
-               "position, inside the measuring aperture, so any signal here may be blended. Candidate only unless the "
-               "build's detection rule passes."]),
+               "A faint background star (AllWISE J085501.95-071428.1, W2 15.05, about 0.16 mJy) sits about 1.3 pixels from "
+               "the 2025-26 position, inside the measuring aperture, so any signal here is blended.",
+               "Noise checked 2026-11-14: an earlier build reported S/N 8.1 and 7.9 from the stack's per-pixel spread x "
+               "sqrt(N), which ignores that reprojection correlates neighbouring pixels. The same aperture at about 1000 "
+               "blank positions per stack scatters 1.65 to 1.74x more, matching the frame-to-frame scatter within each "
+               "visit (0.16, 0.12, 0.11 vs 0.19, 0.14, 0.12 in stack units), so S/N is 2.0, 5.1 and 4.9. Single-frame "
+               "VARIANCE errors match their own blank-sky scatter (median ratio 1.1): the photometry errors stand.",
+               "Not separately detected in any visit: the one stack over S/N 5 (Nov 2025, 5.1) includes the background "
+               "star, and without it would be about 4. No star marker is drawn."]),
     "rw-aurigae": dict(
         name="RW Aurigae",
         astrometry=dict(ra=76.95608119552952, dec=30.401204589097233, pmra=2.6406431770317083,
@@ -104,6 +117,14 @@ def build(slug, out_root=OUT, **kw):
                                   "spectrum") if k in t}
     meta = build_target(slug, a["ra"], a["dec"], a, Path(out_root) / slug, max_mb=MAX_MB, **{"spectrum_mb": MAX_MB, **opts, **kw})
     meta["target"] = dict(name=t["name"], claim=t["claim"], astrometry=a, astrometry_source=t["source"])
+    if "not_detected" in t:  # the stack rule passed only on something the target notes explain (e.g. a blend)
+        for i, v in enumerate(meta["visits"]):
+            if v["star_xy"] is not None:
+                snr = meta["photometry"][i]["snr_stack"] if meta["photometry"] else float("nan")
+                v["star_xy"] = None
+                v["flags_summary"] = f"not separately detected: S/N {snr:.1f}, but {t['not_detected']}; flags {v['flags_summary']}"
+        meta["detected"] = [False] * len(meta["visits"])
+        meta["notes"] = [n for n in meta["notes"] if not n.startswith(("Not detected in", "No motion fit"))]
     meta["notes"] = t.get("notes", []) + meta.get("notes", [])
     if meta["spectrum"]:
         meta["spectrum"]["caveats"] += t.get("spectrum_caveats", [])

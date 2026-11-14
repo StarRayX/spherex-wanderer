@@ -58,25 +58,46 @@ def resolve(name_or_coords):
     raise ValueError(f"name not found: {s}")
 
 
+# A typed position may be at a catalogue epoch, not Gaia's 2016.0: Barnard's J2000 position is 166 arcsec from Gaia's,
+# the challenge's WISE 0855 coordinates are at the WISE epoch. Searched only when nothing is at the typed position.
+EPOCHS = (2000.0, 2010.338, 2016.0)  # J2000 catalogues, the WISE epoch, Gaia itself
+WIDE_ARCSEC, MIN_PM = 300, 200  # 5 arcmin covers 18 arcsec/yr back to J2000; slower stars stay inside 5 arcsec anyway
+
+
+def _gaia_rows(ra, dec, radius_arcsec, where="", top=1):
+    q = (f"SELECT TOP {top} ra, dec, pmra, pmdec, parallax FROM gaiadr3.gaia_source "
+         f"WHERE 1=CONTAINS(POINT('ICRS',ra,dec),CIRCLE('ICRS',{ra},{dec},{radius_arcsec / 3600})) "
+         f"AND parallax IS NOT NULL AND pmra IS NOT NULL {where}ORDER BY phot_g_mean_mag")
+    r = requests.post(GAIA, data=dict(REQUEST="doQuery", LANG="ADQL", FORMAT="csv", QUERY=q), timeout=60)
+    r.raise_for_status()
+    rows = [{k: float(x[k]) for k in ("ra", "dec", "pmra", "pmdec", "parallax")} for x in csv.DictReader(io.StringIO(r.text))]
+    return [d for d in rows if all(map(math.isfinite, d.values())) and d["parallax"] > 0]
+
+
 def gaia_astrometry(ra, dec, radius_arcsec=5):
     """Gaia DR3 astrometry {ra, dec, pmra, pmdec, parallax, epoch_from} or None.
 
     Heuristic: Gaia is at epoch 2016 but a SIMBAD position can be at another epoch, so a fast mover
     sits off-centre. We take the brightest source (min G) within radius; callers pass ~30" for names
     and the default 5" for raw coordinates. Sources without parallax/pm (2-parameter) are skipped.
+    If there is none, Gaia sources moving over MIN_PM mas/yr within WIDE_ARCSEC are carried back to each of
+    EPOCHS (straight line, no parallax: catalogue positions are barycentric); the one landing closest to the
+    typed position, within radius, wins and the dict also has matched_epoch and match_arcsec.
     """
-    q = (f"SELECT TOP 1 ra, dec, pmra, pmdec, parallax FROM gaiadr3.gaia_source "
-         f"WHERE 1=CONTAINS(POINT('ICRS',ra,dec),CIRCLE('ICRS',{ra},{dec},{radius_arcsec / 3600})) "
-         f"AND parallax IS NOT NULL AND pmra IS NOT NULL ORDER BY phot_g_mean_mag")
-    r = requests.post(GAIA, data=dict(REQUEST="doQuery", LANG="ADQL", FORMAT="csv", QUERY=q), timeout=60)
-    r.raise_for_status()
-    rows = list(csv.DictReader(io.StringIO(r.text)))
-    if not rows:
+    rows = _gaia_rows(ra, dec, radius_arcsec)
+    if rows:  # the brightest source, as before (a 5-parameter one; else None, as before)
+        return {**rows[0], "epoch_from": 2016.0}
+    best = None
+    for d in _gaia_rows(ra, dec, WIDE_ARCSEC, f"AND pm > {MIN_PM} ", top=50):
+        for ep in EPOCHS:
+            de = d["dec"] + d["pmdec"] * (ep - 2016.0) / 3.6e6
+            ra_e = d["ra"] + d["pmra"] * (ep - 2016.0) / 3.6e6 / math.cos(math.radians(de))
+            sep = 3600 * math.hypot(((ra_e - ra + 180) % 360 - 180) * math.cos(math.radians(dec)), de - dec)
+            if sep <= radius_arcsec and (best is None or sep < best[0]):
+                best = (sep, ep, d)
+    if best is None:
         return None
-    d = {k: float(rows[0][k]) for k in ("ra", "dec", "pmra", "pmdec", "parallax")}
-    if not all(map(math.isfinite, d.values())) or d["parallax"] <= 0:
-        return None
-    return {**d, "epoch_from": 2016.0}
+    return {**best[2], "epoch_from": 2016.0, "matched_epoch": best[1], "match_arcsec": round(best[0], 2)}
 
 
 if __name__ == "__main__":

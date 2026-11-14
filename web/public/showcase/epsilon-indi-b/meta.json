@@ -25,7 +25,11 @@
         10.591286811136996,
         10.354371516129463
       ],
-      "flags_summary": "3/3 frames, bits [21]"
+      "flags_summary": "3/3 frames, bits [21]",
+      "saturated_pixels": [],
+      "saturated_core_xy": null,
+      "colour_matched": true,
+      "colour_note": "1.261 um, +0.001 um from the visits' median 1.260 um (tolerance 0.016 um): same colour"
     },
     {
       "file": "visit_01.png",
@@ -43,7 +47,11 @@
         10.411721964297566,
         10.161001501160431
       ],
-      "flags_summary": "3/3 frames, bits [21]"
+      "flags_summary": "3/3 frames, bits [21]",
+      "saturated_pixels": [],
+      "saturated_core_xy": null,
+      "colour_matched": true,
+      "colour_note": "1.254 um, -0.007 um from the visits' median 1.260 um (tolerance 0.016 um): same colour"
     },
     {
       "file": "visit_02.png",
@@ -61,7 +69,11 @@
         10.0,
         9.999999999997947
       ],
-      "flags_summary": "3/3 frames, bits [21, 28]"
+      "flags_summary": "3/3 frames, bits [21, 28]",
+      "saturated_pixels": [],
+      "saturated_core_xy": null,
+      "colour_matched": false,
+      "colour_note": "1.333 um, +0.073 um from the visits' median 1.260 um (tolerance 0.017 um): a different colour, so its brightness differs from colour alone; drop or label it"
     },
     {
       "file": "visit_03.png",
@@ -79,7 +91,11 @@
         9.78038863081495,
         9.770530608021286
       ],
-      "flags_summary": "3/3 frames, bits [21, 28]"
+      "flags_summary": "3/3 frames, bits [21, 28]",
+      "saturated_pixels": [],
+      "saturated_core_xy": null,
+      "colour_matched": true,
+      "colour_note": "1.260 um, -0.001 um from the visits' median 1.260 um (tolerance 0.016 um): same colour"
     }
   ],
   "motion": {
@@ -87,6 +103,7 @@
     "error_arcsec_per_yr": 0.2354187805875153,
     "gaia_arcsec_per_yr": 3.98197666296105,
     "axis": "ra",
+    "caption_note": "eastward drift (RA component), not the total proper motion",
     "parallax_corrected": {
       "measured_arcsec_per_yr": 3.901461169140547,
       "error_arcsec_per_yr": 0.0826105171645649
@@ -219,7 +236,7 @@
       "masked_pixels": 0,
       "lower_limit": false,
       "aperture_pixels": 86,
-      "snr_stack": 532.1999472061503,
+      "snr_stack": 172.62313978199225,
       "frames": [
         {
           "mjd": 60792.704518,
@@ -257,7 +274,7 @@
       "masked_pixels": 0,
       "lower_limit": false,
       "aperture_pixels": 85,
-      "snr_stack": 752.3689546117288,
+      "snr_stack": 265.88394315205767,
       "frames": [
         {
           "mjd": 60950.021191,
@@ -295,7 +312,7 @@
       "masked_pixels": 0,
       "lower_limit": false,
       "aperture_pixels": 86,
-      "snr_stack": 309.84057946096027,
+      "snr_stack": 91.6230763092708,
       "frames": [
         {
           "mjd": 61155.09135,
@@ -333,7 +350,7 @@
       "masked_pixels": 0,
       "lower_limit": false,
       "aperture_pixels": 85,
-      "snr_stack": 644.6058841966313,
+      "snr_stack": 289.28871032680837,
       "frames": [
         {
           "mjd": 61315.136989,
@@ -363,6 +380,8 @@
     "Ba and Bb (0.6 arcsec apart) are one blended source at 6.15 arcsec per pixel.",
     "Epsilon Indi A is about 400 arcsec away, outside this 2 arcmin field: no common-motion view here.",
     "Frames matched to 1.27 um; the Apr 2026 visit has none closer than 1.30 to 1.37 um.",
+    "1 of 4 visits (2026-04-25) are not at the shared wavelength (1.260 um, colour_matched false): in a flipbook their brightness changes from colour alone.",
+    "Detection: forced S/N in a 2 px aperture on the stack against the scatter of the same aperture at blank positions of that stack (reprojection correlates pixels, so a per-pixel noise would overstate S/N); needs S/N 5 and the centre within 1.5 px of the prediction.",
     "Each frame saw a different wavelength at the star's pixel (ranges per visit); a brightness change between visits mixes real change with colour. Not a light curve.",
     "Frame-to-frame scatter within a visit (scatter_mjy) is far above the VARIANCE error: the error bars understate the real uncertainty.",
     "Photometry: forced 3 px (18.5 arcsec) radius aperture sum on each frame, local sky annulus, VARIANCE errors, no aperture correction, mean per visit."
@@ -495,14 +514,15 @@
     "dropped_masked": 2,
     "frames_tried": 20,
     "visit_date": "2025-05-09",
-    "validation": "Matched IRSA's Spectrophotometry Tool within 3.3% on one isolated, unsaturated star (K 10.42). Not validated on other stars, saturated stars, or absolute calibration beyond about 5%. See pipeline/blink/STRETCH_NOTES.md.",
+    "validation": "Matched IRSA's Spectrophotometry Tool within 10% only for uncrowded stars of K 10.4 to 10.6 (K 10.42: median +0.2%; K 10.57 beside an equal neighbour: median -0.6%). It failed elsewhere: a K 8.64 star missed on one near-saturated frame, a faint K 11.93 star read 11.7% high, and a K 11.18 star with a 5x brighter neighbour read 4.8% high (one point +21%), so faint or crowded stars can read 5 to 25% high. Absolute calibration agrees with 2MASS, AllWISE and Gaia within the 5% those catalogs can test. See pipeline/blink/STRETCH_NOTES.md.",
     "caveats": [
       "20 of the visit's 118 frames, spread in wavelength to fit the download budget, not all.",
       "Aperture photometry per frame (3 px radius, sky annulus 5-8 px), no aperture correction; frames with a saturated or masked pixel in the aperture are dropped and counted, never guessed.",
       "A bright neighbour inside the sky annulus would bias the flux and is not detected.",
       "Ba and Bb are one blended source: the spectrum is Ba+Bb.",
       "A T dwarf pair, far redder than the one star the method was validated on (deep water and methane absorption): not validated for a spectrum like this.",
-      "Faint below 1 um: the 0.75 um point is about 1 sigma."
+      "Faint below 1 um: the 0.75 um point is about 1 sigma.",
+      "A faint, blended pair (about K 11), outside the validated brightness range (K 10.4 to 10.6): the flux scale may read 5 to 25% high."
     ],
     "cutouts_mb": 79.3
   },

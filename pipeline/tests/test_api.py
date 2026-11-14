@@ -53,7 +53,7 @@ def test_rejects_bad(fake, q):
 
 def test_cache_and_status(fake):
     code, r = api.handle(dict(ra="269.45", dec="4.73", size="2"))
-    assert code == 200 and fake == [(r["slug"], 100, 2.0)]
+    assert code == 200 and fake == [(r["slug"], 100 - api.TABLE_MB, 2.0, True)]  # wavelength-matched
     assert r["urls"] == [f"/api/blink?file={r['slug']}/{f}" for f in ("visit_00.png", "visit_01.png", "visit_02.png", "diff_00_01.png")]
     assert api.handle(dict(ra="269.45", dec="4.73", size="2"))[0] == 200
     assert len(fake) == 1  # served from disk
@@ -94,7 +94,7 @@ def test_showcase_and_end_to_end(fake):
     assert api.handle(dict(showcase="../x"))[0] == 404 and api.handle(dict(showcase="nope"))[0] == 404
     assert not fake  # showcase never builds
     code, r = api.handle({"ra": ["269.45"], "dec": ["4.73"]})  # list-valued like parse_qs
-    assert code == 200 and r["slug"] == "269.4500_+4.7300_2_qr2" and len(fake) == 1
+    assert code == 200 and r["slug"] == "269.4500_+4.7300_6" and len(fake) == 1
     assert api.handle(dict(ra="269.45", dec="4.73"))[1]["urls"] == r["urls"] and len(fake) == 1
 
 
@@ -184,9 +184,9 @@ def test_file_serves_difference_png(fake):
 
 def test_spectrum_param(fake):
     code, r = api.handle(dict(ra="269.45", dec="4.73", spectrum="1"))
-    assert code == 200 and r["slug"] == "269.4500_+4.7300_2_qr2_spec"  # its own cache key: a plain build has no spectrum
-    assert fake == [(r["slug"], api.MAX_MB - api.SPECTRUM_MB, 2.0, True, api.SPECTRUM_MB)]
-    assert api.handle(dict(ra="269.45", dec="4.73", spectrum="0"))[1]["slug"] == "269.4500_+4.7300_2_qr2"
+    assert code == 200 and r["slug"] == "269.4500_+4.7300_6_spec"  # its own cache key: a plain build has no spectrum
+    assert fake == [(r["slug"], api.MAX_MB - api.SPECTRUM_MB - api.TABLE_MB, 6.0, True, True, api.SPECTRUM_MB)]
+    assert api.handle(dict(ra="269.45", dec="4.73", spectrum="0"))[1]["slug"] == "269.4500_+4.7300_6"
 
 
 def test_spectrum_budget_refusal(fake, monkeypatch):
@@ -201,3 +201,30 @@ def test_spectrum_budget_refusal(fake, monkeypatch):
     monkeypatch.setattr(api, "SPECTRUM_MB", 20)  # 12 new spectrum cutouts, about 49 MB
     code, r = api.handle(dict(ra="10", dec="10", spectrum="1"))
     assert code == 502 and "refusing" in r["error"]
+
+
+def test_live_matches_wavelength_and_falls_back_honestly(fake, monkeypatch):
+    """Live builds ask for wavelength matching; if matching fails inside build.plan (before any download) the build is
+    redone with frames picked by time and meta.notes says so. Gaia's extra match keys never reach build_target."""
+    seen, real = [], api.build.build_target
+    monkeypatch.setattr(api.rs, "gaia_astrometry", lambda ra, dec, r=5: dict(
+        ra=1.0, dec=1.0, pmra=0.0, pmdec=900.0, parallax=50.0, epoch_from=2016.0, matched_epoch=2000.0, match_arcsec=0.4))
+
+    def build(slug, ra, dec, astro, out_dir, match_wavelength=False, **k):
+        seen.append((match_wavelength, sorted(astro)))
+        if match_wavelength:
+            def plan():
+                raise IndexError("no s_region")
+            plan()
+        return real(slug, ra, dec, astro, out_dir, **k)
+    monkeypatch.setattr(api.build, "build_target", build)
+    code, r = api.handle(dict(ra="1", dec="1"))
+    assert code == 200 and [s[0] for s in seen] == [True, False] and r["gaia"]["matched_epoch"] == 2000.0
+    assert seen[0][1] == sorted(api.ASTRO)
+    assert "Wavelength matching failed (IndexError)" in r["meta"]["notes"][-1]
+    assert "Wavelength matching failed" in json.loads((api.CACHE / r["slug"] / "meta.json").read_text())["notes"][-1]
+
+    def other(*a, **k):
+        raise RuntimeError("irsa")  # any other failure is not retried
+    monkeypatch.setattr(api.build, "build_target", other)
+    assert api.handle(dict(ra="2", dec="2"))[0] == 502

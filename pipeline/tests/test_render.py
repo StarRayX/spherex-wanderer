@@ -22,7 +22,8 @@ def test_render(tmp_path):
     assert {"slug", "visits", "stretch", "pixel_scale_arcsec", "upsample", "motion"} <= m.keys()
     assert m["stretch"]["black"] < m["stretch"]["white"] and m["upsample"] == 4
     assert set(m["visits"][0]) == {"file", "date", "mjd", "band", "wavelength_um", "wavelength_min_um", "wavelength_max_um",
-                                   "star_xy", "predicted_xy", "flags_summary"}
+                                   "star_xy", "predicted_xy", "flags_summary", "saturated_pixels", "saturated_core_xy"}
+    assert m["visits"][0]["saturated_pixels"] == [] and m["visits"][0]["saturated_core_xy"] is None
     assert m["visits"][2]["star_xy"] is None and m["visits"][0]["star_xy"] == [10, 10]
     assert m["motion"]["gaia_arcsec_per_yr"] == 1.1
     from PIL import Image
@@ -44,3 +45,16 @@ def test_render_differences(tmp_path):
     g = im[..., 0].astype(int)
     assert g[22, 22] > 200 and g[62, 62] < 55 and abs(g[40, 40] - 128) <= 1  # brighter, fainter, no change = mid grey
     assert im[0, 0, 1] == 0 and im[40, 40, 1] == 255  # NaN is transparent, not "no change"
+
+
+def test_saturated_core_filled_and_listed(tmp_path):
+    from PIL import Image
+    v = _visit(0, True)
+    v["image"][9:12, 9:12] = np.nan  # masked core: was drawn black (a donut)
+    v["image"][2, 17] = np.nan  # a masked pixel away from the star: left alone, not called saturated
+    m = render_target("t", [v], tmp_path)
+    r = m["visits"][0]
+    assert len(r["saturated_pixels"]) == 9 and [10, 10] in r["saturated_pixels"] and [17, 2] not in r["saturated_pixels"]
+    assert r["saturated_core_xy"] == [10.0, 10.0]
+    g = np.asarray(Image.open(tmp_path / "visit_00.png"), float)
+    assert g[40, 40] > 200  # core drawn bright (flat fill from its ring); unfilled it was 0 (black)

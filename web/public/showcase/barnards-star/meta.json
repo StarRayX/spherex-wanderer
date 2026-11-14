@@ -25,7 +25,11 @@
         10.083424324316384,
         8.969970516645363
       ],
-      "flags_summary": "3/3 frames, bits [0, 1, 2, 21, 26]"
+      "flags_summary": "3/3 frames, bits [0, 1, 2, 21, 26]",
+      "saturated_pixels": [],
+      "saturated_core_xy": null,
+      "colour_matched": true,
+      "colour_note": "4.888 um, -0.015 um from the visits' median 4.903 um (tolerance 0.061 um): same colour"
     },
     {
       "file": "visit_01.png",
@@ -43,7 +47,11 @@
         10.0,
         9.999999999997947
       ],
-      "flags_summary": "3/3 frames, bits [0, 1, 2, 21, 26]"
+      "flags_summary": "3/3 frames, bits [0, 1, 2, 21, 26]",
+      "saturated_pixels": [],
+      "saturated_core_xy": null,
+      "colour_matched": true,
+      "colour_note": "4.906 um, +0.003 um from the visits' median 4.903 um (tolerance 0.061 um): same colour"
     },
     {
       "file": "visit_02.png",
@@ -61,7 +69,11 @@
         10.20832990588983,
         10.634932652541021
       ],
-      "flags_summary": "3/3 frames, bits [0, 1, 2, 21, 26]"
+      "flags_summary": "3/3 frames, bits [0, 1, 2, 21, 26]",
+      "saturated_pixels": [],
+      "saturated_core_xy": null,
+      "colour_matched": true,
+      "colour_note": "4.903 um, +0.000 um from the visits' median 4.903 um (tolerance 0.061 um): same colour"
     }
   ],
   "motion": {
@@ -69,6 +81,7 @@
     "error_arcsec_per_yr": 0.7076414502574221,
     "gaia_arcsec_per_yr": 10.362394206546572,
     "axis": "dec",
+    "caption_note": "northward drift (Dec component), not the total proper motion",
     "parallax_corrected": {
       "measured_arcsec_per_yr": 10.541563938722826,
       "error_arcsec_per_yr": 0.7876538544847753
@@ -178,7 +191,7 @@
       "masked_pixels": 9,
       "lower_limit": true,
       "aperture_pixels": 88,
-      "snr_stack": 10635.561448923887,
+      "snr_stack": 1061.3844422692832,
       "frames": [
         {
           "mjd": 60902.864715,
@@ -216,7 +229,7 @@
       "masked_pixels": 11,
       "lower_limit": true,
       "aperture_pixels": 86,
-      "snr_stack": 10240.13516244955,
+      "snr_stack": 1116.409472659812,
       "frames": [
         {
           "mjd": 61121.367109,
@@ -254,7 +267,7 @@
       "masked_pixels": 14,
       "lower_limit": true,
       "aperture_pixels": 91,
-      "snr_stack": 9874.886533277839,
+      "snr_stack": 1120.5729031013161,
       "frames": [
         {
           "mjd": 61269.849451,
@@ -283,6 +296,7 @@
   "notes": [
     "Why D6 at 4.9 um (checked 2026-11-14 on cached frames): in D2 and D4 the core is saturated, and five Aug 2025 exposures put the fitted star 3.3 to 3.8 arcsec east of Gaia while other frames of the same visit sit about 1 arcsec west, at any wavelength (1.1 to 3.8 um; the same 2.44 um and detector spot gives both). 15 to 17 Gaia field stars in the same exposures agree with Gaia to 0.2 arcsec, so the WCS is fine; fitting the official ePSF instead of a Gaussian gives the same shift; the excess sits within 3 px of the core. Cause in the detector not identified. The earlier D4 build (9.6 +/- 1.0 Dec, -2.7 +/- 1.8 RA arcsec/yr) included two such frames.",
     "Motion errors include the frame-to-frame scatter within each visit, not only the scatter about the line.",
+    "Detection: forced S/N in a 2 px aperture on the stack against the scatter of the same aperture at blank positions of that stack (reprojection correlates pixels, so a per-pixel noise would overstate S/N); needs S/N 5 and the centre within 1.5 px of the prediction.",
     "Each frame saw a different wavelength at the star's pixel (ranges per visit); a brightness change between visits mixes real change with colour. Not a light curve.",
     "Per visit, only frames with no masked pixel in the aperture are averaged (frames_used); 3 visits had none, so their sums are lower limits.",
     "Frame-to-frame scatter within a visit (scatter_mjy) is far above the VARIANCE error: the error bars understate the real uncertainty.",

@@ -21,15 +21,21 @@ def find_frames(ra, dec):
 
     'url' is the IRSA datalink URL (obscore access_url); fetch.fetch_cutout resolves it
     to the FITS URL. 'band' is e.g. SPHEREx-D3; wavelength range in metres.
+    Every obs_collection is used (2026-11-14: spherex_dr1, spherex_dr1_deep, spherex_qr3, spherex_qr3_deep). They are
+    separate exposures, not co-adds: no (obs_id, detector) pair repeated across them at Barnard, Kapteyn or R Dra
+    (deep field). A later release re-listing an exposure would, so only the first row per (obs_id, band) is kept.
     """
     q = (f"SELECT obs_id, t_min, energy_bandpassname, em_min, em_max, access_url, s_region "
          f"FROM spherex.obscore WHERE CONTAINS(POINT('ICRS',{ra},{dec}),s_region)=1 "
          f"ORDER BY t_min")
     r = requests.post(TAP, data=dict(REQUEST="doQuery", LANG="ADQL", FORMAT="csv", QUERY=q), timeout=300)
     r.raise_for_status()
-    return [dict(obs_id=x["obs_id"], mjd=float(x["t_min"]), band=x["energy_bandpassname"],
-                 em_min=float(x["em_min"]), em_max=float(x["em_max"]), url=x["access_url"], s_region=x["s_region"])
-            for x in csv.DictReader(io.StringIO(r.text))]
+    rows = {}
+    for x in csv.DictReader(io.StringIO(r.text)):
+        rows.setdefault((x["obs_id"], x["energy_bandpassname"]), dict(
+            obs_id=x["obs_id"], mjd=float(x["t_min"]), band=x["energy_bandpassname"], em_min=float(x["em_min"]),
+            em_max=float(x["em_max"]), url=x["access_url"], s_region=x["s_region"]))
+    return list(rows.values())
 
 
 def group_visits(frames, gap_days=60):

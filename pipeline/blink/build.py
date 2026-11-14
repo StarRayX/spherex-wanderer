@@ -24,9 +24,12 @@ SNR_MIN, MAX_OFFSET_PX = 5.0, 1.5  # detection: forced S/N at the predicted spot
 AP_R = 3.0  # photometry aperture radius, px
 
 # Edit here when the wider spectrum validation finishes; copied into every meta.spectrum.
-SPECTRUM_VALIDATION = ("Matched IRSA's Spectrophotometry Tool within 3.3% on one isolated, unsaturated star (K 10.42). "
-                       "Not validated on other stars, saturated stars, or absolute calibration beyond about 5%. "
-                       "See pipeline/blink/STRETCH_NOTES.md.")
+SPECTRUM_VALIDATION = ("Matched IRSA's Spectrophotometry Tool within 10% only for uncrowded stars of K 10.4 to 10.6 "
+                       "(K 10.42: median +0.2%; K 10.57 beside an equal neighbour: median -0.6%). It failed elsewhere: a "
+                       "K 8.64 star missed on one near-saturated frame, a faint K 11.93 star read 11.7% high, and a K 11.18 "
+                       "star with a 5x brighter neighbour read 4.8% high (one point +21%), so faint or crowded stars can "
+                       "read 5 to 25% high. Absolute calibration agrees with 2MASS, AllWISE and Gaia within the 5% those "
+                       "catalogs can test. See pipeline/blink/STRETCH_NOTES.md.")
 SPECTRUM_NEW, SPECTRUM_SIZE = 14, 2.0  # at most 14 new 2' cutouts per spectrum (about 57 MB)
 DIFF_NOTE = ("A visual aid: the later visit minus the earlier, at the same wavelength. Static stars leave residuals of up "
              "to about 17% of their peak (the PSF is undersampled), so a change under about 10% of a star's peak cannot be "
@@ -151,16 +154,40 @@ def aperture(path, ra, dec, r=AP_R):
     return float(s * k), float(e * k), int((ap & bad).sum()), int(ap.sum())
 
 
-def snr_at(img, x, y, r=2.0):
-    """Forced S/N in a radius-r aperture at (x, y) of a background-subtracted stack; noise from the stack's own ring.
-    If over half the aperture is masked (a saturated core, e.g. R Dra), widen to r=4.5 so the wings count."""
+def blank_sky_std(img, r, x, y, avoid):
+    """(robust scatter, pixels, positions) of the same r-px aperture sum placed at every integer position of img whose
+    aperture is all finite and whose centre is at least avoid px from (x, y). Measures the noise of an aperture sum as
+    it is, correlated pixels included: a reprojected stack correlates neighbours, so per-pixel spread x sqrt(N)
+    understates it (1.7x on WISE 0855, 2-25x around bright stars, where the wings also inflate this: conservative)."""
+    from scipy.ndimage import convolve
+    k = int(np.ceil(r))
+    oy, ox = np.mgrid[-k:k + 1, -k:k + 1]
+    disc = (np.hypot(ox, oy) <= r).astype(float)
+    fin = np.isfinite(img)
+    sums = convolve(np.where(fin, img, 0.0), disc, mode="constant")
+    full = convolve(fin.astype(float), disc, mode="constant") > disc.sum() - 0.5
     yy, xx = np.indices(img.shape)
-    _, ring = _ring(img.shape, (img.shape[1] - 1) / 2, (img.shape[0] - 1) / 2)
+    ok = full & (np.hypot(xx - x, yy - y) >= avoid)
+    return robust_std(sums[ok]), int(disc.sum()), int(ok.sum())
+
+
+def snr_at(img, x, y, r=2.0):
+    """Forced S/N in a radius-r aperture at (x, y) of a background-subtracted stack. Noise: blank_sky_std (the same
+    aperture at blank positions of this stack), scaled to the aperture's finite pixel count; if under 20 positions,
+    the old per-pixel ring spread x sqrt(N) (optimistic). If over half the aperture is masked (a saturated core,
+    e.g. R Dra), widen to r=4.5 so the wings count."""
+    yy, xx = np.indices(img.shape)
     d = np.hypot(xx - x, yy - y)
     if np.isfinite(img[d <= r]).mean() < 0.5:
         r = 4.5
     ap = (d <= r) & np.isfinite(img)
-    return float(np.nansum(img[ap]) / (robust_std(img[ring]) * np.sqrt(ap.sum())))
+    std, n_disc, n_pos = blank_sky_std(img, r, x, y, avoid=r + 3)
+    if n_pos >= 20:
+        noise = std * np.sqrt(ap.sum() / n_disc)
+    else:
+        _, ring = _ring(img.shape, (img.shape[1] - 1) / 2, (img.shape[0] - 1) / 2)
+        noise = robust_std(img[ring]) * np.sqrt(ap.sum())
+    return float(np.nansum(img[ap]) / noise)
 
 
 def build_target(slug, ra, dec, astrometry, out_dir, band=None, max_mb=100, frames_per_visit=3, size_arcmin=2.0,
@@ -276,7 +303,23 @@ def build_target(slug, ra, dec, astrometry, out_dir, band=None, max_mb=100, fram
               f"pred {px:.2f},{py:.2f} ap {s.mean():.3g} mJy masked {phot[-1]['masked_pixels']}")
 
     motion, notes = None, []
-    good = np.array([r for r in pos_rows if np.isfinite(r[1])])
+    # colour match per visit: mean wavelength vs the visits' median (the colour they share; target_um is only what the
+    # picker aimed at), with diff.difference's default tolerance max(a, b)/80, half a channel at R=40
+    ref = float(np.median([v["wavelength_um"] for v in vis]))
+    for v in vis:
+        tol, dw = max(v["wavelength_um"], ref) / 80, v["wavelength_um"] - ref
+        v["colour_matched"] = bool(abs(dw) <= tol)
+        v["colour_note"] = (f"{v['wavelength_um']:.3f} um, {dw:+.3f} um from the visits' median {ref:.3f} um "
+                            f"(tolerance {tol:.3f} um): " + ("same colour" if v["colour_matched"] else
+                            "a different colour, so its brightness differs from colour alone; drop or label it"))
+    off = [v["date"] for v in vis if not v["colour_matched"]]
+    if off:
+        notes.append(f"{len(off)} of {len(vis)} visits ({', '.join(off)}) are not at the shared wavelength "
+                     f"({ref:.3f} um, colour_matched false): in a flipbook their brightness changes from colour alone.")
+    notes.append("Detection: forced S/N in a 2 px aperture on the stack against the scatter of the same aperture at blank "
+                 "positions of that stack (reprojection correlates pixels, so a per-pixel noise would overstate S/N); "
+                 f"needs S/N {SNR_MIN:g} and the centre within {MAX_OFFSET_PX} px of the prediction.")
+    good =np.array([r for r in pos_rows if np.isfinite(r[1])])
     if a and len(good):
         span = (good[:, 0].max() - good[:, 0].min()) / 365.25
         drift = np.hypot(a["pmra"], a["pmdec"]) / 1000 * span
@@ -426,7 +469,10 @@ def _motion(good, gra, gdec, a, pos):
     print("  residual vs Gaia (RA, Dec) arcsec: " + "; ".join(f"{x:+.2f},{y:+.2f}" for x, y in res))
     ax = "dec" if abs(a["pmdec"]) >= abs(a["pmra"]) else "ra"
     (r1, e1), (r2, e2) = fits_[ax]
+    note = ("northward drift (Dec component)" if ax == "dec" else "eastward drift (RA component)") + \
+        ", not the total proper motion"
     return dict(measured_arcsec_per_yr=float(r1), error_arcsec_per_yr=float(e1), gaia_arcsec_per_yr=gaia[ax], axis=ax,
+                caption_note=note,
                 parallax_corrected=dict(measured_arcsec_per_yr=float(r2), error_arcsec_per_yr=float(e2)),
                 per_axis={k: dict(measured_arcsec_per_yr=float(f[0][0]), error_arcsec_per_yr=float(f[0][1]),
                                   gaia_arcsec_per_yr=gaia[k]) for k, f in fits_.items()},
