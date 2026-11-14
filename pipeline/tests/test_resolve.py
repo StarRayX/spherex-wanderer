@@ -28,3 +28,22 @@ def test_live_barnard():
     assert ra == pytest.approx(269.45, abs=0.01)
     a = rs.gaia_astrometry(ra, dec, 30)
     assert a and a["pmdec"] > 10000
+
+
+def _no_net(*a, **k):
+    raise AssertionError("network touched")
+
+
+def test_alias_offline_and_case_insensitive(monkeypatch):
+    monkeypatch.setattr(rs.requests, "get", _no_net)
+    ra, dec, label = rs.resolve("  BARNARD'S   star ")
+    assert (ra, dec, label) == (269.44850252543836, 4.739420051112412, "Barnard's Star")
+    assert rs.resolve("r dra")[:2] == (248.1673783672889, 66.75500674547219)
+    assert rs.resolve("WISE 0855")[2] == "WISE 0855-0714"
+
+
+def test_sesame_down_is_clear(monkeypatch):
+    def boom(*a, **k): raise rs.requests.ConnectionError("x")
+    monkeypatch.setattr(rs.requests, "get", boom)
+    with pytest.raises(ValueError, match="Name lookup is down.*coordinates"):
+        rs.resolve("Vega")

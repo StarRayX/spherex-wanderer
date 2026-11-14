@@ -10,6 +10,17 @@ SESAME = "https://cds.unistra.fr/cgi-bin/nph-sesame/-oI/SNV?"
 GAIA = "https://gea.esac.esa.int/tap-server/tap/sync"
 
 
+# Offline fallback for the five challenge targets (Sesame was down); values copied from scripts/build_showcase.py.
+_ALIASES = {
+    ("barnard's star", "barnards star", "barnard star", "gj 699", "gliese 699"): (269.44850252543836, 4.739420051112412, "Barnard's Star"),
+    ("epsilon indi b", "eps indi b", "eps ind b", "epsilon indi ba", "eps indi ba"): (331.07645259656397, -56.79381206688221, "Epsilon Indi B"),
+    ("wise 0855", "wise 0855-0714", "wise j0855-0714", "wise j085510.83-071442.5"): (133.79512916666667, -7.245147222222222, "WISE 0855-0714"),
+    ("rw aurigae", "rw aur"): (76.95608119552952, 30.401204589097233, "RW Aurigae"),
+    ("r draconis", "r dra"): (248.1673783672889, 66.75500674547219, "R Draconis"),
+}
+ALIAS = {k: v for ks, v in _ALIASES.items() for k in ks}
+
+
 def _coords(s):
     """'RA,Dec' in decimal degrees or sexagesimal (RA in hours), else None."""
     parts = [p.strip() for p in s.split(",")]
@@ -32,8 +43,14 @@ def resolve(name_or_coords):
     c = _coords(s)
     if c:
         return c[0], c[1], f"{c[0]:.5f}, {c[1]:+.5f}"
-    r = requests.get(SESAME + requests.utils.quote(s), timeout=30)
-    r.raise_for_status()
+    key = " ".join(s.lower().replace("’", "'").split())
+    if key in ALIAS:
+        return ALIAS[key]
+    try:
+        r = requests.get(SESAME + requests.utils.quote(s), timeout=30)
+        r.raise_for_status()
+    except requests.RequestException as e:
+        raise ValueError(f"Name lookup is down ({type(e).__name__}). Enter coordinates as 'RA, Dec' instead.") from e
     for line in r.text.splitlines():
         if line.startswith("%J"):
             ra, dec = (float(x) for x in line.split()[1:3])
