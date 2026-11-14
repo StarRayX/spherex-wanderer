@@ -4,64 +4,64 @@
   "upsample": 4,
   "stretch": {
     "kind": "asinh",
-    "black": -0.03925127595576985,
-    "white": 21.81742082126552,
+    "black": -0.04950260555874055,
+    "white": 21.042462928961694,
     "softening": 10.0
   },
   "visits": [
     {
       "file": "visit_00.png",
-      "date": "2025-09-03",
-      "mjd": 60921.840587000006,
+      "date": "2025-09-02",
+      "mjd": 60920.030139,
       "band": "SPHEREx-D1",
-      "wavelength_um": 0.9211174394627668,
-      "wavelength_min_um": 0.8995461655590826,
-      "wavelength_max_um": 0.942887740034151,
+      "wavelength_um": 0.7453856223303061,
+      "wavelength_min_um": 0.7453856223303061,
+      "wavelength_max_um": 0.7453856223303061,
       "star_xy": [
-        9.910744150747432,
-        10.040067327099996
+        9.912744250761799,
+        10.05989790062709
       ],
       "predicted_xy": [
-        9.998150051391736,
-        10.002380174785317
+        9.998156918191857,
+        10.002452040814608
       ],
-      "flags_summary": "3/3 frames, bits [1, 21]"
+      "flags_summary": "1/1 frames, bits [21]"
     },
     {
       "file": "visit_01.png",
-      "date": "2026-03-04",
-      "mjd": 61103.965490333336,
+      "date": "2026-03-08",
+      "mjd": 61107.675603,
       "band": "SPHEREx-D1",
-      "wavelength_um": 0.9206036673129373,
-      "wavelength_min_um": 0.8989544919471941,
-      "wavelength_max_um": 0.9424027912536236,
+      "wavelength_um": 0.7390449724952255,
+      "wavelength_min_um": 0.7390449724952255,
+      "wavelength_max_um": 0.7390449724952255,
       "star_xy": [
-        9.945400892899304,
-        10.004670646762495
+        9.913294551915966,
+        10.03954075437415
       ],
       "predicted_xy": [
         10.0,
         9.999999999997947
       ],
-      "flags_summary": "3/3 frames, bits [1, 21]"
+      "flags_summary": "1/1 frames, bits [21]"
     },
     {
       "file": "visit_02.png",
-      "date": "2026-09-09",
-      "mjd": 61292.023364,
+      "date": "2026-09-08",
+      "mjd": 61291.275158,
       "band": "SPHEREx-D1",
-      "wavelength_um": 0.9079362923417591,
-      "wavelength_min_um": 0.8867917600724625,
-      "wavelength_max_um": 0.929371296229343,
+      "wavelength_um": 0.752173092640735,
+      "wavelength_min_um": 0.752173092640735,
+      "wavelength_max_um": 0.752173092640735,
       "star_xy": [
-        9.865093591769256,
-        10.031592823228536
+        9.891345978670698,
+        10.072727464130574
       ],
       "predicted_xy": [
-        9.99770690719952,
-        9.997877407085975
+        9.99770906418708,
+        9.997939059139101
       ],
-      "flags_summary": "3/3 frames, bits [1, 6, 21]"
+      "flags_summary": "1/1 frames, bits [21]"
     }
   ],
   "motion": null,
@@ -70,137 +70,46 @@
     true,
     true
   ],
-  "photometry": [
-    {
-      "date": "2025-09-03",
-      "mjd": 60921.840587000006,
-      "band": "SPHEREx-D1",
-      "wavelength_min_um": 0.8995461655590826,
-      "wavelength_max_um": 0.942887740034151,
-      "aperture_mjy": 159.4748289939503,
-      "error_mjy": 0.4386397610293699,
-      "scatter_mjy": null,
-      "frames_used": 1,
-      "masked_pixels": 2,
-      "lower_limit": false,
-      "aperture_pixels": 84,
-      "snr_stack": 2675.0452608473497,
-      "frames": [
-        {
-          "mjd": 60921.726868,
-          "wavelength_um": 0.8995461655590826,
-          "aperture_mjy": 64.49313130880708,
-          "error_mjy": 0.3005504894579437,
-          "masked_pixels": 1
-        },
-        {
-          "mjd": 60921.72836,
-          "wavelength_um": 0.9209184127950666,
-          "aperture_mjy": 83.13659575744828,
-          "error_mjy": 0.3353386319032754,
-          "masked_pixels": 1
-        },
-        {
-          "mjd": 60922.066533,
-          "wavelength_um": 0.942887740034151,
-          "aperture_mjy": 159.4748289939503,
-          "error_mjy": 0.4386397610293699,
-          "masked_pixels": 0
-        }
-      ]
-    },
-    {
-      "date": "2026-03-04",
-      "mjd": 61103.965490333336,
-      "band": "SPHEREx-D1",
-      "wavelength_min_um": 0.8989544919471941,
-      "wavelength_max_um": 0.9424027912536236,
-      "aperture_mjy": 159.95896538368768,
-      "error_mjy": 0.44760741217096445,
-      "scatter_mjy": null,
-      "frames_used": 1,
-      "masked_pixels": 2,
-      "lower_limit": false,
-      "aperture_pixels": 83,
-      "snr_stack": 2348.487032282235,
-      "frames": [
-        {
-          "mjd": 61103.332591,
-          "wavelength_um": 0.8989544919471941,
-          "aperture_mjy": 159.95896538368768,
-          "error_mjy": 0.44760741217096445,
-          "masked_pixels": 0
-        },
-        {
-          "mjd": 61103.334083,
-          "wavelength_um": 0.9204537187379944,
-          "aperture_mjy": 71.55515920866523,
-          "error_mjy": 0.3139049437302,
-          "masked_pixels": 1
-        },
-        {
-          "mjd": 61105.229797,
-          "wavelength_um": 0.9424027912536236,
-          "aperture_mjy": 68.69156986547706,
-          "error_mjy": 0.3089157067590364,
-          "masked_pixels": 1
-        }
-      ]
-    },
-    {
-      "date": "2026-09-09",
-      "mjd": 61292.023364,
-      "band": "SPHEREx-D1",
-      "wavelength_min_um": 0.8867917600724625,
-      "wavelength_max_um": 0.929371296229343,
-      "aperture_mjy": 91.51826359830416,
-      "error_mjy": 0.19658312375009876,
-      "scatter_mjy": 12.877340352560674,
-      "frames_used": 3,
-      "masked_pixels": 4,
-      "lower_limit": true,
-      "aperture_pixels": 83,
-      "snr_stack": 3971.4312375414984,
-      "frames": [
-        {
-          "mjd": 61292.021872,
-          "wavelength_um": 0.8867917600724625,
-          "aperture_mjy": 93.44280144701077,
-          "error_mjy": 0.34471371062786915,
-          "masked_pixels": 1
-        },
-        {
-          "mjd": 61292.023364,
-          "wavelength_um": 0.9076458207234716,
-          "aperture_mjy": 77.78696925666237,
-          "error_mjy": 0.314338828498568,
-          "masked_pixels": 2
-        },
-        {
-          "mjd": 61292.024856,
-          "wavelength_um": 0.929371296229343,
-          "aperture_mjy": 103.32502009123934,
-          "error_mjy": 0.3607878594041563,
-          "masked_pixels": 1
-        }
-      ]
-    }
-  ],
+  "photometry": {
+    "wave_um": 0.75,
+    "tol_um": 0.009375,
+    "dropped_wavelength": 1,
+    "dropped_saturated": 0,
+    "dropped_masked": 0,
+    "rows": [
+      {
+        "date": "2025-09-02",
+        "mjd": 60920.030804835,
+        "wavelength_um": 0.7453859360387844,
+        "flux_mjy": 72.2064970537479,
+        "err_mjy": 0.3197979308567915,
+        "scatter_mjy": 0.16786812738808835
+      },
+      {
+        "date": "2026-09-08",
+        "mjd": 61291.275824175,
+        "wavelength_um": 0.7521727141441394,
+        "flux_mjy": 182.67584121378644,
+        "err_mjy": 0.48724631919382855,
+        "scatter_mjy": 0.20819349114976257
+      }
+    ]
+  },
   "notes": [
     "RW Aur A and B (1.5 arcsec apart) are one blended source: the photometry is A+B.",
+    "One frame per visit at 0.75 um, so no within-visit scatter; March 2026 has no frame near 0.75 um, so there is no point for it (that visit's image is at a different wavelength and is not measured).",
+    "RW Aur itself is not independently validated: the SPHEREx calibration was checked against 2MASS/WISE on a field star (about 4%, D3), not on RW Aur, whose 2MASS epoch predates its dimming. A field star in the same frames stays at about 3.3 mJy, so the 2.5x brightening is the star, not the calibration.",
+    "Earlier sums of 65 to 90 mJy at 0.90 to 0.94 um were a masking artifact (the saturated peak was left out) and are not brightness.",
     "No motion fit: 3 detected visits, expected drift 0.0 arcsec over the detected span (need 3 visits and half a pixel, 3.1 arcsec).",
-    "Each frame saw a different wavelength at the star's pixel (ranges per visit); a brightness change between visits mixes real change with colour. Not a light curve.",
-    "Per visit, only frames with no masked pixel in the aperture are averaged (frames_used); 1 visits had none, so their sums are lower limits.",
-    "Frame-to-frame scatter within a visit (scatter_mjy) is far above the VARIANCE error: the error bars understate the real uncertainty.",
-    "Photometry: forced 3 px (18.5 arcsec) radius aperture sum on each frame, local sky annulus, VARIANCE errors, no aperture correction, mean per visit."
+    "Photometry: 3 px aperture, sky annulus 5-8 px, no aperture correction, only frames within 0.009 um of 0.75 um; saturated or masked frames are dropped, not guessed."
   ],
-  "cutouts_mb": 35.6,
+  "cutouts_mb": 11.9,
   "size_arcmin": 2.0,
-  "frames_per_visit": 3,
+  "frames_per_visit": 1,
   "frame_selection": "wavelength",
   "target": {
     "name": "RW Aurigae",
-    "claim": "Brightness per visit, at matched wavelengths within the band.",
+    "claim": "Brightness at 0.75 um, one wavelength: 72 mJy in Sep 2025, 183 mJy in Sep 2026.",
     "astrometry": {
       "ra": 76.95608119552952,
       "dec": 30.401204589097233,

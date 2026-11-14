@@ -153,12 +153,14 @@ def snr_at(img, x, y, r=2.0):
 
 
 def build_target(slug, ra, dec, astrometry, out_dir, band=None, max_mb=100, frames_per_visit=3, size_arcmin=2.0,
-                 progress=None, *, match_wavelength=False, target_um=None):
+                 progress=None, *, match_wavelength=False, target_um=None, photometry="aperture"):
     """Build out_dir/visit_NN.png + meta.json for one sky position; returns the meta dict.
 
     astrometry: {ra, dec, pmra, pmdec (mas/yr, pmra with cos dec), parallax (mas), epoch_from (Julian yr)} or None
     for a static position at (ra, dec). match_wavelength: pick frames per visit by wavelength at the star (blink.pick),
     closest to target_um (default: median over visits).
+    photometry: "aperture" (per-visit sums, as before), "light_curve" (blink.photometry.light_curve at target_um:
+    one wavelength, saturated frames dropped) or None (saturated: meta photometry null, no brightness reported).
     """
     say = progress or (lambda d, t, m="": None)
     a = dict(astrometry) if astrometry else None
@@ -272,21 +274,32 @@ def build_target(slug, ra, dec, astrometry, out_dir, band=None, max_mb=100, fram
     miss = [v["date"] for v in vis if v["star_xy"] is None]
     if miss:
         notes.append(f"Not detected in {len(miss)} of {len(vis)} visits ({', '.join(miss)}): no star marker is drawn there.")
-    notes.append("Each frame saw a different wavelength at the star's pixel (ranges per visit); a brightness change "
-                 "between visits mixes real change with colour. Not a light curve.")
+    if photometry != "light_curve":
+        notes.append("Each frame saw a different wavelength at the star's pixel (ranges per visit); a brightness change "
+                     "between visits mixes real change with colour. Not a light curve.")
     sat = [p["date"] for p in phot if p["lower_limit"]]
-    if any(p["masked_pixels"] for p in phot):
+    if photometry != "aperture":
+        phot = None
+    elif any(p["masked_pixels"] for p in phot):
         notes.append("Per visit, only frames with no masked pixel in the aperture are averaged (frames_used); "
                      f"{len(sat)} visits had none, so their sums are lower limits.")
-    if any(p["scatter_mjy"] and p["scatter_mjy"] > 5 * p["error_mjy"] for p in phot):
+    if phot and any(p["scatter_mjy"] and p["scatter_mjy"] > 5 * p["error_mjy"] for p in phot):
         notes.append("Frame-to-frame scatter within a visit (scatter_mjy) is far above the VARIANCE error: "
                      "the error bars understate the real uncertainty.")
-    worst = max(p["masked_pixels"] / p["aperture_pixels"] for p in phot)
+    worst = max((p["masked_pixels"] / p["aperture_pixels"] for p in phot or []), default=0)
     if worst > 0.2:
         notes.append(f"Up to {worst:.0%} of aperture pixels are masked (saturated core): these sums do NOT measure "
                      "brightness and must not be compared between visits.")
-    notes.append(f"Photometry: forced {AP_R:g} px ({AP_R * PIXEL_SCALE:.1f} arcsec) radius aperture sum on each frame, "
-                 "local sky annulus, VARIANCE errors, no aperture correction, mean per visit.")
+    if photometry == "light_curve":
+        from blink.photometry import light_curve
+        lc = light_curve(used, *(float(c[0]) for c in pos(mm[len(mm) // 2])), wave_um=target_um)
+        phot = {k: v for k, v in lc.items() if k != "rows"}
+        phot["rows"] = [{k: v for k, v in r.items() if k != "path"} for r in lc["rows"]]
+        notes.append(f"Photometry: {AP_R:g} px aperture, sky annulus 5-8 px, no aperture correction, only frames within "
+                     f"{lc['tol_um']:.3f} um of {lc['wave_um']:.2f} um; saturated or masked frames are dropped, not guessed.")
+    elif photometry:
+        notes.append(f"Photometry: forced {AP_R:g} px ({AP_R * PIXEL_SCALE:.1f} arcsec) radius aperture sum on each frame, "
+                     "local sky annulus, VARIANCE errors, no aperture correction, mean per visit.")
     new = set(fetch.CACHE.glob("*.fits")) - before
     mb = sum(p.stat().st_size for p in new) / 1e6
     print(f"new MB downloaded: {mb:.1f}")

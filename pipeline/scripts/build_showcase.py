@@ -60,26 +60,34 @@ TARGETS = {
                         pmdec=-27.397582540455325, parallax=6.406249329219477, epoch_from=2016.0),
         source=(f"Gaia DR3 156430822114424576 (G 12.18), the brighter of the pair; the other is Gaia DR3 "
                 f"156430817820015232 (G 13.04, RUWE 16.4), 1.5 arcsec away. Which is A is not verified; {GAIA}"),
-        band="SPHEREx-D1", frames_per_visit=3, match_wavelength=True,
-        claim="Brightness per visit, at matched wavelengths within the band.",
-        notes=["RW Aur A and B (1.5 arcsec apart) are one blended source: the photometry is A+B."]),
+        # D1 at 0.75 um, its blue end: the only place RW Aur is not saturated (7/9 frames at 0.89-0.94 um are).
+        band="SPHEREx-D1", frames_per_visit=1, match_wavelength=True, target_um=0.75, photometry="light_curve",
+        claim="Brightness at 0.75 um, one wavelength: 72 mJy in Sep 2025, 183 mJy in Sep 2026.",
+        notes=["RW Aur A and B (1.5 arcsec apart) are one blended source: the photometry is A+B.",
+               "One frame per visit at 0.75 um, so no within-visit scatter; March 2026 has no frame near 0.75 um, so "
+               "there is no point for it (that visit's image is at a different wavelength and is not measured).",
+               "RW Aur itself is not independently validated: the SPHEREx calibration was checked against 2MASS/WISE on a "
+               "field star (about 4%, D3), not on RW Aur, whose 2MASS epoch predates its dimming. A field star in the same "
+               "frames stays at about 3.3 mJy, so the 2.5x brightening is the star, not the calibration.",
+               "Earlier sums of 65 to 90 mJy at 0.90 to 0.94 um were a masking artifact (the saturated peak was left out) "
+               "and are not brightness."]),
     "r-draconis": dict(
         name="R Draconis",
         astrometry=dict(ra=248.1673783672889, dec=66.75500674547219, pmra=-20.642811719160797,
                         pmdec=6.148818852711324, parallax=1.2509180143740992, epoch_from=2016.0),
         source=f"Gaia DR3 1648328016354496384 (G 6.37, RUWE 1.30); {GAIA}",
-        band="SPHEREx-D1", frames_per_visit=2, match_wavelength=True,
+        band="SPHEREx-D1", frames_per_visit=2, match_wavelength=True, photometry=None,
         claim="Images about monthly at matched wavelengths; saturated, so no brightness measurement.",
         notes=["Near the north ecliptic pole SPHEREx sees this star almost continuously; 'visits' here are 30-day bins.",
-               "R Dra saturates SPHEREx even at 0.94 um: the core is masked in every frame, so the aperture sums are "
-               "lower limits and NOT a brightness measurement."]),
+               "SPHEREx saturates on this star in every band checked (the whole core is masked), so no brightness is "
+               "reported. The images are shown as a flipbook only."]),
 }
 
 
 def build(slug, out_root=OUT, **kw):
     t = TARGETS[slug]
     a = t["astrometry"]
-    opts = {k: t[k] for k in ("band", "frames_per_visit", "size_arcmin", "match_wavelength", "target_um") if k in t}
+    opts = {k: t[k] for k in ("band", "frames_per_visit", "size_arcmin", "match_wavelength", "target_um", "photometry") if k in t}
     meta = build_target(slug, a["ra"], a["dec"], a, Path(out_root) / slug, max_mb=MAX_MB, **{**opts, **kw})
     meta["target"] = dict(name=t["name"], claim=t["claim"], astrometry=a, astrometry_source=t["source"])
     meta["notes"] = t.get("notes", []) + meta.get("notes", [])

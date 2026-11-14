@@ -105,3 +105,32 @@ def test_detection_path(monkeypatch, tmp_path, star):
         assert all(v["star_xy"] is None and v["flags_summary"].startswith("not detected") for v in on_disk["visits"])
         assert on_disk["detected"] == [False] * 3 and any("Not detected in 3 of 3" in n for n in on_disk["notes"])
     assert on_disk["motion"] is None and meta["slug"] == "t"
+
+
+def test_photometry_registry():
+    rw, rd = bs.TARGETS["rw-aurigae"], bs.TARGETS["r-draconis"]
+    assert rw["band"] == "SPHEREx-D1" and rw["target_um"] == 0.75 and rw["photometry"] == "light_curve"
+    assert rd["photometry"] is None
+
+
+def test_light_curve_and_saturated_meta(monkeypatch, tmp_path):
+    from blink import photometry
+    paths = _fake_cutouts(tmp_path, 2, True)
+    with fits.open(paths[1], mode="update") as h:  # second frame: saturated core
+        h["FLAGS"].data[9, 9] = 2
+    monkeypatch.setattr(photometry, "wavelength_at", lambda p, ra, dec: 0.75)
+    for p, m in zip(paths, (60000.0, 60200.0)):
+        with fits.open(p, mode="update") as h:
+            h["IMAGE"].header["DETECTOR"], h["IMAGE"].header["MJD-AVG"] = 1, m
+    lc = photometry.light_curve(paths, RA, DEC, wave_um=0.75)
+    assert len(lc["rows"]) == 1 and lc["dropped_saturated"] == 1 and lc["rows"][0]["flux_mjy"] > 0
+
+    fr = [dict(mjd=60000 + 200 * v, band="SPHEREx-D1", url=f"http://x/{v}", em_min=0.7e-6, em_max=1.1e-6) for v in range(2)]
+    monkeypatch.setattr(build, "find_frames", lambda ra, dec: fr)
+    monkeypatch.setattr(build.fetch, "fetch_many", lambda jobs: paths[:len(jobs)])
+    monkeypatch.setattr(build, "wavelength_at", lambda p, ra, dec: 0.75)
+    monkeypatch.setattr(build.fetch, "CACHE", tmp_path)
+    meta = build.build_target("t", RA, DEC, None, tmp_path / "out", frames_per_visit=1, photometry=None)
+    assert meta["photometry"] is None and not any("Not a light curve" in n and "lower" in n for n in meta["notes"])
+    meta = build.build_target("t", RA, DEC, None, tmp_path / "out2", frames_per_visit=1, photometry="light_curve", target_um=0.75)
+    assert meta["photometry"]["wave_um"] == 0.75 and "rows" in meta["photometry"]
