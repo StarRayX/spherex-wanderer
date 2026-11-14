@@ -7,6 +7,8 @@ import Mark from './components/Mark'
 // each page lazy-loaded behind a skeleton, and the boot screen in index.html removed after the first draw.
 const PAGES = {
   home: lazy(() => import('./pages/Home')),
+  movers: lazy(() => import('./pages/Movers')),
+  triage: lazy(() => import('./pages/Triage')),
   sky: lazy(() => import('./pages/Sky')),
   target: lazy(() => import('./pages/Target')),
   any: lazy(() => import('./pages/AnySpot')),
@@ -15,7 +17,9 @@ const PAGES = {
 type Key = keyof typeof PAGES
 
 const TITLES: Record<Key, string> = {
-  home: 'SPHEREx Blink: watch nearby stars move',
+  home: 'SPHEREx Blink: spectra of moving objects and dot checks',
+  movers: 'Moving objects: SPHEREx Blink',
+  triage: 'Vet a dot: SPHEREx Blink',
   sky: 'Sky map: SPHEREx Blink',
   target: 'Targets: SPHEREx Blink',
   any: 'Any spot: SPHEREx Blink',
@@ -27,6 +31,8 @@ const Icon = ({ d }: { d: string }) => (
 )
 const NAV: { id: Key; href: string; label: string; tab: string; icon: string }[] = [
   { id: 'home', href: '#/', label: 'Home', tab: 'Home', icon: '<path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>' },
+  { id: 'movers', href: '#/movers', label: 'Moving objects', tab: 'Movers', icon: '<circle cx="6" cy="18" r="2.5"/><path d="M8.5 15.5 20 4"/><path d="M13 4h7v7"/>' },
+  { id: 'triage', href: '#/triage', label: 'Vet a dot', tab: 'Vet', icon: '<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/><path d="m8.5 11 2 2 3.5-4"/>' },
   { id: 'sky', href: '#/sky', label: 'Sky map', tab: 'Sky', icon: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>' },
   { id: 'target', href: '#/target', label: 'Target dashboard', tab: 'Targets', icon: '<rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/>' },
   { id: 'any', href: '#/any', label: 'Any spot in the sky', tab: 'Any spot', icon: '<circle cx="12" cy="12" r="8"/><path d="M12 1v5M12 18v5M1 12h5M18 12h5"/><circle cx="12" cy="12" r="1.5"/>' },

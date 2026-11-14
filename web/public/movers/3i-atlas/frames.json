@@ -1,0 +1,110 @@
+[
+ {
+  "file": "frames/01.png",
+  "iso": "2025-12-08T00:07:26",
+  "wavelength_um": 0.7469,
+  "ra": 173.809342,
+  "dec": 2.820915,
+  "size_deg": 0.04954,
+  "orientation": "north up, east left"
+ },
+ {
+  "file": "frames/02.png",
+  "iso": "2025-12-08T03:25:30",
+  "wavelength_um": 0.90137,
+  "ra": 173.670688,
+  "dec": 2.870138,
+  "size_deg": 0.04954,
+  "orientation": "north up, east left"
+ },
+ {
+  "file": "frames/03.png",
+  "iso": "2025-12-14T04:27:43",
+  "wavelength_um": 1.21343,
+  "ra": 167.279089,
+  "dec": 5.121577,
+  "size_deg": 0.04954,
+  "orientation": "north up, east left"
+ },
+ {
+  "file": "frames/04.png",
+  "iso": "2025-12-14T06:08:35",
+  "wavelength_um": 1.4327,
+  "ra": 167.201707,
+  "dec": 5.148549,
+  "size_deg": 0.04954,
+  "orientation": "north up, east left"
+ },
+ {
+  "file": "frames/05.png",
+  "iso": "2025-12-14T12:39:42",
+  "wavelength_um": 1.8698,
+  "ra": 166.901102,
+  "dec": 5.253225,
+  "size_deg": 0.04954,
+  "orientation": "north up, east left"
+ },
+ {
+  "file": "frames/06.png",
+  "iso": "2025-12-14T19:08:30",
+  "wavelength_um": 2.24903,
+  "ra": 166.601221,
+  "dec": 5.357508,
+  "size_deg": 0.04954,
+  "orientation": "north up, east left"
+ },
+ {
+  "file": "frames/07.png",
+  "iso": "2025-12-08T01:45:53",
+  "wavelength_um": 2.62482,
+  "ra": 173.740419,
+  "dec": 2.845386,
+  "size_deg": 0.04954,
+  "orientation": "north up, east left"
+ },
+ {
+  "file": "frames/08.png",
+  "iso": "2025-12-08T11:28:49",
+  "wavelength_um": 3.26238,
+  "ra": 173.331118,
+  "dec": 2.990646,
+  "size_deg": 0.04954,
+  "orientation": "north up, east left"
+ },
+ {
+  "file": "frames/09.png",
+  "iso": "2025-12-09T12:02:08",
+  "wavelength_um": 3.92088,
+  "ra": 172.284486,
+  "dec": 3.361633,
+  "size_deg": 0.04954,
+  "orientation": "north up, east left"
+ },
+ {
+  "file": "frames/10.png",
+  "iso": "2025-12-14T06:06:26",
+  "wavelength_um": 4.1663,
+  "ra": 167.203356,
+  "dec": 5.147974,
+  "size_deg": 0.04954,
+  "orientation": "north up, east left"
+ },
+ {
+  "file": "frames/11.png",
+  "iso": "2025-12-14T11:06:03",
+  "wavelength_um": 4.53283,
+  "ra": 166.973176,
+  "dec": 5.228141,
+  "size_deg": 0.04954,
+  "orientation": "north up, east left"
+ },
+ {
+  "file": "frames/12.png",
+  "iso": "2025-12-14T19:12:47",
+  "wavelength_um": 4.95124,
+  "ra": 166.597902,
+  "dec": 5.358661,
+  "size_deg": 0.04954,
+  "orientation": "north up, east left"
+ }
+]

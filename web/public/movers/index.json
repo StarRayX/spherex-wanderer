@@ -1,0 +1,14 @@
+[
+ {
+  "slug": "3i-atlas",
+  "name": "3I/ATLAS",
+  "designation": "3I/ATLAS (C/2025 N1)",
+  "kind": "comet",
+  "n_rows": 116,
+  "wl_min_um": 0.7469,
+  "wl_max_um": 4.95124,
+  "date_first": "2025-08-01",
+  "date_last": "2025-12-15",
+  "note": "SPHEREx caught the interstellar comet 3I/ATLAS in two observing campaigns, and these 116 frames give its brightness from 0.75 to 4.95 microns."
+ }
+]

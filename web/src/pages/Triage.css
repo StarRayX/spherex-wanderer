@@ -1,0 +1,98 @@
+/* Vet a dot. Solid cards, no borders, no gradients. */
+.tg h1 { font-size: clamp(1.75rem, 4vw, 2.5rem); margin: var(--s1) 0 var(--s2); }
+.tg h2 { font-size: var(--t-lg); }
+.tg-lede { font-size: 1.125rem; max-width: 62ch; margin: 0 0 var(--s1); }
+.tg-for { max-width: 62ch; margin: 0 0 var(--s3); }
+.tg-back { display: inline-block; margin-bottom: var(--s2); font-weight: 600; text-decoration: none; }
+.tg-back::before { content: '\2190\00a0'; }
+.tg-block { margin-bottom: var(--s2); min-width: 0; }
+.tg-sub { font-size: var(--t-md); margin: var(--s3) 0 var(--s1); }
+
+.tg-cards { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s2); grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+.tg-card { display: flex; flex-direction: column; gap: var(--s1); height: 100%; color: var(--ink); text-decoration: none; transition: background .15s; }
+.tg-card:hover { background: var(--card-2); color: var(--ink); }
+.tg-card p { margin: 0; }
+.tg-total { font-size: var(--t-sm); }
+.tg-total b { font: 700 var(--t-lg) var(--f-display); margin-right: 4px; }
+.tg-open { margin-top: auto; padding-top: var(--s1); font-weight: 700; color: var(--cyan); }
+.tg-open::after { content: '\00a0\2192'; }
+.tg-empty { max-width: 560px; display: flex; flex-direction: column; gap: var(--s1); align-items: flex-start; }
+.tg-empty p { margin: 0; }
+
+.tg-head { display: flex; flex-wrap: wrap; gap: var(--s2) var(--s3); justify-content: space-between; align-items: flex-start; margin-bottom: var(--s2); }
+.tg-head h1 { margin-top: 0; }
+.tg-head p { margin: 0 0 var(--s1); }
+.tg-dl { display: flex; flex-wrap: wrap; gap: var(--s1); }
+
+/* the depth note is the most important caveat, so it is large and tinted */
+.tg-depth { background: var(--warn-bg); color: var(--ink); border-radius: var(--radius); padding: var(--s3); margin-bottom: var(--s2); }
+.tg-depth h2 { font-size: var(--t-md); color: var(--warn-ink); margin: 0 0 var(--s1); }
+.tg-depth p { margin: 0; font-size: 1.125rem; line-height: 1.45; max-width: 66ch; }
+
+/* count bar and filter chips */
+.tg-bar { display: flex; gap: 2px; height: 14px; border-radius: 7px; overflow: hidden; margin: var(--s1) 0; }
+.tg-bar span { min-width: 4px; }
+.tg-sw { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 8px; flex: none; }
+.tg-chips { display: flex; flex-wrap: wrap; gap: var(--s1); margin: var(--s2) 0; }
+.tg-chips button { display: inline-flex; align-items: center; min-height: 40px; padding: 0 14px; border: 0; border-radius: 999px; background: var(--card-2); font-size: var(--t-sm); font-weight: 600; cursor: pointer; }
+.tg-chips button b { font-family: var(--f-display); margin-left: 8px; color: var(--muted); }
+.tg-chips button:hover { background: #26324A; }
+.tg-chips button[aria-pressed='true'] { background: var(--navy); color: #fff; }
+.tg-chips button[aria-pressed='true'] b { color: #fff; }
+
+/* check a position */
+.tg-form { display: grid; gap: var(--s2); grid-template-columns: repeat(3, minmax(0, 1fr)) auto; align-items: end; }
+.tg-form label { display: flex; flex-direction: column; gap: 6px; font-size: var(--t-sm); font-weight: 600; color: var(--muted); }
+.tg-form input { min-height: 48px; border: 0; border-radius: 12px; background: var(--card-2); color: var(--ink); padding: 0 var(--s2); font: 500 var(--t-md) var(--f-display); width: 100%; color-scheme: dark; }
+.tg-form input::placeholder { color: #66758A; }
+.tg-try { margin: var(--s1) 0 0; }
+.tg-result { margin-top: var(--s2); }
+.tg-result:empty { display: none; }
+.tg-near { font-size: var(--t-sm); color: var(--muted); margin: 0 0 var(--s1); }
+.tg-none { background: var(--card-2); border-radius: var(--radius-sm); padding: var(--s2); }
+.tg-none h3 { font-size: var(--t-lg); margin: 0 0 var(--s1); }
+.tg-none p { margin: 0; }
+
+.tg-vcard { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: var(--s2); background: var(--card-2); border-radius: var(--radius-sm); padding: var(--s2); }
+.tg-vcard img { width: 96px; height: 96px; border-radius: var(--radius-sm); background: var(--sky); image-rendering: pixelated; }
+.tg-vcard h3 { display: flex; align-items: center; font-size: var(--t-lg); margin: 0 0 var(--s0); }
+.tg-vcard p { margin: 0 0 var(--s1); }
+.tg-ev { margin: 0; display: grid; gap: var(--s1) var(--s3); grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+.tg-ev div { display: flex; flex-direction: column; }
+.tg-ev dt { font-size: var(--t-xs); color: var(--muted); }
+.tg-ev dd { margin: 0; font: 500 var(--t-sm) var(--f-display); }
+
+/* table */
+.tg-scroll { border-radius: var(--radius-sm); overflow-x: auto; }
+.tg-table { width: 100%; border-collapse: collapse; font-size: var(--t-sm); }
+.tg-table th { text-align: left; font: 600 var(--t-xs) var(--f-text); color: var(--muted); padding: var(--s1) var(--s2); background: var(--card-2); }
+.tg-table td { padding: 10px var(--s2); vertical-align: middle; font-family: var(--f-display); }
+.tg-table td.tg-why { font-family: var(--f-text); min-width: 220px; }
+.tg-table tbody tr:nth-child(odd) { background: rgba(255, 255, 255, .03); }
+.tg-table img { display: block; width: 56px; height: 56px; border-radius: 6px; background: var(--sky); image-rendering: pixelated; }
+.tg-v span { display: flex; align-items: center; font-weight: 600; white-space: nowrap; }
+.tg-v .linkbtn { font-size: var(--t-xs); min-height: 28px; text-align: left; }
+.tg-table .tg-ev-row { background: transparent !important; }
+.tg-table .tg-ev-row td { padding: 0 0 var(--s1); }
+.tg-more { margin: var(--s2) 0 0; }
+
+@media (max-width: 800px) {
+  .tg-cards { grid-template-columns: minmax(0, 1fr); }
+  .tg-form { grid-template-columns: 1fr 1fr; }
+  .tg-form .btn, .tg-form label:nth-child(3) { grid-column: 1 / -1; }
+  .tg-dl .btn { flex: 1 1 auto; }
+  .tg-depth { padding: var(--s2); }
+  .tg-depth p { font-size: var(--t-md); }
+  /* each row becomes a small card */
+  .tg-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .tg-table, .tg-table tbody, .tg-table tr, .tg-table td { display: block; width: 100%; }
+  .tg-table tbody tr { margin-bottom: var(--s1); border-radius: var(--radius-sm); background: var(--card-2); display: grid; grid-template-columns: 64px minmax(0, 1fr); column-gap: var(--s1); padding: var(--s1); }
+  .tg-table td { padding: 2px 0; }
+  .tg-table td:first-child { grid-row: 1 / span 4; }
+  .tg-table td[data-l='Date'], .tg-table td[data-l='RA, Dec'] { font-size: var(--t-xs); color: var(--muted); }
+  .tg-table td.tg-why { min-width: 0; }
+  .tg-table .tg-ev-row { display: block; padding: 0; background: transparent; }
+  .tg-table .tg-ev-row td { grid-row: auto; }
+  .tg-vcard { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) { .tg-card { transition: none; } }
