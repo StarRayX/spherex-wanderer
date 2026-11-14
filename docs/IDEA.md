@@ -1,6 +1,6 @@
 # IDEA v2 (after critique, 2026-11-07)
 
-Verdict: **Build**, with a narrower scope and a visual demo. Motion is measurable on Barnard's Star; whether a newcomer can see it in the flipbook is untested and is the first thing to check on Nov 14.
+Verdict: **Build**, with a narrower scope and a visual demo. Motion is measured on Barnard's Star (see `evidence_notes.md`); whether a newcomer can see it in the flipbook is untested and is the first thing to check on Nov 14.
 
 ## Working name
 SPHEREx Blink
@@ -12,7 +12,7 @@ SPHEREx photographs a star through a different slice of infrared light every tim
 A SPHEREx flipbook is only honest if it knows which wavelength each frame saw. We build the blink tool that does, and check it against Gaia on the challenge's own test targets.
 
 ## Demo moment (30-second video)
-Split screen. Left: a naive SPHEREx flipbook of Barnard's Star, flickering. Right: our version, steady, with the star sliding along a glowing trail across Aug 2025, Mar 2026 and Aug 2026, a dotted line projecting where it will be in 2030, and a caption: "SPHEREx: 10.8 +/- 1.5 arcsec per year. Gaia: 10.4."
+Split screen. Left: a naive SPHEREx flipbook of Barnard's Star, flickering. Right: our version, steady, with the star sliding along a glowing trail across Aug 2025, Mar 2026 and Aug 2026, a dotted line projecting where it will be in 2030, and a caption: "SPHEREx: 10.5 +/- 0.7 arcsec per year. Gaia: 10.4." (3 visits, 4.9 um, wavelength matched; from `meta.json`)
 
 ## Who it is for (honest)
 - Teachers and students: see a real star move with your own eyes, from a NASA telescope launched in 2025.
@@ -27,13 +27,13 @@ Split screen. Left: a naive SPHEREx flipbook of Barnard's Star, flickering. Righ
 3. **Showcase cache.** All five test targets precomputed and served from our own storage, so IRSA throttling (503s seen in testing) cannot break the demo. Build this first.
 4. **Test-target gallery.** One card per target with what SPHEREx shows and what it does not:
    - Barnard's Star: motion, measured.
-   - Epsilon Indi B: detected every visit, common motion with Epsilon Indi A (wide field).
-   - WISE 0855: the hardest target; shown at 4.4 to 5 um, non-detection reported openly if it stays one.
-   - R Draconis: brightness over time at one fixed wavelength (monthly visits near the ecliptic pole).
-   - RW Aurigae: brightness over time; A and B unresolved.
+   - Epsilon Indi B: detected in all 4 visits near 1.27 um; drift 3.74 +/- 0.24 (RA) vs Gaia 3.98 arcsec/yr. Epsilon Indi A is about 400 arcsec away, outside the 2 arcmin field, so no common-motion view.
+   - WISE 0855: the hardest target, at 4.4 to 5 um. Seen at S/N 8.1 and 7.9 in 2 of 3 visits, but only 2 to 3 is expected and a background star sits 1.3 pixels away: a candidate, not a detection. No motion fit.
+   - R Draconis: too bright. It saturates SPHEREx in every band checked (about 70 Jy at 2 um), so we show the monthly images and say plainly that no brightness can be measured.
+   - RW Aurigae: saturated near 0.9 um; clean only near 0.75 um, where it is 2.5x brighter in Sep 2026 (182.6 mJy) than Sep 2025 (72.2 mJy) while a field star stays at 3.3 mJy. One frame per visit, March 2026 missing, not independently validated. A and B unresolved.
 
 **Second (if core is done by hour 30):**
-5. **Same-wavelength view for variable stars.** For a chosen wavelength, plot flux vs date using only frames whose target pixel saw that wavelength, with VARIANCE error bars and flagged frames dropped. This is where wavelength matching matters most (for motion it matters little).
+5. **Same-wavelength view for variable stars.** For a chosen wavelength, plot flux vs date using only frames whose target pixel saw that wavelength, with VARIANCE error bars and flagged frames dropped. Built as `photometry.py` and used for RW Aurigae only; saturated stars (R Draconis) get no light curve.
 6. **"What is that dot?"** Click a dot that appears in only one frame; ask JPL's Small-Body Identification API whether a known asteroid was there at that time.
 7. **Candidate card.** One click copies RA/Dec, measured motion and links to SIMBAD, Legacy Survey and WiseView; saved in the browser; CSV export.
 
@@ -67,5 +67,5 @@ Best Use of Data is described as "the project that best makes space data accessi
 - Asteroid search by name: IRSA's MOST already does it. We only label dots.
 - Promising "icy comet vs rock" spectra: unproven; the spectrum is a stretch goal.
 
-## Rule reminder
-No project code before Nov 14. The scripts used for these tests stay in the scratchpad as research.
+## History
+Before Nov 14 the scripts used for these tests stayed in the scratchpad as research, to respect the hackathon rule of no project code before the start. The project code now lives in `pipeline/`, `api/` and `web/`.
