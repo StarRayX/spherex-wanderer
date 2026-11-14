@@ -168,6 +168,9 @@ def handle(query):
         return 400, dict(error=str(e))
     except GaiaDown as e:
         return 502, dict(error=str(e))
+    except Exception:  # last resort: log the traceback, never leak details or a raw 500
+        traceback.print_exc(file=sys.stderr)
+        return 500, dict(error="internal error")
 
 
 def _build(slug, ra, dec, astro, out, size, spec):

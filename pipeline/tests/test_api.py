@@ -228,3 +228,17 @@ def test_live_matches_wavelength_and_falls_back_honestly(fake, monkeypatch):
         raise RuntimeError("irsa")  # any other failure is not retried
     monkeypatch.setattr(api.build, "build_target", other)
     assert api.handle(dict(ra="2", dec="2"))[0] == 502
+
+
+def test_unexpected_error_is_json_500_without_details(fake, monkeypatch, capsys):
+    def boom(n):
+        raise RuntimeError("secret /tmp/path")
+    monkeypatch.setattr(api.rs, "resolve", boom)  # e.g. a Sesame parse error
+    code, r = api.handle(dict(name="x"))
+    assert code == 500 and r == dict(error="internal error")
+    assert "secret" not in json.dumps(r) and "RuntimeError" in capsys.readouterr().err  # logged, not returned
+
+
+def test_missing_showcase_meta_is_json_500(fake, monkeypatch, tmp_path):
+    monkeypatch.setattr(api, "SHOWCASE", tmp_path)  # no meta.json inside
+    assert api.handle(dict(showcase="wise-0855")) == (500, dict(error="internal error"))
