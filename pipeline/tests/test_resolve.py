@@ -47,3 +47,30 @@ def test_sesame_down_is_clear(monkeypatch):
     monkeypatch.setattr(rs.requests, "get", boom)
     with pytest.raises(ValueError, match="Name lookup is down.*coordinates"):
         rs.resolve("Vega")
+
+
+def test_gaia_finds_a_fast_mover_from_its_catalogue_epoch(monkeypatch):
+    """Barnard's J2000 position is 166 arcsec from Gaia's 2016 one: nothing within 5 arcsec, so the wide high-pm search
+    carries each candidate back and the Gaia row (not the decoy) matches at 2000.0. Ordinary stars keep the old path."""
+    head = "ra,dec,pmra,pmdec,parallax\n"
+    barnard = "269.44850252543836,4.739420051112412,-801.5509783684709,10362.394206546573,546.975939730948\n"
+    decoy = "269.46,4.70,300,-200,10\n"
+    sent = []
+
+    class R:
+        def __init__(s, t): s.text = t
+        def raise_for_status(s): pass
+
+    def post(url, data, timeout):
+        sent.append(data["QUERY"])
+        return R(head if len(sent) == 1 else head + decoy + barnard)
+    monkeypatch.setattr(rs.requests, "post", post)
+    ra, dec, _ = rs.resolve("17:57:48.5, +04:41:36")
+    a = rs.gaia_astrometry(ra, dec)
+    assert a["pmdec"] > 10000 and a["matched_epoch"] == 2000.0 and a["match_arcsec"] < 1.5 and a["epoch_from"] == 2016.0
+    assert "pm > 200" in sent[1] and str(rs.WIDE_ARCSEC / 3600) in sent[1]
+    sent.clear()
+    monkeypatch.setattr(rs.requests, "post", lambda url, data, timeout: sent.append(1) or R(head + decoy))
+    assert "matched_epoch" not in rs.gaia_astrometry(269.46, 4.70) and len(sent) == 1  # found at once: no wide search
+    monkeypatch.setattr(rs.requests, "post", lambda url, data, timeout: R(head + decoy if "pm >" in data["QUERY"] else head))
+    assert rs.gaia_astrometry(133.79513, -7.24515) is None  # the decoy lands nowhere near: no source, not a wrong one

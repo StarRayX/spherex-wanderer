@@ -9,15 +9,15 @@ import sys
 import tempfile
 import threading
 import time
+import traceback
 from http.server import BaseHTTPRequestHandler
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "pipeline"))
-from blink import build, jpl, resolve as rs  # noqa: E402
+from blink import build, jpl, pick, resolve as rs  # noqa: E402
 
-RELEASE = "qr2"
 CACHE = Path(os.environ.get("BLINK_CACHE", Path(tempfile.gettempdir()) / "blink_cache"))
 MAX_MB = 100
 SPECTRUM_MB = 60  # of MAX_MB, kept for a spectrum's new cutouts when spectrum=1 (the images get the rest)
@@ -25,6 +25,10 @@ _LOCK = threading.RLock()  # guards claims and status.json I/O (a read must not 
 STALE_S = 330  # maxDuration is 300 s: a "running" job silent for longer was killed with its function
 SHOWCASE = ROOT / "web" / "public" / "showcase"
 SLUGS = ("barnards-star", "epsilon-indi-b", "r-draconis", "rw-aurigae", "wise-0855")
+SIZE = 6.0  # arcmin: a 6' cutout costs about 4.4 MB against 4.0 MB at 2' (the EPSF table dominates)
+ASTRO = ("ra", "dec", "pmra", "pmdec", "parallax", "epoch_from")  # what build_target takes; the rest is for the reply
+# Wavelength matching reads one detector's lookup table; when pipeline/data is not deployed it costs one cutout
+TABLE_MB = 0 if all((pick.SHIPPED / f"wave_D{d}.npz").exists() for d in range(1, 7)) else pick.TABLE_COST_MB
 
 
 class BadRequest(ValueError):
@@ -120,7 +124,7 @@ def handle(query):
                 raise BadRequest("bad slug")
             s = _read_status(slug)
             return (200, s) if s else (404, dict(error="unknown job"))
-        size = _num(q, "size", 0.5, 10) if "size" in q else 2.0
+        size = _num(q, "size", 0.5, 10) if "size" in q else SIZE
         if q.get("spectrum", "0") not in ("0", "1"):
             raise BadRequest("spectrum must be 0 or 1")
         spec = q.get("spectrum") == "1"
@@ -139,7 +143,7 @@ def handle(query):
             ra, dec = _num(q, "ra", 0, 360), _num(q, "dec", -90, 90)
             label = f"{ra:.5f}, {dec:+.5f}"
             astro = _gaia(ra, dec, 5)
-        slug = f"{ra:.4f}_{dec:+.4f}_{size:g}_{RELEASE}" + ("_spec" if spec else "")
+        slug = f"{ra:.4f}_{dec:+.4f}_{size:g}" + ("_spec" if spec else "")
         out = CACHE / slug
         while True:  # claim the slug, or wait while someone else is building it
             with _LOCK:
@@ -153,10 +157,7 @@ def handle(query):
             time.sleep(2)
         if mine:
             try:
-                kw = dict(spectrum=True, spectrum_mb=SPECTRUM_MB) if spec else {}
-                build.build_target(slug, ra, dec, astro, out, max_mb=MAX_MB - SPECTRUM_MB if spec else MAX_MB,
-                                   size_arcmin=size, cache_dir=CACHE / "raw",
-                                   progress=lambda d, t, m="": _write_status(slug, "running", d, t, m), **kw)
+                _build(slug, ra, dec, astro, out, size, spec)
             except Exception as e:
                 _write_status(slug, "error", message=str(e))
                 return 502, dict(error=str(e), slug=slug)
@@ -167,6 +168,33 @@ def handle(query):
         return 400, dict(error=str(e))
     except GaiaDown as e:
         return 502, dict(error=str(e))
+
+
+def _build(slug, ra, dec, astro, out, size, spec):
+    """build_target with wavelength-matched frames; if matching itself fails (it runs in build.plan, before any
+    download), rebuild with frames picked by time and say so in meta.notes."""
+    kw = dict(spectrum=True, spectrum_mb=SPECTRUM_MB) if spec else {}
+    a = {k: astro[k] for k in ASTRO} if astro else None
+    args = (slug, ra, dec, a, out)
+    kw.update(max_mb=(MAX_MB - SPECTRUM_MB if spec else MAX_MB) - TABLE_MB, size_arcmin=size, cache_dir=CACHE / "raw",
+              progress=lambda d, t, m="": _write_status(slug, "running", d, t, m))
+    try:
+        meta = build.build_target(*args, match_wavelength=True, **kw)
+        note = None
+        w = [v["wavelength_um"] for v in meta["visits"] if v.get("wavelength_um")]
+        if w and max(w) - min(w) > min(w) / 80:  # diff.py's half-channel tolerance
+            note = (f"Wavelength matching could not reach one colour in every visit (visit means {min(w):.3f} to "
+                    f"{max(w):.3f} um): pairs further apart than half a channel have no difference image.")
+    except Exception as e:
+        if not any(f.name == "plan" for f in traceback.extract_tb(e.__traceback__)):
+            raise
+        meta = build.build_target(*args, match_wavelength=False, **kw)
+        note = (f"Wavelength matching failed ({type(e).__name__}): frames were picked by time, so each visit saw a "
+                "different colour and brightness changes between visits mix colour with real change.")
+    if note:
+        meta["notes"] = (meta.get("notes") or []) + [note]
+        (Path(out) / "meta.json").write_text(json.dumps(meta, indent=2))
+    return meta
 
 
 class handler(BaseHTTPRequestHandler):

@@ -54,3 +54,18 @@ def test_retry_503(tmp_path, monkeypatch):
     assert fits.open(p)[0].data.shape == (2, 2)
     fetch.fetch_cutout("http://x/a.fits", 1.0, 2.0, 2, tmp_path / "c")  # cache hit
     assert len(calls) == 2
+
+
+def test_find_frames_keeps_one_row_per_exposure_and_detector(monkeypatch):
+    """Releases are separate exposures today; if one re-lists an exposure it must not count twice."""
+    from blink import query
+    head = "obs_id,t_min,energy_bandpassname,em_min,em_max,access_url,s_region\n"
+    row = lambda i, b, u: f"{i},60900.5,SPHEREx-{b},1e-6,1.1e-6,{u},POLYGON\n"  # noqa: E731
+    body = head + row("E1", "D1", "dr1") + row("E1", "D4", "dr1") + row("E1", "D1", "dr2") + row("E2", "D1", "dr1")
+
+    class R:
+        text = body
+        def raise_for_status(s): pass
+    monkeypatch.setattr(query.requests, "post", lambda *a, **k: R())
+    fr = query.find_frames(1.0, 2.0)
+    assert [(f["obs_id"], f["band"], f["url"]) for f in fr] == [("E1", "SPHEREx-D1", "dr1"), ("E1", "SPHEREx-D4", "dr1"), ("E2", "SPHEREx-D1", "dr1")]
