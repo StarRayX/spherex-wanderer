@@ -127,6 +127,34 @@ def test_same_slug_builds_once(fake, monkeypatch):
     assert len(fake) == 1 and [c for c, _ in out] == [200] * 3
 
 
+def test_waiter_ignores_half_written_meta(fake, monkeypatch):
+    """Deterministic interleaving: meta.json exists but is empty while the build is still running."""
+    import threading
+    half, finish = threading.Event(), threading.Event()
+    real, out = api.build.build_target, []
+
+    def build(slug, ra, dec, astro, out_dir, **k):
+        Path(out_dir).mkdir(parents=True, exist_ok=True)
+        (Path(out_dir) / "meta.json").write_text("")  # torn write
+        k["progress"](1, 2, "half")
+        half.set()
+        assert finish.wait(5)
+        return real(slug, ra, dec, astro, out_dir, **k)
+    monkeypatch.setattr(api.build, "build_target", build)
+    monkeypatch.setattr(api.time, "sleep", lambda s: None)
+    q = dict(ra="269.45", dec="4.73")
+    a = threading.Thread(target=lambda: out.append(api.handle(q)))
+    a.start()
+    assert half.wait(5)
+    b = threading.Thread(target=lambda: out.append(api.handle(q)))
+    b.start()
+    b.join(0.3)
+    assert b.is_alive()  # waiting, not reading the empty meta.json and not building
+    finish.set()
+    a.join(5), b.join(5)
+    assert len(fake) == 1 and [c for c, _ in out] == [200, 200]
+
+
 def test_failed_build_can_be_retried_and_gaia_down_is_502(fake, monkeypatch):
     def boom(*a, **k):
         raise RuntimeError("irsa")

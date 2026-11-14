@@ -20,7 +20,7 @@ from blink import build, jpl, resolve as rs  # noqa: E402
 RELEASE = "qr2"
 CACHE = Path(os.environ.get("BLINK_CACHE", Path(tempfile.gettempdir()) / "blink_cache"))
 MAX_MB = 100
-_LOCK = threading.Lock()
+_LOCK = threading.RLock()  # guards claims and status.json I/O (a read must not see a half-written file)
 STALE_S = 330  # maxDuration is 300 s: a "running" job silent for longer was killed with its function
 SHOWCASE = ROOT / "web" / "public" / "showcase"
 SLUGS = ("barnards-star", "epsilon-indi-b", "r-draconis", "rw-aurigae", "wise-0855")
@@ -60,14 +60,16 @@ def _status_path(slug):
 def _write_status(slug, state, done=0, total=0, message=""):
     p = _status_path(slug)
     p.parent.mkdir(parents=True, exist_ok=True)
-    p.write_text(json.dumps(dict(state=state, done=done, total=total, message=message)))
+    with _LOCK:
+        p.write_text(json.dumps(dict(state=state, done=done, total=total, message=message)))
 
 
 def _read_status(slug):
     """Status dict or None. A running job nobody has touched for STALE_S seconds is reported as an error."""
     p = _status_path(slug)
     try:
-        s, age = json.loads(p.read_text()), time.time() - p.stat().st_mtime
+        with _LOCK:
+            s, age = json.loads(p.read_text()), time.time() - p.stat().st_mtime
     except (OSError, ValueError):
         return None
     if s.get("state") == "running" and age > STALE_S:
@@ -133,10 +135,11 @@ def handle(query):
         while True:  # claim the slug, or wait while someone else is building it
             with _LOCK:
                 s = _read_status(slug)
-                mine = not (out / "meta.json").exists() and not (s and s["state"] == "running")
+                running = bool(s and s["state"] == "running")  # meta.json may be half-written until the build finishes
+                mine = not running and not (out / "meta.json").exists()
                 if mine:
                     _write_status(slug, "running", 0, 0, "starting")
-            if mine or (out / "meta.json").exists():
+            if mine or not running:
                 break
             time.sleep(2)
         if mine:
