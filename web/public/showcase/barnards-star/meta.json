@@ -1,0 +1,72 @@
+{
+  "slug": "barnards-star",
+  "pixel_scale_arcsec": 6.15,
+  "upsample": 4,
+  "stretch": {
+    "kind": "asinh",
+    "black": -0.8310085701107055,
+    "white": 516.322293513484,
+    "softening": 10.0
+  },
+  "visits": [
+    {
+      "file": "visit_00.png",
+      "date": "2025-09-13",
+      "mjd": 60931.739222000004,
+      "band": "SPHEREx-D4",
+      "wavelength_um": 3.017189917770676,
+      "wavelength_min_um": 2.431920912020962,
+      "wavelength_max_um": 3.60245892352039,
+      "star_xy": [
+        9.923601082052249,
+        9.19725580544854
+      ],
+      "predicted_xy": [
+        10.111833710416231,
+        9.188930617352733
+      ],
+      "flags_summary": "2/2 frames, bits [0, 1, 2, 21, 26]"
+    },
+    {
+      "file": "visit_01.png",
+      "date": "2026-03-11",
+      "mjd": 61110.475623,
+      "band": "SPHEREx-D4",
+      "wavelength_um": 3.055451637090451,
+      "wavelength_min_um": 2.4261475275320934,
+      "wavelength_max_um": 3.731201979502328,
+      "star_xy": [
+        10.023991703618956,
+        10.081217222330585
+      ],
+      "predicted_xy": [
+        10.0,
+        9.999999999997947
+      ],
+      "flags_summary": "3/3 frames, bits [0, 1, 2, 21, 26]"
+    },
+    {
+      "file": "visit_02.png",
+      "date": "2026-08-27",
+      "mjd": 61279.489310666664,
+      "band": "SPHEREx-D4",
+      "wavelength_um": 2.462370103317287,
+      "wavelength_min_um": 2.4097026318330244,
+      "wavelength_max_um": 2.523464516076083,
+      "star_xy": [
+        10.230187941187175,
+        10.664938410910823
+      ],
+      "predicted_xy": [
+        10.22870227024736,
+        10.805112484486987
+      ],
+      "flags_summary": "3/3 frames, bits [0, 1, 2, 7, 21, 26]"
+    }
+  ],
+  "motion": {
+    "measured_arcsec_per_yr": 9.496077819645533,
+    "error_arcsec_per_yr": 0.9664258136794509,
+    "gaia_arcsec_per_yr": 10.362394206546572
+  }
+}
