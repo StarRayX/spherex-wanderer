@@ -1,12 +1,13 @@
-"""UNVALIDATED: do not show on the site as a measured spectrum. Against catalog photometry of one star it agrees to
-5% (median) but 2 of 11 points miss the 10% bar set in advance (+10.0%, -11.4%); IRSA's own tool was not compared.
+"""Validated against IRSA's SPHEREx Spectrophotometry Tool (Tractor PSF-fit forced photometry) for ONE unsaturated star
+(K 10.42, 0.96-4.89 um, all six bands): 11 of 11 same-exposure points within 3.3%, median +0.2%, scatter 1.5%, no trend
+with wavelength. Not validated for saturated or blended stars, or any other star. See STRETCH_NOTES.md.
 
 Spectrum on the fly: each frame sees a different wavelength at the star, so per-frame aperture flux vs wavelength
-is a low-resolution spectrum. See STRETCH_NOTES.md for the validation (PS1 y, 2MASS, AllWISE of one field star).
+is a low-resolution spectrum.
 
 Same rules as photometry.light_curve: a frame with any saturated (OVERFLOW/BLOOM/NaN) or masked pixel in the aperture, an
-aperture hanging off the cutout, or no usable sky, is dropped and counted, never guessed. No aperture correction (r=3 px holds ~98-99% of r=5 px
-in D1-D3; the PSF grows toward D6, so long-wavelength points read low by a few percent more).
+aperture hanging off the cutout, or no usable sky, is dropped and counted, never guessed. No aperture correction: r=3 px
+holds 98.7-100% of the cutouts' own EPSF, and against IRSA the residual offset is +0.2%, so none is needed at this level.
 """
 import numpy as np
 
