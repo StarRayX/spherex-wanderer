@@ -1,0 +1,5 @@
+/* Fast-mover layer on the sky page: the hint under the target list and the clicked star's card. */
+.fast-hint { display: flex; gap: 8px; align-items: baseline; margin: 12px 0 0; }
+.fast-dot { flex: none; width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid var(--cyan); opacity: 0.6; transform: translateY(1px); }
+.fast-card .btn { margin-top: 12px; }
+.fast-note { margin: 8px 0 0; opacity: 0.8; }

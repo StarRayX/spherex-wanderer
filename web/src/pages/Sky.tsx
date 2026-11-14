@@ -2,9 +2,17 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import type { PageProps } from '../lib/router'
 import { STATUS_LABEL, TARGETS, imageUrl, loadMeta } from '../lib/targets'
 import type { Meta } from '../lib/types'
-import { axisWords, decDms, fmt, raHms, totalDrift } from '../lib/format'
+import { axisWords, decDms, fmt, lightYears, raHms, totalDrift, yearsPerMoon } from '../lib/format'
 import Viewer from '../components/Viewer'
 import Mark from '../components/Mark'
+import './Sky.css'
+
+// The 300 fastest-moving stars in Gaia DR3 (pipeline/scripts/fetch_fast_movers.py), positions at epoch 2016.0.
+// They are drawn as faint dots at their SPHEREx-era position; the five test targets stay the prominent layer.
+interface FastFile { epoch: number; fields: string[]; rows: [string, number, number, number, number, number, number, number | null][] }
+interface FastStar { name: string; ra: number; dec: number; pmra: number; pmdec: number; parallax: number }
+const FAST_EPOCH = 2026.0 // SPHEREx's all-sky survey, which began in 2025
+const COINCIDE_DEG = 1 / 60 // a fast mover within 1 arcmin of a test target is that target; skip it
 
 // The sky page follows LAMBAT's map page: the map fills the screen and the column is a stack of floating
 // cards on the left (a bottom section on phones). Imagery is HiPS tiles. CDS publishes SPHEREx QR2 as an
@@ -72,6 +80,17 @@ const THEN = 1999 // the 2MASS sky survey ran 1997 to 2001
 // The sky map draws on a canvas, so it reads the accent colour from the CSS tokens at start-up.
 const accent = () => getComputedStyle(document.documentElement).getPropertyValue('--cyan').trim() || '#00B8D9'
 
+// The accent colour at low opacity, for the faint fast-mover dots.
+function faint(alpha: number) {
+  const hex = accent().replace('#', '')
+  if (!/^[0-9a-f]{6}$/i.test(hex)) return `rgba(0,184,217,${alpha})`
+  const n = parseInt(hex, 16)
+  return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${alpha})`
+}
+
+// Aladin draws a selected catalogue source in its selectionColor (green by default); transparent turns that off.
+const NO_RING = 'rgba(0,0,0,0)'
+
 const STEPS = ['Finding a sky image server', 'Loading the sky map', 'Placing the five test stars']
 
 // Stereographic projection: the view from the centre of the sky sphere, like a skybox camera. Capped at 100
@@ -101,6 +120,10 @@ const toVec = (ra: number, dec: number): [number, number, number] =>
   [Math.cos(dec * D2R) * Math.cos(ra * D2R), Math.cos(dec * D2R) * Math.sin(ra * D2R), Math.sin(dec * D2R)]
 const toRaDec = (v: [number, number, number]): [number, number] =>
   [((Math.atan2(v[1], v[0]) / D2R) % 360 + 360) % 360, Math.asin(Math.max(-1, Math.min(1, v[2]))) / D2R]
+const sepDeg = (r1: number, d1: number, r2: number, d2: number) => {
+  const a = toVec(r1, d1), b = toVec(r2, d2)
+  return Math.acos(Math.max(-1, Math.min(1, a[0] * b[0] + a[1] * b[1] + a[2] * b[2]))) / D2R
+}
 
 function flyTo(v: AladinView, ra: number, dec: number, fov: number, id: { current: number }, ms = 1800) {
   cancelAnimationFrame(id.current)
@@ -160,6 +183,9 @@ export default function Sky({ params, onReady }: PageProps) {
   const [picked, setPicked] = useState<Meta | null>(null)
   const [step, setStep] = useState(0)
   const [sheet, setSheet] = useState(false) // phones: the cards are a bottom sheet over the map
+  const [fast, setFast] = useState<FastStar | null>(null)
+  const [fastCount, setFastCount] = useState(0)
+  const fastPick = useRef<any>(null) // a one-source catalogue drawn as a ring round the clicked fast mover
 
   useEffect(() => { onReady() }, [onReady])
 
@@ -174,6 +200,8 @@ export default function Sky({ params, onReady }: PageProps) {
 
   const fly = useCallback(async (slug: string) => {
     const m = await loadMeta(slug)
+    setFast(null)
+    fastPick.current?.removeAll?.()
     setPicked(m)
     setSheet(true)
     const a = m.target?.astrometry, v = view.current, A = lib.current
@@ -200,12 +228,13 @@ export default function Sky({ params, onReady }: PageProps) {
       const ux = dx / len, uy = dy / len
       const p0: [number, number] = [then[0] + ux * r * 1.2 * k, then[1] + uy * r * 1.2]
       const p1: [number, number] = [ra - ux * r * 1.2 * k, dec - uy * r * 1.2]
-      const hl = Math.min(len * 0.12, 25 / 3600)
+      // a short head: 6% of the shaft, at most 12 arcsec, 25 degrees either side of the shaft
+      const hl = Math.min(Math.max(0, len - r * 2.4) * 0.06, 12 / 3600)
       const head = (sgn: number): [number, number] => [
-        p1[0] + (-ux * 0.87 - sgn * uy * 0.5) * hl * k, p1[1] + (-uy * 0.87 + sgn * ux * 0.5) * hl]
+        p1[0] + (-ux * 0.906 - sgn * uy * 0.423) * hl * k, p1[1] + (-uy * 0.906 + sgn * ux * 0.423) * hl]
       const w = { color: '#FFFFFF', hoverColor: '#FFFFFF', selectionColor: '#FFFFFF', lineWidth: 2 }
-      ov.add(A.polyline([p0, p1], w))
-      ov.add(A.polyline([head(1), p1, head(-1)], w))
+      // shaft and head as one polyline (retracing the tip), so the arrow hovers as one piece
+      ov.add(A.polyline([p0, p1, head(1), p1, head(-1)], w))
       ov.add(A.circle(then[0], then[1], r, w))
       epochs.current?.addSources([
         A.source(then[0] - r * 1.4 * k, then[1] - r * 1.4, { name: `${name} in ${THEN}` }),
@@ -224,6 +253,39 @@ export default function Sky({ params, onReady }: PageProps) {
     }
     flyTo(v, cra, cdec, fov, anim)
   }, [])
+
+  // The fast-mover layer: loaded after the map is ready, so a slow or missing file never holds the map up.
+  async function loadFast(A: any, v: AladinView, targets: [number, number][]) {
+    try {
+      const f: FastFile = await fetch('/data/fast_movers.json').then(r => { if (!r.ok) throw new Error(String(r.status)); return r.json() })
+      const cat = A.catalog({ name: 'Fastest-moving stars', sourceSize: 8, color: faint(0.5),
+        hoverColor: accent(), selectionColor: NO_RING, shape: 'circle', displayLabel: false })
+      const list: any[] = []
+      for (const [name, , ra0, dec0, pmra, pmdec, parallax] of f.rows) {
+        const [ra, dec] = at({ ra: ra0, dec: dec0, pmra, pmdec, epoch_from: f.epoch }, FAST_EPOCH)
+        if (targets.some(([r, d]) => sepDeg(ra, dec, r, d) < COINCIDE_DEG)) continue
+        const star: FastStar = { name, ra, dec, pmra, pmdec, parallax }
+        list.push(A.source(ra, dec, { fast: star }))
+      }
+      cat.addSources(list)
+      v.addCatalog(cat)
+      setFastCount(list.length)
+    } catch (e) {
+      console.warn('Fast-mover layer not loaded:', e)
+    }
+  }
+
+  // ra, dec: the clicked marker's own (propagated) position, so the ring sits exactly on the dot
+  function pickFast(s: FastStar, ra = s.ra, dec = s.dec) {
+    setPicked(null)
+    overlay.current?.removeAll?.()
+    epochs.current?.removeAll?.()
+    showMarks()
+    setFast(s)
+    setSheet(true)
+    const c = fastPick.current
+    if (c && lib.current) { c.removeAll?.(); c.addSources([lib.current.source(ra, dec, {})]) }
+  }
 
   useEffect(() => {
     let dead = false
@@ -262,7 +324,7 @@ export default function Sky({ params, onReady }: PageProps) {
         tune(v, first.url)
         setStep(2)
         const metas = await Promise.all(TARGETS.map(t => loadMeta(t.slug).catch(() => null)))
-        const cat = A.catalog({ name: 'Test targets', sourceSize: 22, color: accent(), shape: 'circle',
+        const cat = A.catalog({ name: 'Test targets', sourceSize: 22, color: accent(), hoverColor: accent(), selectionColor: NO_RING, shape: 'circle',
           displayLabel: true, labelColumn: 'name', labelColor: '#E8EEF6', labelFont: '600 13px Public Sans' })
         // Markers sit where each star is during the SPHEREx visits, not at its 2016 catalogue position.
         const srcs = new Map<string, any>()
@@ -272,13 +334,33 @@ export default function Sky({ params, onReady }: PageProps) {
           if (m && a) { const [ra, dec] = at(a, midYear(m)); const src = A.source(ra, dec, { name: TARGETS[i].name, slug: TARGETS[i].slug }); srcs.set(TARGETS[i].slug, src); cat.addSources([src]) }
         })
         v.addCatalog(cat)
-        epochs.current = A.catalog({ name: 'Then and now', sourceSize: 8, color: 'rgba(0,0,0,0)', shape: 'square',
+        epochs.current = A.catalog({ name: 'Then and now', sourceSize: 8, color: NO_RING, hoverColor: NO_RING, selectionColor: NO_RING, shape: 'square',
           displayLabel: true, labelColumn: 'name', labelColor: '#FFFFFF', labelFont: '600 12px Public Sans' })
         v.addCatalog(epochs.current)
         overlay.current = A.graphicOverlay({ color: accent(), hoverColor: accent(), selectionColor: accent(), lineWidth: 1.5 })
         v.addOverlay(overlay.current)
-        v.on('objectClicked', (o: any) => { if (o?.data?.slug) void fly(o.data.slug) })
+        v.on('objectClicked', (o: any) => {
+          // Aladin selects the clicked source and draws its own ring, which stays at the old screen spot during a
+          // fly. Our circles and the card are the only selection feedback, so drop its selection right after.
+          setTimeout(() => (v as any).view?.unselectObjects?.(), 0)
+          if (o?.data?.slug) void fly(o.data.slug)
+          else if (o?.data?.fast) pickFast(o.data.fast as FastStar, o.ra, o.dec)
+        })
+        // Ring round a clicked fast mover: a catalogue, so it keeps its size in pixels at every zoom.
+        fastPick.current = A.catalog({ name: 'Picked fast mover', sourceSize: 18, color: accent(),
+          hoverColor: accent(), selectionColor: NO_RING, shape: 'circle', displayLabel: false })
+        v.addCatalog(fastPick.current)
+        void loadFast(A, v, [...srcs.values()].map(o => [o.ra, o.dec] as [number, number]))
+        // Aladin keeps a hovered or selected source's ring at its last screen spot when the view moves under it
+        // (a fly, a zoom), so a ring would hang in empty sky. Drop both whenever the view changes.
+        const dropRings = () => {
+          const vw = (v as any).view
+          if (!vw) return
+          if (vw.lastHoveredObject) { vw.lastHoveredObject.forEach((o: any) => o.unhover?.()); vw.lastHoveredObject = null }
+          if (vw.selection) vw.unselectObjects?.()
+        }
         const sync = () => {
+          dropRings()
           const [ra, dec] = v.getRaDec(), fov = v.getFoV()[0]
           writeHud(hud.current, ra, dec, fov)
           const w = fov > WIDE_FOV
@@ -311,6 +393,8 @@ export default function Sky({ params, onReady }: PageProps) {
 
   function wholeSky() {
     setPicked(null)
+    setFast(null)
+    fastPick.current?.removeAll?.()
     overlay.current?.removeAll?.()
     epochs.current?.removeAll?.()
     showMarks()
@@ -366,7 +450,7 @@ export default function Sky({ params, onReady }: PageProps) {
 
       <div className={'skycol' + (sheet ? ' open' : '')}>
         <button className="handle" onClick={() => setSheet(o => !o)} aria-expanded={sheet} aria-label={sheet ? 'Lower the panel' : 'Raise the panel'}>
-          <span className="handle-t">{picked && info ? info.name : 'Pick a star'}</span>
+          <span className="handle-t">{picked && info ? info.name : fast ? fast.name : 'Pick a star'}</span>
         </button>
           {picked && info ? (
             <div className="card">
@@ -393,6 +477,8 @@ export default function Sky({ params, onReady }: PageProps) {
               </p>
               <a className="btn sm" href={`#/target/${picked.slug}`}>Open the full dashboard</a>
             </div>
+          ) : fast ? (
+            <FastCard s={fast} onClose={wholeSky} />
           ) : (
             <div className="card">
               <h1 className="q">Pick a star to fly to it</h1>
@@ -414,6 +500,9 @@ export default function Sky({ params, onReady }: PageProps) {
                     </li>
                   ))}
               </ul>
+              {state === 'ready' && fastCount > 0 && (
+                <p className="caption fast-hint"><i className="fast-dot" aria-hidden />Faint dots are the 300 fastest-moving stars in the Gaia catalogue. Click one.</p>
+              )}
               {state === 'ready' && hosts.ir && hosts.ir.name !== 'SPHEREx' && (
                 <p className="notice sky-warn">SPHEREx's all-sky map is not reachable right now (CDS server), so the infrared background is 2MASS. The target photos are SPHEREx.</p>
               )}
@@ -423,6 +512,37 @@ export default function Sky({ params, onReady }: PageProps) {
             </div>
           )}
       </div>
+    </div>
+  )
+}
+
+// A fast mover's card: distance from parallax, drift from proper motion, and a link to its SPHEREx photos.
+function FastCard({ s, onClose }: { s: FastStar; onClose: () => void }) {
+  const a = { ...s, epoch_from: FAST_EPOCH }
+  const ly = lightYears(a)
+  const drift = totalDrift(a)
+  const moon = yearsPerMoon(a)
+  const href = `#/any?ra=${s.ra.toFixed(4)}&dec=${s.dec.toFixed(4)}&size=4`
+  return (
+    <div className="card fast-card">
+      <div className="picked-head">
+        <h2>{s.name}</h2>
+        <button className="linkbtn" onClick={onClose}>All targets</button>
+      </div>
+      <p className="caption" style={{ margin: '4px 0 0' }}>One of the 300 fastest-moving stars in Gaia.</p>
+      <div className="picked-stats">
+        <div className="stat">
+          <span className="stat-label">Distance</span>
+          <span className="stat-value">{ly ? <>{fmt(ly, ly < 100 ? 1 : 0)}<small> light years</small></> : 'n/a'}</span>
+        </div>
+        <div className="stat">
+          <span className="stat-label">Drift</span>
+          <span className="stat-value">{drift ? <>{fmt(drift, 2)}<small> ″/yr</small></> : 'n/a'}</span>
+        </div>
+      </div>
+      {moon && <p className="caption" style={{ marginTop: 12 }}>Crosses a full Moon in {fmt(moon, 0)} years.</p>}
+      <a className="btn sm" href={href}>Show its SPHEREx photos</a>
+      <p className="caption fast-note">Live photos need the deployed site.</p>
     </div>
   )
 }
