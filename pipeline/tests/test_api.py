@@ -75,7 +75,7 @@ def test_identify_rejects(fake, q):
 
 
 def test_identify_ok_and_degrades(fake, monkeypatch):
-    monkeypatch.setattr(api.jpl, "identify", lambda ra, dec, mjd, fov_arcmin=2.0: ([{"name": "x"}], None))
+    monkeypatch.setattr(api.jpl, "identify", lambda ra, dec, mjd, fov_arcmin=2.0, vmag_lim=None: ([{"name": "x"}], None))
     assert api.handle(dict(identify="10,-5,60800", fov="3")) == (200, dict(bodies=[{"name": "x"}], reason=None))
 
     def down(*a, **k):
@@ -83,6 +83,17 @@ def test_identify_ok_and_degrades(fake, monkeypatch):
     monkeypatch.setattr(api.jpl, "identify", down)
     code, r = api.handle(dict(identify="10,-5,60800"))
     assert code == 200 and r["bodies"] == [] and "RuntimeError" in r["reason"]
+
+
+def test_identify_vmag(fake, monkeypatch):
+    seen = []
+    monkeypatch.setattr(api.jpl, "identify", lambda ra, dec, mjd, fov_arcmin=2.0, vmag_lim=None: (seen.append(vmag_lim), ([], None))[1])
+    assert api.handle(dict(identify="10,-5,60800"))[0] == 200
+    assert api.handle(dict(identify="10,-5,60800", vmag="18.5"))[0] == 200
+    assert seen == [22.0, 18.5]
+    for bad in ("abc", "5"):
+        assert api.handle(dict(identify="10,-5,60800", vmag=bad))[0] == 400
+    assert len(seen) == 2
 
 
 def test_showcase_and_end_to_end(fake):

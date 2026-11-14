@@ -25,6 +25,7 @@ _LOCK = threading.RLock()  # guards claims and status.json I/O (a read must not 
 STALE_S = 330  # maxDuration is 300 s: a "running" job silent for longer was killed with its function
 SHOWCASE = ROOT / "web" / "public" / "showcase"
 SLUGS = ("barnards-star", "epsilon-indi-b", "r-draconis", "rw-aurigae", "wise-0855")
+IDENTIFY_VMAG = 22.0  # JPL sb_ident is much faster with a magnitude limit, and SPHEREx sees nothing fainter
 SIZE = 6.0  # arcmin: a 6' cutout costs about 4.4 MB against 4.0 MB at 2' (the EPSF table dominates)
 ASTRO = ("ra", "dec", "pmra", "pmdec", "parallax", "epoch_from")  # what build_target takes; the rest is for the reply
 # Wavelength matching reads one detector's lookup table; when pipeline/data is not deployed it costs one cutout
@@ -113,8 +114,9 @@ def handle(query):
                 raise BadRequest("identify must be ra,dec,mjd")
             ra, dec, mjd = (_num({k: x}, k, lo, hi) for x, (k, lo, hi) in zip(p, [("ra", 0, 360), ("dec", -90, 90), ("mjd", 59000, 70000)]))
             fov = _num(q, "fov", 0.5, 30) if "fov" in q else 2.0
+            vmag = _num(q, "vmag", 10, 30) if "vmag" in q else IDENTIFY_VMAG
             try:
-                bodies, reason = jpl.identify(ra, dec, mjd, fov_arcmin=fov)
+                bodies, reason = jpl.identify(ra, dec, mjd, fov_arcmin=fov, vmag_lim=vmag)
             except Exception as e:  # JPL trouble must never 500 the page
                 bodies, reason = [], f"JPL lookup failed: {type(e).__name__}"
             return 200, dict(bodies=bodies, reason=reason)
