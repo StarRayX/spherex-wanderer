@@ -38,3 +38,13 @@
   .sky-slow { top: 76px; left: var(--s2); right: var(--s2); max-width: none; }
 }
 .skypage .picked-stats .stat-value { font-size: 1.25rem; }
+
+/* Small frosted pill over the map while the first sky tiles load. It never blocks touches. */
+.sky-loading { position: absolute; z-index: 7; top: var(--s2); left: 50%; transform: translateX(-50%); margin: 0; padding: 8px 14px; border-radius: 999px;
+  pointer-events: none; white-space: nowrap; background: var(--glass); -webkit-backdrop-filter: var(--frost); backdrop-filter: var(--frost);
+  border: var(--edge); box-shadow: var(--shadow); color: #E8EEF6; font: 600 var(--t-sm) var(--f-text); }
+@media (max-width: 767px) { .sky-loading { top: 64px; } }
+@media (min-width: 768px) { .sky-loading { left: calc(50% + 178px); } }
+.target-list .tn, .target-list .th { overflow-wrap: break-word; text-wrap: pretty; }
+.target-list button > span { min-width: 0; }
+@media (max-width: 767px) { .handle-t { padding: 0 var(--s3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } }

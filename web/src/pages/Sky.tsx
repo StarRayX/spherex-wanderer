@@ -90,6 +90,7 @@ const yearOf = (mjd: number) => 2000 + (mjd - 51544.5) / 365.25
 const midYear = (m: Meta) => yearOf((m.visits[0].mjd + m.visits[m.visits.length - 1].mjd) / 2)
 const THEN = 1999 // the 2MASS sky survey ran 1997 to 2001
 const nowYear = (m: Meta) => yearOf(m.visits[m.visits.length - 1].mjd) // the latest SPHEREx visit: what "now" means on the map
+const TILES_CAP_MS = 12000 // never leave the "loading sky images" pill up longer than this
 const GLIDE_MS = 4000
 const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2)
 
@@ -111,6 +112,56 @@ const NO_RING = 'rgba(0,0,0,0)'
 // degrees across, about a normal camera's field; wider than that the edges stretch as you pan.
 const WHOLE_SKY_FOV = 100
 const TARGET_FOV = 0.25
+
+// A catalogue shape that draws a source's name as its own label and keeps it inside the canvas: on the right of
+// the marker by default, flipped to the left near the right edge, and cut with an ellipsis if neither side fits.
+// Label boxes already drawn this frame. Sources draw back to back within a few ms, so a gap since the last draw
+// call marks a new frame and clears the list. `priority` labels (the picked star's) are always drawn.
+let drawn: [number, number, number, number][] = []
+let lastDraw = 0
+const hits = (b: [number, number, number, number]) => drawn.some(o => b[0] < o[2] && b[2] > o[0] && b[1] < o[3] && b[3] > o[1])
+function labelShape(ring: boolean, font: string, colour: string, offset: number, priority = false) {
+  return (s: any, ctx: CanvasRenderingContext2D) => {
+    const x = s.x, y = s.y, text = String(s.data?.name ?? '')
+    const W = ctx.canvas.clientWidth || ctx.canvas.width
+    const now = performance.now()
+    if (now - lastDraw > 6) drawn = []
+    lastDraw = now
+    ctx.save()
+    if (ring) {
+      ctx.strokeStyle = accent(); ctx.lineWidth = 2.5
+      ctx.beginPath(); ctx.arc(x, y, 11, 0, 2 * Math.PI); ctx.stroke()
+    }
+    ctx.font = font; ctx.textBaseline = 'middle'
+    let label = text, left = false
+    if (x + offset + ctx.measureText(label).width > W - 8) {
+      if (x - offset - ctx.measureText(label).width >= 8) left = true
+      else {
+        left = x > W / 2
+        const avail = Math.max(24, left ? x - offset - 8 : W - x - offset - 8)
+        while (label.length > 3 && ctx.measureText(label + '…').width > avail) label = label.slice(0, -1)
+        label = label.trimEnd() + '…'
+      }
+    }
+    const box = (l: boolean): [number, number, number, number] => {
+      const w = ctx.measureText(label).width, lx = l ? x - offset : x + offset
+      return [l ? lx - w : lx, y - 9, l ? lx : lx + w, y + 9]
+    }
+    let b = box(left)
+    if (!priority && hits(b)) {
+      const other = box(!left)
+      const fits = other[0] >= 8 && other[2] <= W - 8
+      if (fits && !hits(other)) { left = !left; b = other }
+      else { ctx.restore(); return } // no clear spot: the ring stays, the name shows on hover or tap
+    }
+    drawn.push(b)
+    ctx.textAlign = left ? 'right' : 'left'
+    const lx = left ? x - offset : x + offset
+    ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(5,7,12,0.85)'; ctx.lineJoin = 'round'
+    ctx.strokeText(label, lx, y); ctx.fillStyle = colour; ctx.fillText(label, lx, y)
+    ctx.restore()
+  }
+}
 
 // Aladin Lite ships no types; this is the part of its API used here.
 interface AladinView {
@@ -237,6 +288,8 @@ export default function Sky({ params, onReady }: PageProps) {
   const anim = useRef(0)
   const marks = useRef<{ cat: any; src: Map<string, any> } | null>(null)
   const [picked, setPicked] = useState<Meta | null>(null)
+  const [tiles, setTiles] = useState(true) // no sky tiles have been drawn yet; on from mount
+  const tilesTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   const [slow, setSlow] = useState(false) // no survey server has answered after SLOW_MS
   const resRef = useRef<Res>({})
   const slowTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
@@ -450,13 +503,14 @@ export default function Sky({ params, onReady }: PageProps) {
 
   useEffect(() => {
     let dead = false
+    tilesTimer.current = setTimeout(() => setTiles(false), TILES_CAP_MS)
     ;(async () => {
       try {
         if (!document.createElement('canvas').getContext('webgl2')) throw new Error('no WebGL2')
         // The probes run beside the map start-up and never gate it: the map opens at once on the default
         // survey, then switches to the better one if a probe finds it. No answer by SLOW_MS shows the note.
         const res: Res = {}
-        let run = 0
+        let run = 0, tilesReady = true
         const apply = () => {
           const ir = res.ir ?? undefined, vis = res.vis ?? undefined
           setHosts({ ir, vis })
@@ -466,6 +520,8 @@ export default function Sky({ params, onReady }: PageProps) {
           if (!vw) return
           const want = layerRef.current === 'ir' ? ir?.url : (res.mel && vis && vw.getFoV()[0] > WIDE_FOV ? res.mel.url : vis?.url)
           if (want && want !== surveyRef.current) { surveyRef.current = want; vw.setImageSurvey(want); tune(vw, want) }
+          // The chosen host's all-sky preview has just loaded, so Aladin paints its first tiles within a moment.
+          if (want && tilesReady) { tilesReady = false; clearTimeout(tilesTimer.current); tilesTimer.current = setTimeout(() => setTiles(false), 1200) }
         }
         const startProbes = () => {
           const my = ++run
@@ -503,14 +559,17 @@ export default function Sky({ params, onReady }: PageProps) {
         })
         view.current = v
         v.setFoVRange(0.02, WHOLE_SKY_FOV)
+        setTiles(true)
+        clearTimeout(tilesTimer.current)
+        tilesTimer.current = setTimeout(() => setTiles(false), TILES_CAP_MS)
         // the user taking the map over cancels a running fly
         const stop = () => { cancelAnimationFrame(anim.current); hideTip() }
         box.current.addEventListener('pointerdown', stop)
         box.current.addEventListener('wheel', stop, { passive: true })
         tune(v, first.url)
         const metas = await Promise.all(TARGETS.map(t => loadMeta(t.slug).catch(() => null)))
-        const cat = A.catalog({ name: 'Test targets', sourceSize: 22, color: accent(), hoverColor: accent(), selectionColor: NO_RING, shape: 'circle',
-          displayLabel: true, labelColumn: 'name', labelColor: '#E8EEF6', labelFont: '600 13px Public Sans' })
+        const cat = A.catalog({ name: 'Test targets', sourceSize: 22, color: accent(), hoverColor: accent(), selectionColor: NO_RING,
+          displayLabel: false, shape: labelShape(true, '600 13px Public Sans', '#E8EEF6', 16) })
         // Markers sit where each star is during the SPHEREx visits, not at its 2016 catalogue position.
         const srcs = new Map<string, any>()
         marks.current = { cat, src: srcs }
@@ -519,8 +578,8 @@ export default function Sky({ params, onReady }: PageProps) {
           if (m && a) { const [ra, dec] = at(a, midYear(m)); const src = A.source(ra, dec, { name: TARGETS[i].name, slug: TARGETS[i].slug }); srcs.set(TARGETS[i].slug, src); cat.addSources([src]) }
         })
         v.addCatalog(cat)
-        epochs.current = A.catalog({ name: 'Then and now', sourceSize: 8, color: NO_RING, hoverColor: NO_RING, selectionColor: NO_RING, shape: 'square',
-          displayLabel: true, labelColumn: 'name', labelColor: '#FFFFFF', labelFont: '600 12px Public Sans' })
+        epochs.current = A.catalog({ name: 'Then and now', sourceSize: 8, color: NO_RING, hoverColor: NO_RING, selectionColor: NO_RING,
+          displayLabel: false, shape: labelShape(false, '600 13px Public Sans', '#FFFFFF', 4, true) })
         v.addCatalog(epochs.current)
         // A filled dot with the year beside it: a custom shape, so it keeps its size in pixels at every zoom.
         const dot = (s: any, ctx: CanvasRenderingContext2D) => {
@@ -621,7 +680,7 @@ export default function Sky({ params, onReady }: PageProps) {
         if (!dead) setState('failed')
       }
     })()
-    return () => { dead = true; clearTimeout(slowTimer.current); cancelAnimationFrame(anim.current) }
+    return () => { dead = true; clearTimeout(slowTimer.current); clearTimeout(tilesTimer.current); cancelAnimationFrame(anim.current) }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -676,6 +735,9 @@ export default function Sky({ params, onReady }: PageProps) {
               </>}
             </div>
           </div>
+        )}
+        {state !== 'failed' && tiles && !slow && (
+          <p className="sky-loading" role="status">Loading sky images…</p>
         )}
         <div className="sky-hud" aria-hidden ref={hud}>
           <span /><span /><span />
