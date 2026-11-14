@@ -49,7 +49,8 @@
 .mv-plot .tick { fill: var(--muted); font: 500 12px var(--f-display); }
 .mv-plot .axl { fill: var(--ink); font: 600 12px var(--f-text); }
 .mv-plot .band { stroke: rgba(255, 255, 255, .28); stroke-width: 1; }
-.mv-plot .band-t { fill: var(--ink); font: 600 11px var(--f-text); }
+.mv-plot .band-t { fill: #fff; font: 600 11px var(--f-text); }
+.mv-plot .band-bg { fill: #131B29; opacity: .92; }
 .mv-plot .eb { stroke: var(--cyan); stroke-width: 1.2; opacity: .55; }
 .mv-plot circle { fill: var(--cyan); }
 .mv-plot circle.flagged { fill: var(--card); stroke: var(--cyan); stroke-width: 1.5; }
@@ -97,3 +98,10 @@
 .mv-epochs button[aria-pressed="true"] { background: #26324A; }
 .mv-epochs button[aria-pressed="false"] { color: var(--muted); }
 .mv-sw { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; }
+
+/* floating tooltip */
+.mv-stage { position: relative; outline-offset: 4px; }
+.mv-tip { position: absolute; z-index: 2; width: 214px; pointer-events: none; background: #1B2536; border-radius: 10px; padding: 10px 12px; box-shadow: 0 8px 24px rgba(0, 0, 0, .5); font: 500 var(--t-sm)/1.35 var(--f-text); }
+.mv-tip p { margin: 0; }
+.mv-tip b { font-family: var(--f-display); font-weight: 700; }
+.mv-tip-w { font-size: var(--t-md); }

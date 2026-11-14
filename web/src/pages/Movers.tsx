@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import type { KeyboardEvent } from 'react'
+import type { KeyboardEvent, PointerEvent } from 'react'
 import type { PageProps } from '../lib/router'
 import { getJson, joinUrl } from '../lib/download'
 import './Movers.css'
@@ -233,6 +233,7 @@ const EPOCH_COLORS = ['#4DD0F8', '#FFB384', '#C9B8FF', '#8FA8FF', '#7FE3A8']
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 const epochName = (k: string) => `${MONTHS[+k.slice(5, 7) - 1] ?? k.slice(5, 7)} ${k.slice(0, 4)}`
 const LOG_RATIO = 30
+const HOVER_PX = 14
 
 function Plot({ rows, bands }: { rows: Row[]; bands: { um: number; label: string }[] }) {
   const box = useRef<HTMLDivElement>(null)
@@ -270,7 +271,7 @@ function Plot({ rows, bands }: { rows: Row[]; bands: { um: number; label: string
   const mark = rows.some(r => !r.flags) && rows.some(r => r.flags)
 
   const H = w < 520 ? 290 : 360
-  const PAD = { l: log ? 76 : w < 520 ? 52 : 62, r: 14, t: 44, b: 48 }
+  const PAD = { l: log ? 76 : w < 520 ? 52 : 62, r: 14, t: 20, b: 48 }
 
   const g = useMemo(() => {
     if (!vis.length) return null
@@ -279,11 +280,11 @@ function Plot({ rows, bands }: { rows: Row[]; bands: { um: number; label: string
     const x0 = Math.min(...ws) - pad, x1 = Math.max(...ws) + pad
     if (log) {
       const lo = Math.log10(Math.min(...vis.map(r => r.flux_ujy))) - 0.15
-      const hi = Math.log10(Math.max(...vis.map(r => r.flux_ujy + (r.flux_err_ujy || 0)))) + 0.15
+      const hi = Math.log10(Math.max(...vis.map(r => r.flux_ujy + (r.flux_err_ujy || 0)))) + 0.3
       return { x0, x1, lo, hi }
     }
     const lo = Math.min(0, ...vis.map(r => r.flux_ujy - (r.flux_err_ujy || 0)))
-    const hi = Math.max(...vis.map(r => r.flux_ujy + (r.flux_err_ujy || 0))) * 1.05 || 1
+    const hi = Math.max(...vis.map(r => r.flux_ujy + (r.flux_err_ujy || 0))) * 1.15 || 1
     return { x0, x1, lo, hi }
   }, [vis, log])
 
@@ -316,29 +317,34 @@ function Plot({ rows, bands }: { rows: Row[]; bands: { um: number; label: string
     const px = x(b.um), half = b.label.length * 3.6 + 3
     const lvl = px - half > rowEnd[0] ? 0 : px - half > rowEnd[1] ? 1 : 0
     rowEnd[lvl] = px + half
-    return { ...b, px, lvl, anchor: px < PAD.l + half ? 'start' : px > w - PAD.r - half ? 'end' : 'middle' }
+    return { ...b, px, lvl, half, anchor: px < PAD.l + half ? 'start' : px > w - PAD.r - half ? 'end' : 'middle' }
   })
 
-  function pick(clientX: number, svg: SVGSVGElement) {
-    const px = clientX - svg.getBoundingClientRect().left
-    let best = 0, bd = Infinity
-    vis.forEach((r, i) => { const dd = Math.abs(x(r.wavelength_um) - px); if (dd < bd) { bd = dd; best = i } })
-    setSel(best)
+  // Mouse: highlight only when within HOVER_PX of a point. Touch: tap selects the nearest point within a larger reach.
+  function pick(e: PointerEvent<SVGSVGElement>, tap: boolean) {
+    const box = e.currentTarget.getBoundingClientRect()
+    const px = e.clientX - box.left, py = e.clientY - box.top
+    const reach = e.pointerType === 'touch' ? 28 : HOVER_PX
+    let best: number | null = null, bd = reach
+    vis.forEach((r, i) => { const dd = Math.hypot(x(r.wavelength_um) - px, y(r.flux_ujy) - py); if (dd <= bd) { bd = dd; best = i } })
+    if (best !== null || e.pointerType !== 'touch' || tap) setSel(best)
   }
   function onKey(e: KeyboardEvent<HTMLDivElement>) {
+    if (e.key === 'Escape') { setSel(null); return }
     if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return
     e.preventDefault()
     setSel(s => Math.min(vis.length - 1, Math.max(0, (s ?? 0) + (e.key === 'ArrowRight' ? 1 : -1))))
   }
   const s = sel === null ? null : vis[sel] ?? null
+  const tip = s ? { px: x(s.wavelength_um), py: y(s.flux_ujy) } : null
   const fmtTick = (v: number) => v.toLocaleString('en-US')
 
   return (
     <div className="mv-plot" ref={box}>
       {chips}
-      <div tabIndex={0} onKeyDown={onKey} aria-label={`Spectrum with ${vis.length} points. Use the left and right arrow keys to read each point.`}>
+      <div className="mv-stage" tabIndex={0} onKeyDown={onKey} aria-label={`Spectrum with ${vis.length} points. Use the left and right arrow keys to read each point.`}>
         <svg width={w} height={H} viewBox={`0 0 ${w} ${H}`} role="img" aria-label="Flux in microjanskys against wavelength in microns"
-          onPointerMove={e => pick(e.clientX, e.currentTarget)} onPointerDown={e => pick(e.clientX, e.currentTarget)}>
+          onPointerMove={e => pick(e, false)} onPointerDown={e => pick(e, true)} onPointerLeave={e => { if (e.pointerType !== 'touch') setSel(null) }}>
           {yt.map(v => (
             <g key={'y' + v}>
               <line className="gl" x1={PAD.l} x2={w - PAD.r} y1={y(v)} y2={y(v)} />
@@ -354,8 +360,9 @@ function Plot({ rows, bands }: { rows: Row[]; bands: { um: number; label: string
           {!log && g.lo < 0 && <line className="zero" x1={PAD.l} x2={w - PAD.r} y1={y(0)} y2={y(0)} />}
           {labelled.map(b => (
             <g key={b.um + b.label}>
-              <line className="band" x1={b.px} x2={b.px} y1={PAD.t - 6} y2={H - PAD.b} />
-              <text className="band-t" x={b.px} y={14 + b.lvl * 14} textAnchor={b.anchor as 'start' | 'middle' | 'end'}>{b.label}</text>
+              <line className="band" x1={b.px} x2={b.px} y1={PAD.t} y2={H - PAD.b} />
+              <rect className="band-bg" x={b.anchor === 'start' ? b.px : b.anchor === 'end' ? b.px - 2 * b.half : b.px - b.half} y={PAD.t + 3 + b.lvl * 18} width={2 * b.half} height={16} rx={4} />
+              <text className="band-t" x={b.anchor === 'start' ? b.px + b.half : b.anchor === 'end' ? b.px - b.half : b.px} y={PAD.t + 15 + b.lvl * 18} textAnchor="middle">{b.label}</text>
             </g>
           ))}
           {vis.map((r, i) => {
@@ -370,9 +377,21 @@ function Plot({ rows, bands }: { rows: Row[]; bands: { um: number; label: string
           <text className="axl" x={(PAD.l + w - PAD.r) / 2} y={H - 8} textAnchor="middle">Wavelength (µm)</text>
           <text className="axl" transform={`translate(12 ${(PAD.t + H - PAD.b) / 2}) rotate(-90)`} textAnchor="middle">{log ? 'Flux (µJy, log scale)' : 'Flux (µJy)'}</text>
         </svg>
+        {s && tip && (
+          <div className="mv-tip" aria-hidden style={{ left: tip.px, top: tip.py, transform: `translate(${tip.px > w - 230 ? 'calc(-100% - 12px)' : '12px'}, ${tip.py < 150 ? '12px' : 'calc(-100% - 12px)'})` }}>
+            <p className="mv-tip-w"><b>{f1(s.wavelength_um, 3)}</b> µm</p>
+            <p><b>{f1(s.flux_ujy, 1)}</b> ± <b>{f1(s.flux_err_ujy, 1)}</b> µJy</p>
+            {s.snr !== null && s.snr !== undefined && <p>S/N <b>{f1(s.snr, 1)}</b></p>}
+            <p>{when(s.iso)} UTC</p>
+            <p className="muted">{epochName(s.iso.slice(0, 7))}{s.flags ? '. Flagged' : ''}</p>
+          </div>
+        )}
       </div>
-      <p className="mv-read" aria-live="polite">
-        {s ? <><b>{f1(s.wavelength_um, 3)} µm</b>. {f1(s.flux_ujy, 1)} ± {f1(s.flux_err_ujy, 1)} µJy. {when(s.iso)} UTC.{mark && s.flags ? ' SPHEREx flagged some pixels inside the aperture.' : ''}</> : <span className="muted">Point at or tap the plot to read a value.</span>}
+      <p className="sr-only" aria-live="polite">
+        {s ? `${f1(s.wavelength_um, 3)} microns. Flux ${f1(s.flux_ujy, 1)} plus or minus ${f1(s.flux_err_ujy, 1)} microjanskys. Signal to noise ${f1(s.snr, 1)}. ${when(s.iso)} UTC. ${epochName(s.iso.slice(0, 7))}.${s.flags ? ' Flagged.' : ''}` : ''}
+      </p>
+      <p className="mv-read">
+        <span className="muted">Point at a dot or tap it to read its values.</span>
       </p>
       {log && <p className="caption">The flux axis is logarithmic because brightness spans more than a factor of {LOG_RATIO}. Gridlines step by about a factor of 3.{hidden > 0 ? ` ${hidden} measurement${hidden > 1 ? 's' : ''} at or below zero cannot be drawn on a log axis. They are still in the table.` : ''}</p>}
       <ul className="legend mv-legend">
