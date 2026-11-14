@@ -94,7 +94,7 @@ export default function Viewer({ meta, src, autoplay = true, compact = false }: 
         {v.star_xy !== null && layer === 'images' && offColour && (
           <div className="frame-note">This visit saw a different colour of infrared ({fmt(v.wavelength_um)} µm), so it can look brighter or dimmer for that reason alone.</div>
         )}
-        {saturated && layer === 'images' && <div className="frame-note info">The dark centre is missing data: the star is too bright for SPHEREx's detector.</div>}
+        {saturated && layer === 'images' && <div className="frame-note info">The star is too bright for SPHEREx's detector: its centre is filled in white and not measured.</div>}
       </div>
 
       <div className="controls">
