@@ -411,6 +411,7 @@ select.field { appearance: none; -webkit-appearance: none; padding-right: 44px; 
 /* badges, notices, loaders */
 .badge { background: rgba(77, 208, 248, .14); color: var(--cyan); }
 .badge.images { background: rgba(255, 255, 255, .08); color: var(--muted); }
+.badge .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex: none; }
 .skel { background: linear-gradient(90deg, rgba(255, 255, 255, .05) 30%, rgba(255, 255, 255, .13) 50%, rgba(255, 255, 255, .05) 70%) 0 0 / 300% 100%; animation: shimmer 1.5s ease-in-out infinite; }
 .bar { background: rgba(255, 255, 255, .1); }
 .bar::after { background: var(--cyan); }
