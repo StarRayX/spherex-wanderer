@@ -11,6 +11,8 @@ Status: in development during the hackathon (Nov 14-15, 2026). Nothing here is f
 - [Idea](docs/IDEA.md): what we build and why
 - [Rules](docs/RULES.md): challenge requirements and judging
 - [Evidence notes](docs/evidence_notes.md): every fact we rely on, with its source
+- [Plan](docs/PLAN.md): deadline, freeze times, team, permissions
+- [Brand](docs/BRAND.md): Observatory instrument look, tokens, type, bans
 
 ## Team
 NYSCP, Manila local event.

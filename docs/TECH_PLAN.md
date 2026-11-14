@@ -123,14 +123,9 @@ Freeze times are set backwards from the Manila submission deadline. **The deadli
 | 90% | Submission package locked: README, 30 s video or max 7 slides, project page text, AI-use disclosure |
 | deadline minus 2 h | Buffer only. No new commits after the deadline |
 
-## 7. Team split (draft, to confirm)
+## 7. Team split
 
-| Person | Owns |
-|---|---|
-| Clarence | Pipeline, measurement, API, integration, deploy |
-| Samantha (snrbracamonte) | To confirm: presentation workstream (style tiles, brand, landing, components) |
-| Others | To fill in |
-| Human-only | Voiceover and recording, final form submit, choosing the style direction |
+See `PLAN.md`. Samantha leads development and picks her own work. Clarence supports where she wants help. The visual direction is set in `BRAND.md` (Observatory instrument).
 
 ## 8. Risks
 
