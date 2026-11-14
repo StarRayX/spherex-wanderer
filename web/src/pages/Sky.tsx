@@ -166,6 +166,48 @@ function writeHud(el: HTMLDivElement | null, ra: number, dec: number, fov: numbe
   c.textContent = `Field ${label} · ${scale}`
 }
 
+// SPHEREx visit PNGs are opaque dark squares. Redraw each onto a canvas so the dark background turns transparent
+// (alpha scales with brightness above the frame's median) and the edges fade out radially. Cached per URL.
+const blended = new Map<string, Promise<string>>()
+function blendedUrl(url: string): Promise<string> {
+  let p = blended.get(url)
+  if (!p) {
+    p = new Promise<string>(resolve => {
+      const im = new Image()
+      im.onload = () => {
+        try {
+          const w = im.naturalWidth, h = im.naturalHeight
+          const c = document.createElement('canvas')
+          c.width = w; c.height = h
+          const g = c.getContext('2d')!
+          g.drawImage(im, 0, 0)
+          const d = g.getImageData(0, 0, w, h), px = d.data
+          const lum = new Uint8Array(w * h)
+          for (let i = 0; i < w * h; i++) lum[i] = px[i * 4] * 0.3 + px[i * 4 + 1] * 0.59 + px[i * 4 + 2] * 0.11
+          const hist = new Uint32Array(256)
+          lum.forEach(v => hist[v]++)
+          const q = (f: number) => { let a = 0; for (let v = 0; v < 256; v++) { a += hist[v]; if (a >= f * w * h) return v } return 255 }
+          const med = q(0.5), top = Math.max(q(0.995), med + 8)
+          for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+            const i = y * w + x
+            const r = Math.min(1, Math.hypot((x + 0.5) / w - 0.5, (y + 0.5) / h - 0.5) * 2)
+            const t = Math.min(1, Math.max(0, (r - 0.55) / 0.45))
+            const fall = 1 - t * t * (3 - 2 * t)
+            const b = Math.min(1, Math.max(0, (lum[i] - med) / (top - med)))
+            px[i * 4 + 3] = Math.round(255 * fall * Math.pow(b, 0.7))
+          }
+          g.putImageData(d, 0, 0)
+          resolve(c.toDataURL('image/png'))
+        } catch { resolve(url) }
+      }
+      im.onerror = () => resolve(url)
+      im.src = url
+    })
+    blended.set(url, p)
+  }
+  return p
+}
+
 export default function Sky({ params, onReady }: PageProps) {
   const box = useRef<HTMLDivElement>(null)
   const view = useRef<AladinView | null>(null)
@@ -332,13 +374,15 @@ export default function Sky({ params, onReady }: PageProps) {
     const [cr, cd] = at(a, yearOf(m.visits[mid].mjd))
     const n = (Math.round((m.size_arcmin * 60) / m.pixel_scale_arcsec) | 1) * m.upsample, sc = m.pixel_scale_arcsec / m.upsample / 3600
     L.cur = 0
-    L.names = m.visits.map((x, i) => {
-      const name = `sx-${token}-${i}`
-      const img = A.image(imageUrl(slug, x.file), { name, imgFormat: 'png', opacity: 0,
-        wcs: { NAXIS: 2, NAXIS1: n, NAXIS2: n, CTYPE1: 'RA---TAN', CTYPE2: 'DEC--TAN', CRPIX1: (n + 1) / 2, CRPIX2: (n + 1) / 2, CRVAL1: cr, CRVAL2: cd, CDELT1: -sc, CDELT2: sc },
+    const wcs = { NAXIS: 2, NAXIS1: n, NAXIS2: n, CTYPE1: 'RA---TAN', CTYPE2: 'DEC--TAN', CRPIX1: (n + 1) / 2, CRPIX2: (n + 1) / 2, CRVAL1: cr, CRVAL2: cd, CDELT1: -sc, CDELT2: sc }
+    L.names = m.visits.map((_, i) => `sx-${token}-${i}`)
+    m.visits.forEach(async (x, i) => {
+      const name = L.names[i]
+      const url = await blendedUrl(imageUrl(slug, x.file))
+      if (layers.current.token !== token) return
+      const img = A.image(url, { name, imgFormat: 'png', opacity: 0, wcs,
         successCallback: () => { if (layers.current.token !== token) (v as any).removeImageLayer?.(name); else showVisit(layers.current.cur) } })
       ;(v as any).setOverlayImageLayer(img, name)
-      return name
     })
     // The then-to-now glide: a dot that moves from the 1999 circle to the blue circle.
     glide.current.a = a
