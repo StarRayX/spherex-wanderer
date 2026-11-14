@@ -36,7 +36,7 @@ export default function Method({ onReady }: PageProps) {
 
       <div className="card">
         <ol className="pipeline">
-          {STEPS.map(([t, d], i) => <li key={t}><span className="n" aria-hidden>{i + 1}</span><h3>{t}</h3><p>{d}</p></li>)}
+          {STEPS.map(([t, d], i) => <li key={t}><span className="n" aria-hidden>{String(i + 1).padStart(2, '0')}</span><h3>{t}</h3><p>{d}</p></li>)}
         </ol>
       </div>
 

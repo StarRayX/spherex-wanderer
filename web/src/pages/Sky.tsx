@@ -81,8 +81,8 @@ const TARGET_FOV = 0.25
 
 // Aladin Lite ships no types; this is the part of its API used here.
 interface AladinView {
-  animateToRaDec(ra: number, dec: number, seconds: number, done?: () => void): void
-  zoomToFoV(fov: number, seconds?: number, done?: () => void): void
+  gotoRaDec(ra: number, dec: number): void
+  setFoV(fov: number): void
   getFoV(): [number, number]
   getRaDec(): [number, number]
   setImageSurvey(id: string): void
@@ -90,6 +90,44 @@ interface AladinView {
   addCatalog(c: unknown): void
   addOverlay(o: unknown): void
   on(event: string, fn: (arg: any) => void): void
+}
+
+// One animation loop that moves position and zoom together. Position follows the great circle (slerp of unit
+// vectors, so it never takes the long way round or jumps at RA 0/360); zoom is a lerp of log(fov), so it feels
+// even; both ease out. The HUD updates from the view's own events, so nothing here touches React state.
+const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3)
+const D2R = Math.PI / 180
+const toVec = (ra: number, dec: number): [number, number, number] =>
+  [Math.cos(dec * D2R) * Math.cos(ra * D2R), Math.cos(dec * D2R) * Math.sin(ra * D2R), Math.sin(dec * D2R)]
+const toRaDec = (v: [number, number, number]): [number, number] =>
+  [((Math.atan2(v[1], v[0]) / D2R) % 360 + 360) % 360, Math.asin(Math.max(-1, Math.min(1, v[2]))) / D2R]
+
+function flyTo(v: AladinView, ra: number, dec: number, fov: number, id: { current: number }, ms = 1800) {
+  cancelAnimationFrame(id.current)
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { v.gotoRaDec(ra, dec); v.setFoV(fov); return }
+  const [ra0, dec0] = v.getRaDec(), fov0 = v.getFoV()[0]
+  const a = toVec(ra0, dec0), b = toVec(ra, dec)
+  const omega = Math.acos(Math.max(-1, Math.min(1, a[0] * b[0] + a[1] * b[1] + a[2] * b[2])))
+  const so = Math.sin(omega)
+  const l0 = Math.log(fov0), l1 = Math.log(fov)
+  // Long moves pull the camera back mid-flight (an arc in log zoom), so it never sweeps the sky zoomed in.
+  const lm = Math.log(Math.min(WHOLE_SKY_FOV, Math.max(fov0, fov, (omega * 180) / Math.PI * 1.5)))
+  const lift = Math.max(0, lm - (l0 + l1) / 2)
+  const t0 = performance.now()
+  const step = (now: number) => {
+    const t = Math.min(1, (now - t0) / ms), e = easeOutCubic(t)
+    let p: [number, number, number]
+    if (so < 1e-6) p = b
+    else {
+      const k0 = Math.sin((1 - e) * omega) / so, k1 = Math.sin(e * omega) / so
+      p = [k0 * a[0] + k1 * b[0], k0 * a[1] + k1 * b[1], k0 * a[2] + k1 * b[2]]
+    }
+    const [r, d] = t >= 1 ? [ra, dec] : toRaDec(p)
+    v.gotoRaDec(r, d)
+    v.setFoV(t >= 1 ? fov : Math.exp(l0 + (l1 - l0) * e + 4 * e * (1 - e) * lift))
+    if (t < 1) id.current = requestAnimationFrame(step)
+  }
+  id.current = requestAnimationFrame(step)
 }
 
 function writeHud(el: HTMLDivElement | null, ra: number, dec: number, fov: number) {
@@ -117,11 +155,22 @@ export default function Sky({ params, onReady }: PageProps) {
   const [wide, setWide] = useState(true)
   const wideRef = useRef(true)
   const hud = useRef<HTMLDivElement>(null)
+  const anim = useRef(0)
+  const marks = useRef<{ cat: any; src: Map<string, any> } | null>(null)
   const [picked, setPicked] = useState<Meta | null>(null)
   const [step, setStep] = useState(0)
   const [sheet, setSheet] = useState(false) // phones: the cards are a bottom sheet over the map
 
   useEffect(() => { onReady() }, [onReady])
+
+  // One readable label per circle: while a star is selected its catalogue name label is taken off the map,
+  // because the "<name>, now (year)" label beside the circle already says it.
+  const showMarks = (except?: string) => {
+    const m = marks.current
+    if (!m) return
+    m.cat.removeAll?.()
+    m.cat.addSources([...m.src].filter(([slug]) => slug !== except).map(([, o]) => o))
+  }
 
   const fly = useCallback(async (slug: string) => {
     const m = await loadMeta(slug)
@@ -132,6 +181,7 @@ export default function Sky({ params, onReady }: PageProps) {
     const ov = overlay.current
     ov.removeAll?.()
     epochs.current?.removeAll?.()
+    showMarks(slug)
     // Gaia positions are for 2016. Move the star to the middle of the SPHEREx visits, or a fast mover
     // like Barnard's Star (about 100 arcsec since 2016) would sit outside its own 2 arcmin box.
     const k = 1 / Math.cos((a.dec * Math.PI) / 180)
@@ -158,10 +208,10 @@ export default function Sky({ params, onReady }: PageProps) {
       ov.add(A.circle(then[0], then[1], r, { color: '#FFFFFF', lineWidth: 2 }))
       epochs.current?.addSources([
         A.source(then[0] - r * 1.4 * k, then[1] - r * 1.4, { name: `${name} in ${THEN}` }),
-        A.source(ra - r * 1.4 * k, dec - r * 1.4, { name: `Now (${year})` }),
+        A.source(ra - r * 1.4 * k, dec - r * 1.4, { name: `${name}, now (${year})` }),
       ])
     } else {
-      epochs.current?.addSources([A.source(ra - r * 1.4 * k, dec - r * 1.4, { name: `Now (${year})` })])
+      epochs.current?.addSources([A.source(ra - r * 1.4 * k, dec - r * 1.4, { name: `${name}, now (${year})` })])
     }
     // Frame today's square and, for a fast mover, its 1999 position too.
     let cra = ra, cdec = dec, fov = TARGET_FOV
@@ -171,7 +221,7 @@ export default function Sky({ params, onReady }: PageProps) {
       const sep = Math.hypot((ra - then[0]) / k, dec - then[1])
       fov = Math.max(TARGET_FOV, sep * 2.6)
     }
-    v.animateToRaDec(cra, cdec, 1.4, () => v.zoomToFoV(fov, 1.2))
+    flyTo(v, cra, cdec, fov, anim)
   }, [])
 
   useEffect(() => {
@@ -204,15 +254,21 @@ export default function Sky({ params, onReady }: PageProps) {
         })
         view.current = v
         v.setFoVRange(0.02, WHOLE_SKY_FOV)
+        // the user taking the map over cancels a running fly
+        const stop = () => cancelAnimationFrame(anim.current)
+        box.current.addEventListener('pointerdown', stop)
+        box.current.addEventListener('wheel', stop, { passive: true })
         tune(v, first.url)
         setStep(2)
         const metas = await Promise.all(TARGETS.map(t => loadMeta(t.slug).catch(() => null)))
         const cat = A.catalog({ name: 'Test targets', sourceSize: 22, color: accent(), shape: 'circle',
           displayLabel: true, labelColumn: 'name', labelColor: '#E8EEF6', labelFont: '600 13px Public Sans' })
         // Markers sit where each star is during the SPHEREx visits, not at its 2016 catalogue position.
+        const srcs = new Map<string, any>()
+        marks.current = { cat, src: srcs }
         metas.forEach((m, i) => {
           const a = m?.target?.astrometry
-          if (m && a) { const [ra, dec] = at(a, midYear(m)); cat.addSources([A.source(ra, dec, { name: TARGETS[i].name, slug: TARGETS[i].slug })]) }
+          if (m && a) { const [ra, dec] = at(a, midYear(m)); const src = A.source(ra, dec, { name: TARGETS[i].name, slug: TARGETS[i].slug }); srcs.set(TARGETS[i].slug, src); cat.addSources([src]) }
         })
         v.addCatalog(cat)
         epochs.current = A.catalog({ name: 'Then and now', sourceSize: 8, color: 'rgba(0,0,0,0)', shape: 'square',
@@ -236,21 +292,28 @@ export default function Sky({ params, onReady }: PageProps) {
         v.on('zoomChanged', sync)
         sync()
         setState('ready')
-        const want = params.query.get('target')
-        if (want && TARGETS.some(t => t.slug === want)) void fly(want)
       } catch (e) {
         console.error('Sky map failed to start:', e)
         if (!dead) setState('failed')
       }
     })()
-    return () => { dead = true }
+    return () => { dead = true; cancelAnimationFrame(anim.current) }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // A direct link (#/sky?target=slug) selects and flies to the star once the map is ready, also when only
+  // the hash changes and this page stays mounted.
+  const want = params.query.get('target')
+  useEffect(() => {
+    if (state === 'ready' && want && TARGETS.some(t => t.slug === want)) void fly(want)
+  }, [state, want, fly])
 
   function wholeSky() {
     setPicked(null)
     overlay.current?.removeAll?.()
-    view.current?.animateToRaDec(266.4, -28.9, 1.2, () => view.current?.zoomToFoV(WHOLE_SKY_FOV, 1.2))
+    epochs.current?.removeAll?.()
+    showMarks()
+    if (view.current) flyTo(view.current, 266.4, -28.9, WHOLE_SKY_FOV, anim)
   }
   function switchLayer(k: 'ir' | 'vis') {
     const h = hosts[k]

@@ -28,7 +28,7 @@ export default function Home({ onReady }: PageProps) {
 
   return (
     <div className="home">
-      <div className="home-bg" aria-hidden><div className="stars" /><div className="orbit" /></div>
+      <div className="home-bg" aria-hidden><div className="stars" /></div>
       <div className="home-inner">
         <div className="brand-line"><Mark size={32} /><span>SPHEREx <b>Blink</b></span></div>
         <h1 aria-busy={!m}>
@@ -71,9 +71,9 @@ export default function Home({ onReady }: PageProps) {
           <div className="steps">
             <h2>How it works</h2>
             <ol>
-              <li><span className="n" aria-hidden>1</span><div><b>Find every photo</b>of the star in NASA's archive.</div></li>
-              <li><span className="n" aria-hidden>2</span><div><b>Match the colour</b>so only its position changes.</div></li>
-              <li><span className="n" aria-hidden>3</span><div><b>Measure the drift</b>and check it against Gaia.</div></li>
+              <li><span className="n" aria-hidden>01</span><div><b>Find every photo</b>of the star in NASA's archive.</div></li>
+              <li><span className="n" aria-hidden>02</span><div><b>Match the colour</b>so only its position changes.</div></li>
+              <li><span className="n" aria-hidden>03</span><div><b>Measure the drift</b>and check it against Gaia.</div></li>
             </ol>
           </div>
         </div>

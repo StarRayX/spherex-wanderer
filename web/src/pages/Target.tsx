@@ -69,12 +69,12 @@ function Overview({ m }: { m: Meta }) {
   const inside = mo && Math.abs(mo.measured_arcsec_per_yr - mo.gaia_arcsec_per_yr) <= mo.error_arcsec_per_yr
 
   return (
-    <div className="grid3">
+    <div className="grid3 ov">
       <div className="card stat">
-        <span className="stat-label">Drift per year{mo ? `, ${axisWords(mo)}` : ''}</span>
+        <span className="stat-label">How far it moves each year</span>
         {mo ? <>
-          <span className="stat-value">{fmt(mo.measured_arcsec_per_yr, 1)}<small> ± {fmt(mo.error_arcsec_per_yr, 1)} ″/yr</small></span>
-          <span className="stat-label">Gaia says {fmt(mo.gaia_arcsec_per_yr, 1)}″{inside ? ', inside our error bar' : ', just outside our error bar'}</span>
+          <span className="stat-value">{fmt(mo.measured_arcsec_per_yr, 1)}<small> arcseconds</small></span>
+          <span className="stat-label">Gaia says {fmt(mo.gaia_arcsec_per_yr, 1)}. Our error bar is ± {fmt(mo.error_arcsec_per_yr, 1)}{inside ? '' : ', and Gaia sits just outside it'}. It moves {axisWords(mo)}.</span>
         </> : <><span className="stat-value">None</span><span className="stat-label">Not measured</span></>}
       </div>
       <div className="card stat">
@@ -189,7 +189,11 @@ function Notes({ m }: { m: Meta }) {
     <div className="grid2">
       <div className="card wide">
         <h2 className="card-title">What to know before trusting these numbers</h2>
-        <ul className="notes-list">{(m.notes ?? []).map(n => <li key={n}>{tidy(n)}</li>)}</ul>
+        <p>These notes explain what SPHEREx could and could not measure for this star. The details are technical.</p>
+        <details className="tech">
+          <summary>Technical details</summary>
+          <ul className="notes-list">{(m.notes ?? []).map(n => <li key={n}>{tidy(n)}</li>)}</ul>
+        </details>
       </div>
       {m.target?.astrometry_source && (
         <div className="card wide">
