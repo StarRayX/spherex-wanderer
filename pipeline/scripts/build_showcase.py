@@ -20,7 +20,7 @@ TARGETS = {
         name="Barnard's Star", astrometry=BARNARD, source=f"Gaia DR3 4472832130942575872; {GAIA}",
         # D6 near 4.9 um: the one place this star is not hard-saturated (finite core, 1-2 OVERFLOW pixels; in D2 and
         # D4 the core is NaN). Chosen for that reason before comparing with Gaia; see the notes for why it matters.
-        band="SPHEREx-D6", frames_per_visit=3, match_wavelength=True, target_um=4.9,
+        band="SPHEREx-D6", frames_per_visit=3, match_wavelength=True, target_um=4.9, size_arcmin=5.0,
         spectrum_reason="Saturated: all 32 cached frames (D2, D4 and D6) have a saturated pixel in the aperture "
                         "(checked 2026-11-14), so every point would be dropped.",
         claim="The star's drift across the sky, measured from SPHEREx and compared with Gaia.",
@@ -38,16 +38,17 @@ TARGETS = {
                         pmdec=-2466.8318147663504, parallax=270.6580324694526, epoch_from=2016.0),
         source=f"Gaia DR3 6412596012146801152 (G 18.03, RUWE 4.30: the Ba+Bb binary); {GAIA}",
         # T dwarfs peak near 1.27 um (J, between the water/methane bands): brightest and same colour in every visit.
-        band="SPHEREx-D2", frames_per_visit=3, match_wavelength=True, target_um=1.27, spectrum=True,
+        band="SPHEREx-D2", frames_per_visit=3, match_wavelength=True, target_um=1.27, spectrum=True, size_arcmin=5.0,
         spectrum_caveats=["Ba and Bb are one blended source: the spectrum is Ba+Bb.",
                           "A T dwarf pair, far redder than the one star the method was validated on (deep water and "
                           "methane absorption): not validated for a spectrum like this.",
                           "Faint below 1 um: the 0.75 um point is about 1 sigma.",
                           "A faint, blended pair (about K 11), outside the validated brightness range (K 10.4 to 10.6): "
                           "the flux scale may read 5 to 25% high."],
+        keep=("spectrum",),
         claim="Detected in every visit; its drift is reported with the error bar, no further claim.",
         notes=["Ba and Bb (0.6 arcsec apart) are one blended source at 6.15 arcsec per pixel.",
-               "Epsilon Indi A is about 400 arcsec away, outside this 2 arcmin field: no common-motion view here.",
+               "Epsilon Indi A is about 400 arcsec away, outside this 5 arcmin field: no common-motion view here.",
                "Frames matched to 1.27 um; the Apr 2026 visit has none closer than 1.30 to 1.37 um."]),
     "wise-0855": dict(
         name="WISE 0855-0714",
@@ -115,7 +116,13 @@ def build(slug, out_root=OUT, **kw):
     a = t["astrometry"]
     opts = {k: t[k] for k in ("band", "frames_per_visit", "size_arcmin", "match_wavelength", "target_um", "photometry",
                                   "spectrum") if k in t}
+    old = Path(out_root) / slug / "meta.json"
+    keep = opts.get("spectrum") and "spectrum" in t.get("keep", ()) and old.exists()
+    if keep:  # the spectrum comes from 2' cutouts and does not depend on the image field: carry it over, do not redo it
+        opts["spectrum"], kept = False, json.loads(old.read_text())
     meta = build_target(slug, a["ra"], a["dec"], a, Path(out_root) / slug, max_mb=MAX_MB, **{"spectrum_mb": MAX_MB, **opts, **kw})
+    if keep:
+        meta["spectrum"], meta["spectrum_reason"] = kept["spectrum"], kept.get("spectrum_reason")
     meta["target"] = dict(name=t["name"], claim=t["claim"], astrometry=a, astrometry_source=t["source"])
     if "not_detected" in t:  # the stack rule passed only on something the target notes explain (e.g. a blend)
         for i, v in enumerate(meta["visits"]):
@@ -126,7 +133,7 @@ def build(slug, out_root=OUT, **kw):
         meta["detected"] = [False] * len(meta["visits"])
         meta["notes"] = [n for n in meta["notes"] if not n.startswith(("Not detected in", "No motion fit"))]
     meta["notes"] = t.get("notes", []) + meta.get("notes", [])
-    if meta["spectrum"]:
+    if meta["spectrum"] and not keep:  # a kept spectrum already has its caveats
         meta["spectrum"]["caveats"] += t.get("spectrum_caveats", [])
     elif "spectrum_reason" in t:
         meta["spectrum_reason"] = t["spectrum_reason"]

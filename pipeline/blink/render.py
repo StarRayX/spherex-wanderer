@@ -1,6 +1,8 @@
 """Step 7: write visit PNGs + meta.json for the frontend (web/public/showcase/<slug>/).
 
-meta.json: {slug, pixel_scale_arcsec: 6.15, upsample: 4,
+meta.json: {slug, pixel_scale_arcsec: 6.15, upsample: 800 / grid_px rounded (>= 1),  # PNG width = grid_px x upsample
+  grid_px: un-upsampled image width (= height),
+  grid_centre_radec: [ra, dec] of the grid centre (optional, blink.build; the star at the middle visit),
   stretch: {kind: "asinh", black, white, softening},   # same for every visit
   visits: [{file, date, mjd, band, wavelength_um (mean of frames), wavelength_min_um, wavelength_max_um,
             star_xy: [x,y]|null,        # null = not detected, draw no marker
@@ -21,9 +23,15 @@ import numpy as np
 from PIL import Image
 
 PIXEL_SCALE = 6.15
-UPSAMPLE = 4
+TARGET_PX = 800  # long side of the PNGs, about: the integer upsample factor is chosen to get near it
+RESAMPLE = Image.LANCZOS
 SOFTENING = 10.0
 CORE_R = 3.0  # px from predicted_xy/star_xy: a NaN hole touching this is the star's core
+
+
+def upsample_for(n_px, target=TARGET_PX):
+    """Integer factor that makes an n_px-wide grid about `target` px wide (49 px -> 16, 784 px)."""
+    return max(1, round(target / n_px))
 
 
 def fill_core(img, xy):
@@ -55,6 +63,7 @@ def render_target(slug, visits, out_dir, motion=None, extra=None):
     out.mkdir(parents=True, exist_ok=True)
     allpix = np.concatenate([np.asarray(v["image"], float).ravel() for v in visits])
     allpix = allpix[np.isfinite(allpix)]
+    up = upsample_for(np.shape(visits[0]["image"])[1])
     black, white = (float(x) for x in np.percentile(allpix, [1, 99.5]))
     span = (white - black) or 1.0
     rows = []
@@ -63,14 +72,14 @@ def render_target(slug, visits, out_dir, motion=None, extra=None):
         x = np.clip((np.nan_to_num(im, nan=black) - black) / span, 0, 1)
         y = np.arcsinh(SOFTENING * x) / np.arcsinh(SOFTENING)
         img = Image.fromarray((y * 255).astype(np.uint8), "L")
-        img = img.resize((img.width * UPSAMPLE, img.height * UPSAMPLE), Image.BICUBIC)
+        img = img.resize((img.width * up, img.height * up), RESAMPLE)
         name = f"visit_{i:02d}.png"
         img.save(out / name)
         rows.append({"file": name, **{k: v.get(k) for k in (
             "date", "mjd", "band", "wavelength_um", "wavelength_min_um", "wavelength_max_um", "star_xy", "predicted_xy", "flags_summary")}, "saturated_pixels": sat,
                      "saturated_core_xy": np.mean(sat, axis=0).round(2).tolist() if sat else None,
                      **{k: v[k] for k in ("colour_matched", "colour_note") if k in v}})
-    meta = {"slug": slug, "pixel_scale_arcsec": PIXEL_SCALE, "upsample": UPSAMPLE,
+    meta = {"slug": slug, "pixel_scale_arcsec": PIXEL_SCALE, "upsample": up, "grid_px": int(np.shape(visits[0]["image"])[1]),
             "stretch": {"kind": "asinh", "black": black, "white": white, "softening": SOFTENING},
             "visits": rows, "motion": motion}
     meta.update({k: v for k, v in (extra or {}).items() if k not in meta})
@@ -84,6 +93,7 @@ def render_differences(images, names, out_dir):
     saturated core: unknown, not "no change"). Grey + alpha PNG, same size as the visit PNGs. Returns the stretch."""
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
+    up = upsample_for(np.shape(images[0])[1])
     allpix = np.abs(np.concatenate([np.asarray(d, float).ravel() for d in images]))
     allpix = allpix[np.isfinite(allpix)]
     limit = float(np.percentile(allpix, 99.5)) if allpix.size else 0.0
@@ -94,5 +104,5 @@ def render_differences(images, names, out_dir):
         y = 0.5 + 0.5 * np.arcsinh(SOFTENING * x) / np.arcsinh(SOFTENING)
         la = np.stack([np.round(y * 255), np.where(np.isfinite(d), 255, 0)], -1).astype(np.uint8)
         img = Image.fromarray(la, "LA")
-        img.resize((img.width * UPSAMPLE, img.height * UPSAMPLE), Image.BICUBIC).save(out / name)
+        img.resize((img.width * up, img.height * up), RESAMPLE).save(out / name)
     return {"kind": "asinh_symmetric", "limit": limit, "softening": SOFTENING}

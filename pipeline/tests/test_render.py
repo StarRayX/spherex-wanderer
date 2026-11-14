@@ -20,14 +20,14 @@ def test_render(tmp_path):
     assert len(list(tmp_path.glob("*.png"))) == 3
     m = json.loads((tmp_path / "meta.json").read_text())
     assert {"slug", "visits", "stretch", "pixel_scale_arcsec", "upsample", "motion"} <= m.keys()
-    assert m["stretch"]["black"] < m["stretch"]["white"] and m["upsample"] == 4
+    assert m["stretch"]["black"] < m["stretch"]["white"] and m["upsample"] == 40 and m["grid_px"] == 20
     assert set(m["visits"][0]) == {"file", "date", "mjd", "band", "wavelength_um", "wavelength_min_um", "wavelength_max_um",
                                    "star_xy", "predicted_xy", "flags_summary", "saturated_pixels", "saturated_core_xy"}
     assert m["visits"][0]["saturated_pixels"] == [] and m["visits"][0]["saturated_core_xy"] is None
     assert m["visits"][2]["star_xy"] is None and m["visits"][0]["star_xy"] == [10, 10]
     assert m["motion"]["gaia_arcsec_per_yr"] == 1.1
     from PIL import Image
-    assert Image.open(tmp_path / "visit_00.png").size == (80, 80)
+    assert Image.open(tmp_path / "visit_00.png").size == (800, 800)  # 20 px x 40: about 800 px wide
     # shared stretch: brighter star -> brighter pixel
     px = [np.asarray(Image.open(tmp_path / f"visit_0{i}.png"), float).mean() for i in range(3)]
     assert px[0] < px[1] < px[2]
@@ -41,10 +41,10 @@ def test_render_differences(tmp_path):
     s = render_differences([d], ["diff_00_01.png"], tmp_path)
     assert s["kind"] == "asinh_symmetric" and s["limit"] > 0
     im = np.asarray(Image.open(tmp_path / "diff_00_01.png"))
-    assert im.shape == (80, 80, 2)  # grey + alpha, same size as a visit PNG
+    assert im.shape == (800, 800, 2)  # grey + alpha, same size as a visit PNG
     g = im[..., 0].astype(int)
-    assert g[22, 22] > 200 and g[62, 62] < 55 and abs(g[40, 40] - 128) <= 1  # brighter, fainter, no change = mid grey
-    assert im[0, 0, 1] == 0 and im[40, 40, 1] == 255  # NaN is transparent, not "no change"
+    assert g[220, 220] > 200 and g[620, 620] < 55 and abs(g[420, 420] - 128) <= 1  # brighter, fainter, no change = mid grey
+    assert im[0, 0, 1] == 0 and im[420, 420, 1] == 255  # NaN is transparent, not "no change"
 
 
 def test_saturated_core_filled_and_listed(tmp_path):
@@ -57,4 +57,4 @@ def test_saturated_core_filled_and_listed(tmp_path):
     assert len(r["saturated_pixels"]) == 9 and [10, 10] in r["saturated_pixels"] and [17, 2] not in r["saturated_pixels"]
     assert r["saturated_core_xy"] == [10.0, 10.0]
     g = np.asarray(Image.open(tmp_path / "visit_00.png"), float)
-    assert g[40, 40] > 200  # core drawn bright (flat fill from its ring); unfilled it was 0 (black)
+    assert g[420, 420] > 200  # core drawn bright (flat fill from its ring); unfilled it was 0 (black)

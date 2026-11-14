@@ -374,7 +374,7 @@ def build_target(slug, ra, dec, astrometry, out_dir, band=None, max_mb=100, fram
     dstretch = render_differences([d.pop("_image") for d in made], [d["file"] for d in made], out_dir) if made else None
     meta = render_target(slug, vis, out_dir, motion, extra=dict(
         detected=[v["star_xy"] is not None for v in vis], photometry=phot, notes=notes,
-        cutouts_mb=round(sum(p.stat().st_size for p in used) / 1e6, 1), size_arcmin=size_arcmin, frames_per_visit=frames_per_visit,
+        cutouts_mb=round(sum(p.stat().st_size for p in used) / 1e6, 1), size_arcmin=size_arcmin, grid_centre_radec=[gra, gdec], frames_per_visit=frames_per_visit,
         frame_selection="wavelength" if match_wavelength else "time", differences=diffs, difference_stretch=dstretch,
         spectrum=spec, spectrum_reason=spec_reason))
     say(total, total, "done")

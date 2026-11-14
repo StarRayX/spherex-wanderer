@@ -12,9 +12,9 @@ Challenge: Planet X and SPHEREx. Team NYSCP, Manila local event. Deadline Sun No
 
 SPHEREx Blink is a web tool built on NASA's SPHEREx all-sky survey. You type an RA and Dec or a name, and it plays SPHEREx images of that spot like a short video, one frame per visit, with Gaia positions marked and difference images between epochs. That covers the challenge's must-have.
 
-Two features go further, because IRSA's existing tools leave a gap. IRSA's MOST lists which SPHEREx images caught an asteroid or comet but measures nothing. IRSA's Spectrophotometry Tool measures a fixed position, so it cannot follow a mover. We give you the measured spectrum of a moving object as a table. Enter a designation. The pipeline asks JPL where the object was in each frame, measures it there, and returns a CSV or VOTable with one row per frame: MJD, predicted and measured RA/Dec, wavelength, flux, error, flags and aperture. We start with comet 3I/ATLAS, where a rough 97-point spectrum from December 2025 frames shows H2O at 2.7 um, C-H at 3.3 um, CO2 at 4.25 um and CO at 4.6 um, qualitatively matching a published result. TODO(number): shipped asteroid spectra count.
+Two features go further, because IRSA's existing tools leave a gap. IRSA's MOST lists which SPHEREx images caught an asteroid or comet but measures nothing. IRSA's Spectrophotometry Tool measures a fixed position, so it cannot follow a mover. We give you the measured spectrum of a moving object as a table. Given a designation, the pipeline asks JPL where the object was in each frame, measures it there, and returns a CSV or VOTable with one row per frame: MJD, predicted and measured RA/Dec, wavelength, flux, error, flags and aperture. The site ships precomputed spectra for 11 objects, not a designation input. We start with comet 3I/ATLAS, where a rough 116-point spectrum (87 December 2025 frames and 29 August 2025 frames) shows H2O at 2.7 um, CO2 at 4.26 um and CO at 4.67 um, in line with the molecules in a published result. We also ship 10 asteroid spectra.
 
-The second feature, "vet this dot", takes a position and frame and returns a verdict with evidence: JPL match, FLAGS bits, nearest bright Gaia star, edge distance, and the adjacent frame. In one 145-change field it sorted 2 known asteroids, 59 star residuals, 21 cosmic rays, 17 edge artefacts, 41 unconfirmable cases and 5 it could not explain, which it flags for a human rather than calling them new. SPHEREx's own TRANSIENT flag marked only 7 of the 21 cosmic rays it found.
+The second feature, "vet this dot", takes a position and frame in the pipeline and returns a verdict with evidence: JPL match, FLAGS bits, nearest bright Gaia star, edge distance, and the adjacent frame. In one 145-change field it sorted 2 known asteroids, 59 star residuals, 21 cosmic rays, 17 edge artefacts, 41 unconfirmable cases and 5 it could not explain, which it flags for a human rather than calling them new. SPHEREx's own TRANSIENT flag marked only 7 of the 21 cosmic rays it found. The site ships this for two precomputed fields, not typed-in positions.
 
 Who benefits: solar-system researchers who now spend about a day of scripting per object, and volunteers vetting candidates. Barnard's Star (10.55 +/- 0.71 arcsec/yr against Gaia's 10.36) is kept as a validation card, not a headline.
 
@@ -68,7 +68,7 @@ Space Apps allows AI to speed up work but not to come up with the solution idea.
    - Today that is about a day of scripting per object.
 3. **Known-mover spectra.**
    - Designation in, CSV or VOTable out, one row per frame.
-   - 3I/ATLAS first: H2O 2.7 um, C-H 3.3 um, CO2 4.25 um, CO 4.6 um in a rough 97-point spectrum. TODO(number): final point count.
+   - 3I/ATLAS first: H2O 2.7 um, CO2 4.26 um, CO 4.67 um in the shipped 116-point spectrum (87 December frames, 29 August frames, 24.6 arcsec aperture).
    - Flux, not reflectance. Aperture stated.
 4. **Vet this dot.**
    - Verdict with evidence: JPL match, flags, bright-star residual, edge, adjacent frame.

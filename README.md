@@ -19,11 +19,11 @@ Proper-motion researchers are not a target group. Gaia and CatWISE measure motio
 
 ## What it does
 
-1. **Known-mover spectrophotometry.** Enter an asteroid or comet designation. JPL gives its predicted position in every SPHEREx frame that caught it, the pipeline measures it frame by frame, and you download the spectrum. IRSA's MOST lists which images caught a mover but measures nothing. IRSA's Spectrophotometry Tool measures a fixed position, so it cannot follow a mover. Shipped: 3I/ATLAS (116 frames) and 10 asteroids (98 to 185 frames each, median offset from the SPHEREx-observer JPL prediction 0.3 to 2.2 arcsec).
-2. **Vet this dot.** Give an RA, Dec and frame. The report checks for a JPL match and its offset, the FLAGS bits, the nearest bright Gaia star, distance to the detector edge, and whether the dot shows in the adjacent frame. Shipped for two ecliptic fields: 145 changes (2 known asteroids, 59 bright-star leftovers, 21 cosmic rays, 17 edge or mask, 41 cannot confirm, 5 unexplained) and 1092 changes.
+1. **Known-mover spectrophotometry.** The pipeline takes an asteroid or comet designation. JPL gives its predicted position in every SPHEREx frame that caught it, the pipeline measures it frame by frame, and you get the spectrum as a table. The site ships precomputed spectra for 11 objects and has no designation input. IRSA's MOST lists which images caught a mover but measures nothing. IRSA's Spectrophotometry Tool measures a fixed position, so it cannot follow a mover. Shipped: 3I/ATLAS (116 frames) and 10 asteroids (98 to 185 frames each, median offset from the SPHEREx-observer JPL prediction 0.3 to 2.2 arcsec).
+2. **Vet this dot.** Given an RA, Dec and frame, the pipeline report checks for a JPL match and its offset, the FLAGS bits, the nearest bright Gaia star, distance to the detector edge, and whether the dot shows in the adjacent frame. The site ships precomputed reports for two ecliptic fields, not typed-in positions: 145 changes (2 known asteroids, 59 bright-star leftovers, 21 cosmic rays, 17 edge or mask, 41 cannot confirm, 5 unexplained) and 1092 changes.
 3. **RA/Dec flipbook (the challenge's must-have).** Enter coordinates or a name and play SPHEREx images of the spot as a short animation, one frame per visit, with Gaia positions, difference images between epochs, wavelength matching and a spectrum on the fly.
 4. **Sky map.** An Aladin Lite sky with 12 showcase targets, 300 of the fastest Gaia stars, and each visit's SPHEREx image pinned and blinked in place.
-5. **Batch and download.** TODO(number): batch size and runtime once the batch endpoint is measured. A field takes about 2.5 min to triage, so results are precomputed, not served live.
+5. **Batch and download.** There is no live batch endpoint. A field takes about 2.5 min to triage, so batch results are precomputed and offered as downloads (CSV, VOTable, JSON), not served live.
 
 Barnard's Star and the other stars are kept as validation cards: they show the pipeline reproduces known Gaia motions.
 
@@ -34,17 +34,17 @@ From `docs/HANDOFF.md` and `docs/evidence_notes.md`. Arcsec per year, SPHEREx pi
 | Target | Result | Reading |
 |---|---|---|
 | Barnard's Star | 10.55 +/- 0.71 vs Gaia 10.36 | Agrees within the error bar |
-| Epsilon Indi B | 3.74 +/- 0.24 vs 3.98 (RA) | Agrees within the error bar |
+| Epsilon Indi B | 3.74 +/- 0.24 vs 3.98 (RA) | Agrees to about 1 sigma (difference 0.24 vs error 0.235) |
 | Kapteyn's Star | 6.91 +/- 0.95 vs 6.49 | Agrees within the error bar |
-| Groombridge 1830, Lacaille 9352 | Just outside the error bar | Not claimed as agreement |
+| Groombridge 1830, Lacaille 9352 | Just outside the error bar, about 1.0 to 1.2 sigma | Not claimed as agreement |
 | Proxima Centauri, Luhman 16 | No drift claim | Images only |
 | WISE 0855 | Not separately detected: about 2 sigma per visit (earlier S/N 8 figures retracted) | No detection claim. A faint background star sits 1.3 px away |
 | RW Aurigae | 72.2 mJy (2025-09-02) to 182.6 mJy (2026-09-08), 2.5x brighter at 0.75 um | One frame per visit. A and B are blended |
 | R Draconis | Saturated in every band checked | SPHEREx cannot give an aperture brightness |
-| 3I/ATLAS (Dec 2025 frames) | S/N 72 to 154 per frame. A rough 97-point Dec spectrum shows H2O 2.7 um, C-H 3.3 um, CO2 4.25 um (strong) and CO 4.6 um, qualitatively matching arXiv:2601.06759 | Flux is uncalibrated and aperture dependent. No water-ice claim from December data |
-| Asteroid triage, field RA 150.05 Dec +13.17, Nov 15-20 2025 | 145 changes: 2 known asteroids (213 Lilaea, 3721 Widorn, within 7 arcsec of JPL), 59 star residuals, 21 cosmic rays, 17 edge or mask artefacts, 41 unconfirmable (including 11 one-pixel blobs), 5 unexplained (seen in 2 of 3 exposures of one visit, no known asteroid nearby, not shown to be real) | Depth is about V 18 to 19, so no count of unexplained dots says anything about Planet X |
+| 3I/ATLAS (Dec 2025 frames) | S/N about 45 to 430 per frame. The 87 December frames of the shipped 116-point spectrum show H2O 2.7 um, CO2 4.26 um (strongest) and CO 4.67 um, in line with the molecules reported in arXiv:2601.06759 | Flux is uncalibrated and aperture dependent. No water-ice claim from December data. Five August frames have centroids 20 to 27 arcsec from the predicted position, four of them beyond the 24.6 arcsec aperture, so the August points are less secure |
+| Asteroid triage, field RA 150.05 Dec +13.17, Nov 14-19 2025 | 145 changes: 2 known asteroids (213 Lilaea, 3721 Widorn, within 7 arcsec of JPL), 59 star residuals, 21 cosmic rays, 17 edge or mask artefacts, 41 unconfirmable (including 11 one-pixel blobs), 5 unexplained (seen in 2 of 3 exposures of one visit, no known asteroid nearby, not shown to be real) | Depth is about V 18 to 19, so no count of unexplained dots says anything about Planet X |
 
-TODO(number): shipped 3I/ATLAS spectrum point count and aperture; asteroid spectra count; how many of our cosmic rays the pipeline's TRANSIENT bit already catches.
+Shipped spectra: 3I/ATLAS has 116 points (87 from December 2025, 29 from August 2025, 0.75 to 4.95 um) in a fixed 4 pixel (24.6 arcsec) radius aperture, plus 10 asteroid spectra. In the 145-change field, the pipeline's TRANSIENT bit already flags 7 of our 21 cosmic rays.
 
 ## Run it
 
