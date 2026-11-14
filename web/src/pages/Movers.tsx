@@ -76,10 +76,7 @@ function List({ onReady }: { onReady: () => void }) {
   return (
     <div className="page mv">
       <h1>Moving objects</h1>
-      <p className="mv-lede">
-        IRSA's Moving Object Search Tool (MOST) tells you which SPHEREx images caught an asteroid or comet. We go one step further: we give you the measured spectrum as a table, one row per image. IRSA's fixed-position tool cannot do that for something that moves.
-      </p>
-      <p className="mv-for muted">For researchers who study asteroids and comets and need a spectrum, not a list of images. Every file is a download.</p>
+      <p className="mv-lede">Pick an object to see its measured brightness at each SPHEREx wavelength and download the table.</p>
       <p className="mv-disclaimer">These are brightness measurements, not reflectance spectra. Each row in the downloads is one SPHEREx frame.</p>
 
       {items === null ? (
@@ -100,7 +97,7 @@ function List({ onReady }: { onReady: () => void }) {
                 <p className="muted sm"><span className="mv-kind" data-kind={o.kind}>{typeLabel(o)}</span></p>
                 <Spark slug={o.slug} kind={o.kind} />
                 <p className="mv-meta"><b>{o.n_rows}</b> frames</p>
-                <p className="mv-meta muted">{day(o.date_first)} to {day(o.date_last)}</p>
+                <p className="mv-meta muted"><span className="mv-date">{day(o.date_first)}</span> to <span className="mv-date">{day(o.date_last)}</span></p>
               </a>
             </li>
           ))}
@@ -233,7 +230,7 @@ function Detail({ slug, onReady }: { slug: string; onReady: () => void }) {
       <header className="mv-head">
         <div>
           <h1>{meta.name}</h1>
-          <p className="muted"><span className="mv-kind" data-kind={meta.kind}>{kindWord(meta.kind)}</span>. {meta.designation}. {day(meta.date_first)} to {day(meta.date_last)}.</p>
+          <p className="muted"><span className="mv-kind" data-kind={meta.kind}>{kindWord(meta.kind)}</span>. {meta.designation}. <span className="mv-date">{day(meta.date_first)}</span> to <span className="mv-date">{day(meta.date_last)}</span>.</p>
           <p className="mv-note">{meta.note}</p>
         </div>
         <div className="mv-dl" role="group" aria-label="Download the table">
@@ -386,7 +383,7 @@ function Plot({ rows, bands }: { rows: Row[]; bands: { um: number; label: string
   const inRange = bands.filter(b => b.um >= g.x0 && b.um <= g.x1).sort((a, b) => a.um - b.um)
   const rowEnd = [-1e9, -1e9]
   const labelled = inRange.map(b => {
-    const px = x(b.um), half = b.label.length * 3.6 + 3
+    const px = x(b.um), half = b.label.length * 3.9 + 3
     const lvl = px - half > rowEnd[0] ? 0 : px - half > rowEnd[1] ? 1 : 0
     rowEnd[lvl] = px + half
     return { ...b, px, lvl, half, anchor: px < PAD.l + half ? 'start' : px > w - PAD.r - half ? 'end' : 'middle' }

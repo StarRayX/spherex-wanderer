@@ -7,8 +7,10 @@
 .hm-go { margin-top: auto; padding-top: var(--s1); display: inline-flex; align-items: center; gap: var(--s1); font-weight: 700; color: var(--cyan); }
 
 .hm-who { margin: var(--s3) 0 0; }
-.hm-more { display: flex; flex-wrap: wrap; gap: var(--s1) var(--s3); margin: var(--s2) 0 0; }
-.hm-more a { font-weight: 600; }
+.hm-more { display: flex; flex-wrap: wrap; gap: 0 var(--s1); margin: var(--s1) 0 0; }
+.hm-more a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 var(--s1); font-weight: 600; }
+.hm-more a:first-child { margin-left: calc(-1 * var(--s1)); }
+.home .pv-strip figcaption { font-size: var(--t-xs); }
 
 .hm-valid { display: grid; gap: var(--s2) var(--s3); grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; margin-top: var(--s4); }
 .hm-valid p.hm-num { font: 700 var(--t-lg) var(--f-display); color: var(--ink); }

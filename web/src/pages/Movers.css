@@ -6,6 +6,7 @@
 .mv-back { display: inline-block; margin-bottom: var(--s2); font-weight: 600; text-decoration: none; }
 .mv-back::before { content: '\2190\00a0'; }
 .mv-note { max-width: 62ch; margin: 0 0 var(--s2); }
+.mv-date { white-space: nowrap; }
 .mv-kind { font: 700 1em var(--f-display); color: var(--cyan); }
 .mv-kind[data-kind='asteroid'] { color: #C9B8FF; }
 
@@ -49,7 +50,7 @@
 .mv-plot .tick { fill: var(--muted); font: 500 12px var(--f-display); }
 .mv-plot .axl { fill: var(--ink); font: 600 12px var(--f-text); }
 .mv-plot .band { stroke: rgba(255, 255, 255, .28); stroke-width: 1; }
-.mv-plot .band-t { fill: #fff; font: 600 11px var(--f-text); }
+.mv-plot .band-t { fill: #fff; font: 600 12px var(--f-text); }
 .mv-plot .band-bg { fill: #131B29; opacity: .92; }
 .mv-plot .eb { stroke: var(--cyan); stroke-width: 1.2; opacity: .55; }
 .mv-plot circle { fill: var(--cyan); }

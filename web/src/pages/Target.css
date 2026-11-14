@@ -6,3 +6,9 @@
 .t-tabs [role="tab"]:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
 .t-pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: var(--s2); }
 .t-pair > div { display: flex; flex-direction: column; gap: 4px; }
+
+/* Minimum 12px for on-image labels (overrides 11px in styles.css) */
+.viewer .compass { font-size: 13px; text-shadow: 0 1px 2px rgba(0, 0, 0, .6); }
+.viewer .scalebar { font-size: 13px; text-shadow: 0 1px 2px rgba(0, 0, 0, .6); }
+.viewer .scalebar i { box-shadow: 0 1px 2px rgba(0, 0, 0, .5); }
+.spectrum .band-label { font-size: 12px; }
