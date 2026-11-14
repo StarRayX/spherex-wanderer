@@ -1,0 +1,4 @@
+{
+  "rewrites": [{ "source": "/api/blink", "destination": "/api/live" }],
+  "functions": { "api/live.py": { "maxDuration": 300, "includeFiles": "{pipeline/blink/**,web/public/showcase/**/meta.json}" } }
+}

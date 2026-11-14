@@ -1,6 +1,6 @@
-"""Live API. GET /api/blink?ra=&dec=&size=  or  ?name=&size=   -> meta + PNG urls (runs the pipeline, cached)
-                GET /api/blink?status=<slug>                    -> {"done","total","message","state"}
-Stdlib only: handle() is a plain function; `handler` is the Vercel Python entry point."""
+"""Live API (served at /api/blink via the vercel.json rewrite; this file is not named blink.py so it cannot
+shadow the pipeline package `blink`). See docs/API.md.
+handle() is a plain function; `handler` is the Vercel Python entry point."""
 import json
 import math
 import os
@@ -11,12 +11,15 @@ from http.server import BaseHTTPRequestHandler
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "pipeline"))
-from blink import build, resolve as rs  # noqa: E402
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "pipeline"))
+from blink import build, jpl, resolve as rs  # noqa: E402
 
 RELEASE = "qr2"
 CACHE = Path(os.environ.get("BLINK_CACHE", Path(tempfile.gettempdir()) / "blink_cache"))
 MAX_MB = 100
+SHOWCASE = ROOT / "web" / "public" / "showcase"
+SLUGS = ("barnards-star", "epsilon-indi-b", "r-draconis", "rw-aurigae", "wise-0855")
 
 
 class BadRequest(ValueError):
@@ -47,6 +50,22 @@ def handle(query):
     """query: dict of str -> str. Returns (http_status, json_dict)."""
     q = {k: v[0] if isinstance(v, list) else v for k, v in query.items()}
     try:
+        if "showcase" in q:  # precomputed: never touches IRSA
+            if q["showcase"] not in SLUGS:
+                return 404, dict(error="unknown showcase target")
+            meta = json.loads((SHOWCASE / q["showcase"] / "meta.json").read_text())
+            return 200, dict(meta=meta, slug=q["showcase"], urls=[f"/showcase/{q['showcase']}/{v['file']}" for v in meta["visits"]])
+        if "identify" in q:
+            p = q["identify"].split(",")
+            if len(p) != 3:
+                raise BadRequest("identify must be ra,dec,mjd")
+            ra, dec, mjd = (_num({k: x}, k, lo, hi) for x, (k, lo, hi) in zip(p, [("ra", 0, 360), ("dec", -90, 90), ("mjd", 59000, 70000)]))
+            fov = _num(q, "fov", 0.5, 30) if "fov" in q else 2.0
+            try:
+                bodies, reason = jpl.identify(ra, dec, mjd, fov_arcmin=fov)
+            except Exception as e:  # JPL trouble must never 500 the page
+                bodies, reason = [], f"JPL lookup failed: {type(e).__name__}"
+            return 200, dict(bodies=bodies, reason=reason)
         if "status" in q:
             slug = q["status"]
             if not re.fullmatch(r"[\w.+-]{1,80}", slug):
