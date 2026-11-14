@@ -7,6 +7,8 @@ import os
 import re
 import sys
 import tempfile
+import threading
+import time
 from http.server import BaseHTTPRequestHandler
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
@@ -18,12 +20,27 @@ from blink import build, jpl, resolve as rs  # noqa: E402
 RELEASE = "qr2"
 CACHE = Path(os.environ.get("BLINK_CACHE", Path(tempfile.gettempdir()) / "blink_cache"))
 MAX_MB = 100
+_LOCK = threading.Lock()
+STALE_S = 330  # maxDuration is 300 s: a "running" job silent for longer was killed with its function
 SHOWCASE = ROOT / "web" / "public" / "showcase"
 SLUGS = ("barnards-star", "epsilon-indi-b", "r-draconis", "rw-aurigae", "wise-0855")
 
 
 class BadRequest(ValueError):
     pass
+
+
+class GaiaDown(Exception):
+    pass
+
+
+def _gaia(ra, dec, radius):
+    """Gaia astrometry or None (no source). Gaia being down must not look like "no source": that would
+    build a static position for a fast mover."""
+    try:
+        return rs.gaia_astrometry(ra, dec, radius)
+    except Exception as e:
+        raise GaiaDown(f"Gaia lookup failed ({type(e).__name__}); try again")
 
 
 def _num(q, key, lo, hi):
@@ -44,6 +61,29 @@ def _write_status(slug, state, done=0, total=0, message=""):
     p = _status_path(slug)
     p.parent.mkdir(parents=True, exist_ok=True)
     p.write_text(json.dumps(dict(state=state, done=done, total=total, message=message)))
+
+
+def _read_status(slug):
+    """Status dict or None. A running job nobody has touched for STALE_S seconds is reported as an error."""
+    p = _status_path(slug)
+    try:
+        s, age = json.loads(p.read_text()), time.time() - p.stat().st_mtime
+    except (OSError, ValueError):
+        return None
+    if s.get("state") == "running" and age > STALE_S:
+        return dict(state="error", done=s.get("done", 0), total=s.get("total", 0), message="build timed out or was killed")
+    return s
+
+
+def _png(rel):
+    """Bytes of a cached PNG, or None. Never leaves CACHE."""
+    try:
+        f = (CACHE / rel).resolve()
+        if CACHE.resolve() in f.parents and f.suffix == ".png" and f.is_file():
+            return f.read_bytes()
+    except (OSError, ValueError):  # bad characters, NUL bytes
+        pass
+    return None
 
 
 def handle(query):
@@ -70,8 +110,8 @@ def handle(query):
             slug = q["status"]
             if not re.fullmatch(r"[\w.+-]{1,80}", slug):
                 raise BadRequest("bad slug")
-            p = _status_path(slug)
-            return (200, json.loads(p.read_text())) if p.exists() else (404, dict(error="unknown job"))
+            s = _read_status(slug)
+            return (200, s) if s else (404, dict(error="unknown job"))
         size = _num(q, "size", 0.5, 10) if "size" in q else 2.0
         astro = None
         if "name" in q:
@@ -83,17 +123,25 @@ def handle(query):
             except ValueError as e:
                 return 404, dict(error=str(e))
             _num(dict(ra=ra, dec=dec), "ra", 0, 360), _num(dict(ra=ra, dec=dec), "dec", -90, 90)
-            astro = rs.gaia_astrometry(ra, dec, 30)
+            astro = _gaia(ra, dec, 30)
         else:
             ra, dec = _num(q, "ra", 0, 360), _num(q, "dec", -90, 90)
             label = f"{ra:.5f}, {dec:+.5f}"
-            astro = rs.gaia_astrometry(ra, dec, 5)
+            astro = _gaia(ra, dec, 5)
         slug = f"{ra:.4f}_{dec:+.4f}_{size:g}_{RELEASE}"
         out = CACHE / slug
-        if not (out / "meta.json").exists():
-            _write_status(slug, "running", 0, 0, "starting")
+        while True:  # claim the slug, or wait while someone else is building it
+            with _LOCK:
+                s = _read_status(slug)
+                mine = not (out / "meta.json").exists() and not (s and s["state"] == "running")
+                if mine:
+                    _write_status(slug, "running", 0, 0, "starting")
+            if mine or (out / "meta.json").exists():
+                break
+            time.sleep(2)
+        if mine:
             try:
-                build.build_target(slug, ra, dec, astro, out, max_mb=MAX_MB, size_arcmin=size,
+                build.build_target(slug, ra, dec, astro, out, max_mb=MAX_MB, size_arcmin=size, cache_dir=CACHE / "raw",
                                    progress=lambda d, t, m="": _write_status(slug, "running", d, t, m))
             except Exception as e:
                 _write_status(slug, "error", message=str(e))
@@ -104,18 +152,17 @@ def handle(query):
         return 200, dict(meta=meta, slug=slug, label=label, gaia=astro, urls=urls)
     except BadRequest as e:
         return 400, dict(error=str(e))
+    except GaiaDown as e:
+        return 502, dict(error=str(e))
 
 
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
         q = parse_qs(urlparse(self.path).query)
         if "file" in q:  # serve a cached PNG
-            rel = Path(q["file"][0])
-            f = (CACHE / rel).resolve()
-            if CACHE.resolve() not in f.parents or f.suffix != ".png" or not f.exists():
-                code, body, ctype = 404, b"{}", "application/json"
-            else:
-                code, body, ctype = 200, f.read_bytes(), "image/png"
+            body = _png(q["file"][0])
+            code, ctype = (200, "image/png") if body else (404, "application/json")
+            body = body or b"{}"
         else:
             code, d = handle(q)
             body, ctype = json.dumps(d).encode(), "application/json"

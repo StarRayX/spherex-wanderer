@@ -60,7 +60,7 @@ def test_budget_refusal(monkeypatch, tmp_path):
         build.check_budget(16, 4.0, 60)
     fr = [dict(mjd=60000 + i, band="SPHEREx-D1", url=f"http://x/{i}", em_min=0, em_max=1) for i in range(30)]
     monkeypatch.setattr(build, "find_frames", lambda ra, dec: fr)
-    monkeypatch.setattr(build.fetch, "fetch_many", lambda jobs: pytest.fail("downloaded despite refusal"))
+    monkeypatch.setattr(build.fetch, "fetch_many", lambda jobs, cache_dir=None: pytest.fail("downloaded despite refusal"))
     monkeypatch.setattr(build.fetch, "CACHE", tmp_path)
     with pytest.raises(build.BudgetError):
         build.build_target("t", RA, DEC, None, tmp_path / "out", max_mb=10, frames_per_visit=30)
@@ -90,11 +90,12 @@ def test_detection_path(monkeypatch, tmp_path, star):
           for v in range(3) for i in range(2)]
     paths = _fake_cutouts(tmp_path, 2, star)
     monkeypatch.setattr(build, "find_frames", lambda ra, dec: fr)
-    monkeypatch.setattr(build.fetch, "fetch_many", lambda jobs: paths[:len(jobs)])
+    dirs = []
+    monkeypatch.setattr(build.fetch, "fetch_many", lambda jobs, cache_dir=None: dirs.append(cache_dir) or paths[:len(jobs)])
     monkeypatch.setattr(build, "wavelength_at", lambda p, ra, dec: 1.0)
     monkeypatch.setattr(build.fetch, "CACHE", tmp_path)
     calls = []
-    meta = build.build_target("t", RA, DEC, None, tmp_path / "out", frames_per_visit=2,
+    meta = build.build_target("t", RA, DEC, None, tmp_path / "out", frames_per_visit=2, cache_dir=tmp_path / "raw",
                               progress=lambda d, t, m: calls.append((d, t)))
     on_disk = json.loads((tmp_path / "out" / "meta.json").read_text())
     assert len(on_disk["visits"]) == 3 and calls[-1][0] == calls[-1][1]
@@ -105,6 +106,8 @@ def test_detection_path(monkeypatch, tmp_path, star):
         assert all(v["star_xy"] is None and v["flags_summary"].startswith("not detected") for v in on_disk["visits"])
         assert on_disk["detected"] == [False] * 3 and any("Not detected in 3 of 3" in n for n in on_disk["notes"])
     assert on_disk["motion"] is None and meta["slug"] == "t"
+    assert set(dirs) == {tmp_path / "raw"}  # cutouts go where the caller says (API: writable cache)
+    assert any("No Gaia source" in n for n in on_disk["notes"])  # honest: fixed position, no motion claim
 
 
 def test_photometry_registry():
@@ -127,7 +130,7 @@ def test_light_curve_and_saturated_meta(monkeypatch, tmp_path):
 
     fr = [dict(mjd=60000 + 200 * v, band="SPHEREx-D1", url=f"http://x/{v}", em_min=0.7e-6, em_max=1.1e-6) for v in range(2)]
     monkeypatch.setattr(build, "find_frames", lambda ra, dec: fr)
-    monkeypatch.setattr(build.fetch, "fetch_many", lambda jobs: paths[:len(jobs)])
+    monkeypatch.setattr(build.fetch, "fetch_many", lambda jobs, cache_dir=None: paths[:len(jobs)])
     monkeypatch.setattr(build, "wavelength_at", lambda p, ra, dec: 0.75)
     monkeypatch.setattr(build.fetch, "CACHE", tmp_path)
     meta = build.build_target("t", RA, DEC, None, tmp_path / "out", frames_per_visit=1, photometry=None)

@@ -153,16 +153,18 @@ def snr_at(img, x, y, r=2.0):
 
 
 def build_target(slug, ra, dec, astrometry, out_dir, band=None, max_mb=100, frames_per_visit=3, size_arcmin=2.0,
-                 progress=None, *, match_wavelength=False, target_um=None, photometry="aperture"):
+                 progress=None, *, match_wavelength=False, target_um=None, photometry="aperture", cache_dir=None):
     """Build out_dir/visit_NN.png + meta.json for one sky position; returns the meta dict.
 
     astrometry: {ra, dec, pmra, pmdec (mas/yr, pmra with cos dec), parallax (mas), epoch_from (Julian yr)} or None
     for a static position at (ra, dec). match_wavelength: pick frames per visit by wavelength at the star (blink.pick),
     closest to target_um (default: median over visits).
+    cache_dir: where raw cutouts are kept (the API points it at a writable dir; default pipeline/cache).
     photometry: "aperture" (per-visit sums, as before), "light_curve" (blink.photometry.light_curve at target_um:
     one wavelength, saturated frames dropped) or None (saturated: meta photometry null, no brightness reported).
     """
     say = progress or (lambda d, t, m="": None)
+    cache_dir = fetch.Path(cache_dir or fetch.CACHE)
     a = dict(astrometry) if astrometry else None
     if a and not (a.get("parallax") or 0) > 0:
         a["parallax"] = 1e-3  # unknown: treat as 1 Mpc away, effectively no parallax (propagate needs a distance)
@@ -193,10 +195,10 @@ def build_target(slug, ra, dec, astrometry, out_dir, band=None, max_mb=100, fram
     for v in visits:
         cra, cdec = pos_cutout([f["mjd"] for f in v])
         jobs.append([(f["url"], float(r_), float(d_), size_arcmin) for f, r_, d_ in zip(v, cra, cdec)])
-    n_new = sum(not fetch.cache_path(*j).exists() for js in jobs for j in js)
+    n_new = sum(not fetch.cache_path(*j, cache_dir).exists() for js in jobs for j in js)
     print(f"{slug}: {band}, {len(visits)} visits, {sum(map(len, visits))} frames ({n_new} not cached)")
     check_budget(n_new, mb_each, max_mb)
-    before = set(fetch.CACHE.glob("*.fits"))
+    before = set(cache_dir.glob("*.fits"))
 
     size_px = int(round(size_arcmin * 60 / PIXEL_SCALE)) | 1
     mm = [float(np.mean([f["mjd"] for f in v])) for v in visits]
@@ -206,7 +208,7 @@ def build_target(slug, ra, dec, astrometry, out_dir, band=None, max_mb=100, fram
     vis, phot, pos_rows, used = [], [], [], []
     for i, (v, js, m) in enumerate(zip(visits, jobs, mm)):
         say(i, total, f"visit {i + 1}/{len(visits)}: fetching {len(v)} frames")
-        paths = fetch.fetch_many(js)
+        paths = fetch.fetch_many(js, cache_dir)
         used += paths
         fra, fdec = pos([f["mjd"] for f in v])  # star at each frame's own date
         pra, pdec = (float(c[0]) for c in pos(m))
@@ -271,6 +273,8 @@ def build_target(slug, ra, dec, astrometry, out_dir, band=None, max_mb=100, fram
         else:
             notes.append(f"No motion fit: {len(good)} detected visits, expected drift {drift:.1f} arcsec over the "
                          f"detected span (need 3 visits and half a pixel, {0.5 * PIXEL_SCALE:.1f} arcsec).")
+    if not a:
+        notes.append("No Gaia source with a known motion here: fixed sky position, no proper motion applied, no motion fit.")
     miss = [v["date"] for v in vis if v["star_xy"] is None]
     if miss:
         notes.append(f"Not detected in {len(miss)} of {len(vis)} visits ({', '.join(miss)}): no star marker is drawn there.")
@@ -300,7 +304,7 @@ def build_target(slug, ra, dec, astrometry, out_dir, band=None, max_mb=100, fram
     elif photometry:
         notes.append(f"Photometry: forced {AP_R:g} px ({AP_R * PIXEL_SCALE:.1f} arcsec) radius aperture sum on each frame, "
                      "local sky annulus, VARIANCE errors, no aperture correction, mean per visit.")
-    new = set(fetch.CACHE.glob("*.fits")) - before
+    new = set(cache_dir.glob("*.fits")) - before
     mb = sum(p.stat().st_size for p in new) / 1e6
     print(f"new MB downloaded: {mb:.1f}")
     say(len(visits), total, "rendering")

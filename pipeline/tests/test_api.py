@@ -24,8 +24,9 @@ def fake(tmp_path, monkeypatch):
     calls = []
 
     def build_target(slug, ra, dec, astrometry, out_dir, band=None, max_mb=100, frames_per_visit=3,
-                     size_arcmin=2.0, progress=None):
+                     size_arcmin=2.0, progress=None, cache_dir=None):
         calls.append((slug, max_mb, size_arcmin))
+        assert Path(cache_dir) == api.CACHE / "raw"  # raw cutouts go to the writable cache, not the repo
         progress(1, 2, "half")
         assert json.loads((api.CACHE / slug / "status.json").read_text())["done"] == 1
         Path(out_dir).mkdir(parents=True, exist_ok=True)
@@ -88,3 +89,52 @@ def test_showcase_and_end_to_end(fake):
     code, r = api.handle({"ra": ["269.45"], "dec": ["4.73"]})  # list-valued like parse_qs
     assert code == 200 and r["slug"] == "269.4500_+4.7300_2_qr2" and len(fake) == 1
     assert api.handle(dict(ra="269.45", dec="4.73"))[1]["urls"] == r["urls"] and len(fake) == 1
+
+
+def test_file_cannot_escape_cache(fake):
+    (api.CACHE / "s").mkdir()
+    (api.CACHE / "s" / "visit_00.png").write_bytes(b"png")
+    (api.CACHE.parent / "secret.png").write_bytes(b"x")
+    (api.CACHE / "s" / "meta.json").write_text("{}")
+    assert api._png("s/visit_00.png") == b"png"
+    for bad in ["../secret.png", "s/../../secret.png", str(api.CACHE.parent / "secret.png"), "s/meta.json", "s\x00.png", "s", ""]:
+        assert api._png(bad) is None, bad
+
+
+def test_stale_running_job_reads_as_error(fake):
+    import os
+    api._write_status("old", "running", 1, 3, "visit 2/3")
+    assert api.handle(dict(status="old"))[1]["state"] == "running"
+    p = api._status_path("old")
+    os.utime(p, (p.stat().st_atime, p.stat().st_mtime - api.STALE_S - 1))  # function was killed at maxDuration
+    code, s = api.handle(dict(status="old"))
+    assert code == 200 and s["state"] == "error" and "timed out" in s["message"]
+
+
+def test_same_slug_builds_once(fake, monkeypatch):
+    import threading
+    from time import sleep
+    monkeypatch.setattr(api.time, "sleep", lambda s: sleep(0.01))  # waiters poll fast
+    real, out = api.build.build_target, []
+
+    def slow(*a, **k):
+        sleep(0.2)
+        return real(*a, **k)
+    monkeypatch.setattr(api.build, "build_target", slow)
+    ts = [threading.Thread(target=lambda: out.append(api.handle(dict(ra="269.45", dec="4.73")))) for _ in range(3)]
+    [t.start() for t in ts]
+    [t.join() for t in ts]
+    assert len(fake) == 1 and [c for c, _ in out] == [200] * 3
+
+
+def test_failed_build_can_be_retried_and_gaia_down_is_502(fake, monkeypatch):
+    def boom(*a, **k):
+        raise RuntimeError("irsa")
+    good = api.build.build_target
+    monkeypatch.setattr(api.build, "build_target", boom)
+    assert api.handle(dict(ra="1", dec="1"))[0] == 502
+    monkeypatch.setattr(api.build, "build_target", good)
+    assert api.handle(dict(ra="1", dec="1"))[0] == 200  # an error status does not block a retry
+    monkeypatch.setattr(api.rs, "gaia_astrometry", lambda *a: boom())
+    code, r = api.handle(dict(ra="2", dec="2"))
+    assert code == 502 and "Gaia" in r["error"] and len(fake) == 1  # no build started
