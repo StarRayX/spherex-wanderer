@@ -32,7 +32,7 @@ export default function Home({ onReady }: PageProps) {
         <div className="brand-line"><Logo height={32} /><span><b>Wanderer</b></span></div>
         <div className="hm-hero">
           <h1>
-            MOST tells you which SPHEREx images caught an asteroid or comet.
+            NASA's archive tells you which SPHEREx images caught an asteroid or comet.
             <span className="h1-2">We give you its measured spectrum as a table.</span>
           </h1>
           <HeroBlink />
