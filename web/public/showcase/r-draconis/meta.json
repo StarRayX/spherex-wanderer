@@ -25,7 +25,99 @@
         9.99854918390257,
         9.999971675199149
       ],
-      "flags_summary": "2/2 frames, bits [1, 2, 21, 26]"
+      "flags_summary": "2/2 frames, bits [1, 2, 21, 26]",
+      "saturated_pixels": [
+        [
+          9,
+          8
+        ],
+        [
+          10,
+          8
+        ],
+        [
+          11,
+          8
+        ],
+        [
+          8,
+          9
+        ],
+        [
+          9,
+          9
+        ],
+        [
+          10,
+          9
+        ],
+        [
+          11,
+          9
+        ],
+        [
+          12,
+          9
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          10
+        ],
+        [
+          10,
+          10
+        ],
+        [
+          11,
+          10
+        ],
+        [
+          12,
+          10
+        ],
+        [
+          8,
+          11
+        ],
+        [
+          9,
+          11
+        ],
+        [
+          10,
+          11
+        ],
+        [
+          11,
+          11
+        ],
+        [
+          12,
+          11
+        ],
+        [
+          9,
+          12
+        ],
+        [
+          10,
+          12
+        ],
+        [
+          11,
+          12
+        ]
+      ],
+      "saturated_core_xy": [
+        10.0,
+        10.0
+      ],
+      "colour_matched": false,
+      "colour_note": "0.953 um, +0.013 um from the visits' median 0.940 um (tolerance 0.012 um): a different colour, so its brightness differs from colour alone; drop or label it"
     },
     {
       "file": "visit_01.png",
@@ -43,7 +135,59 @@
         9.9990576477051,
         10.000025457092079
       ],
-      "flags_summary": "2/2 frames, bits [0, 1, 2, 21, 26]"
+      "flags_summary": "2/2 frames, bits [0, 1, 2, 21, 26]",
+      "saturated_pixels": [
+        [
+          8,
+          9
+        ],
+        [
+          9,
+          9
+        ],
+        [
+          10,
+          9
+        ],
+        [
+          11,
+          9
+        ],
+        [
+          9,
+          10
+        ],
+        [
+          10,
+          10
+        ],
+        [
+          11,
+          10
+        ],
+        [
+          12,
+          10
+        ],
+        [
+          9,
+          11
+        ],
+        [
+          10,
+          11
+        ],
+        [
+          11,
+          11
+        ]
+      ],
+      "saturated_core_xy": [
+        10.0,
+        9.91
+      ],
+      "colour_matched": true,
+      "colour_note": "0.929 um, -0.011 um from the visits' median 0.940 um (tolerance 0.012 um): same colour"
     },
     {
       "file": "visit_02.png",
@@ -61,7 +205,51 @@
         9.999905086270333,
         9.999990086839286
       ],
-      "flags_summary": "2/2 frames, bits [0, 1, 2, 21, 26]"
+      "flags_summary": "2/2 frames, bits [0, 1, 2, 21, 26]",
+      "saturated_pixels": [
+        [
+          8,
+          9
+        ],
+        [
+          9,
+          9
+        ],
+        [
+          10,
+          9
+        ],
+        [
+          9,
+          10
+        ],
+        [
+          10,
+          10
+        ],
+        [
+          11,
+          10
+        ],
+        [
+          9,
+          11
+        ],
+        [
+          10,
+          11
+        ],
+        [
+          11,
+          11
+        ]
+      ],
+      "saturated_core_xy": [
+        9.67,
+        10.0
+      ],
+      "colour_matched": true,
+      "colour_note": "0.930 um, -0.010 um from the visits' median 0.940 um (tolerance 0.012 um): same colour"
     },
     {
       "file": "visit_03.png",
@@ -79,7 +267,55 @@
         10.0,
         9.999999999997947
       ],
-      "flags_summary": "2/2 frames, bits [1, 2, 21, 26]"
+      "flags_summary": "2/2 frames, bits [1, 2, 21, 26]",
+      "saturated_pixels": [
+        [
+          10,
+          8
+        ],
+        [
+          9,
+          9
+        ],
+        [
+          10,
+          9
+        ],
+        [
+          11,
+          9
+        ],
+        [
+          9,
+          10
+        ],
+        [
+          10,
+          10
+        ],
+        [
+          11,
+          10
+        ],
+        [
+          9,
+          11
+        ],
+        [
+          10,
+          11
+        ],
+        [
+          11,
+          11
+        ]
+      ],
+      "saturated_core_xy": [
+        10.0,
+        9.8
+      ],
+      "colour_matched": true,
+      "colour_note": "0.940 um, +0.000 um from the visits' median 0.940 um (tolerance 0.012 um): same colour"
     },
     {
       "file": "visit_04.png",
@@ -97,7 +333,59 @@
         10.002324301381362,
         10.001021679928447
       ],
-      "flags_summary": "2/2 frames, bits [0, 1, 2, 21, 26]"
+      "flags_summary": "2/2 frames, bits [0, 1, 2, 21, 26]",
+      "saturated_pixels": [
+        [
+          9,
+          8
+        ],
+        [
+          10,
+          8
+        ],
+        [
+          9,
+          9
+        ],
+        [
+          10,
+          9
+        ],
+        [
+          11,
+          9
+        ],
+        [
+          9,
+          10
+        ],
+        [
+          10,
+          10
+        ],
+        [
+          11,
+          10
+        ],
+        [
+          9,
+          11
+        ],
+        [
+          10,
+          11
+        ],
+        [
+          11,
+          11
+        ]
+      ],
+      "saturated_core_xy": [
+        9.91,
+        9.64
+      ],
+      "colour_matched": true,
+      "colour_note": "0.939 um, -0.001 um from the visits' median 0.940 um (tolerance 0.012 um): same colour"
     },
     {
       "file": "visit_05.png",
@@ -115,7 +403,95 @@
         10.002811321952569,
         10.001013733150232
       ],
-      "flags_summary": "2/2 frames, bits [1, 2, 21, 26]"
+      "flags_summary": "2/2 frames, bits [1, 2, 21, 26]",
+      "saturated_pixels": [
+        [
+          9,
+          8
+        ],
+        [
+          10,
+          8
+        ],
+        [
+          11,
+          8
+        ],
+        [
+          12,
+          8
+        ],
+        [
+          9,
+          9
+        ],
+        [
+          10,
+          9
+        ],
+        [
+          11,
+          9
+        ],
+        [
+          12,
+          9
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          10
+        ],
+        [
+          10,
+          10
+        ],
+        [
+          11,
+          10
+        ],
+        [
+          12,
+          10
+        ],
+        [
+          8,
+          11
+        ],
+        [
+          9,
+          11
+        ],
+        [
+          10,
+          11
+        ],
+        [
+          11,
+          11
+        ],
+        [
+          12,
+          11
+        ],
+        [
+          9,
+          12
+        ],
+        [
+          10,
+          12
+        ]
+      ],
+      "saturated_core_xy": [
+        10.15,
+        9.85
+      ],
+      "colour_matched": true,
+      "colour_note": "0.942 um, +0.001 um from the visits' median 0.940 um (tolerance 0.012 um): same colour"
     },
     {
       "file": "visit_06.png",
@@ -133,7 +509,107 @@
         10.003025456830285,
         10.000996957395415
       ],
-      "flags_summary": "2/2 frames, bits [1, 2, 21, 26]"
+      "flags_summary": "2/2 frames, bits [1, 2, 21, 26]",
+      "saturated_pixels": [
+        [
+          11,
+          7
+        ],
+        [
+          10,
+          8
+        ],
+        [
+          11,
+          8
+        ],
+        [
+          8,
+          9
+        ],
+        [
+          9,
+          9
+        ],
+        [
+          10,
+          9
+        ],
+        [
+          11,
+          9
+        ],
+        [
+          12,
+          9
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          10
+        ],
+        [
+          10,
+          10
+        ],
+        [
+          11,
+          10
+        ],
+        [
+          12,
+          10
+        ],
+        [
+          8,
+          11
+        ],
+        [
+          9,
+          11
+        ],
+        [
+          10,
+          11
+        ],
+        [
+          11,
+          11
+        ],
+        [
+          12,
+          11
+        ],
+        [
+          9,
+          12
+        ],
+        [
+          10,
+          12
+        ],
+        [
+          11,
+          12
+        ],
+        [
+          12,
+          12
+        ],
+        [
+          10,
+          13
+        ]
+      ],
+      "saturated_core_xy": [
+        10.17,
+        10.17
+      ],
+      "colour_matched": true,
+      "colour_note": "0.950 um, +0.009 um from the visits' median 0.940 um (tolerance 0.012 um): same colour"
     }
   ],
   "motion": null,
@@ -151,6 +627,8 @@
     "Near the north ecliptic pole SPHEREx sees this star almost continuously; 'visits' here are 30-day bins.",
     "SPHEREx saturates on this star in every band checked (the whole core is masked), so no brightness is reported. The images are shown as a flipbook only.",
     "Difference images: the saturated core is transparent (unknown); the ring around it mixes residual from the saturated star with any real change (R Dra is a variable): not a measurement.",
+    "1 of 7 visits (2025-06-06) are not at the shared wavelength (0.940 um, colour_matched false): in a flipbook their brightness changes from colour alone.",
+    "Detection: forced S/N in a 2 px aperture on the stack against the scatter of the same aperture at blank positions of that stack (reprojection correlates pixels, so a per-pixel noise would overstate S/N); needs S/N 5 and the centre within 1.5 px of the prediction.",
     "No motion fit: 7 detected visits, expected drift 0.0 arcsec over the detected span (need 3 visits and half a pixel, 3.1 arcsec).",
     "Each frame saw a different wavelength at the star's pixel (ranges per visit); a brightness change between visits mixes real change with colour. Not a light curve."
   ],

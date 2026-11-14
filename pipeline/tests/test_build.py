@@ -27,6 +27,7 @@ def test_registry():
         assert n * build.cutout_mb(t.get("size_arcmin", 2.0)) <= bs.MAX_MB  # planner cap fits the budget
     w = bs.TARGETS["wise-0855"]
     assert "Not in Gaia" in w["source"] and w["astrometry"]["parallax"] == 439.0
+    assert w["claim"].startswith("Not separately detected") and w["not_detected"]
     # the challenge coordinates are the WISE epoch (2010.338) position: moving the J2000 entry there must land on them
     from astropy.time import Time
     from blink.query import propagate
@@ -106,6 +107,7 @@ def test_detection_path(monkeypatch, tmp_path, star):
         assert all(v["star_xy"] is None and v["flags_summary"].startswith("not detected") for v in on_disk["visits"])
         assert on_disk["detected"] == [False] * 3 and any("Not detected in 3 of 3" in n for n in on_disk["notes"])
     assert on_disk["motion"] is None and meta["slug"] == "t"
+    assert all(v["colour_matched"] and "same colour" in v["colour_note"] for v in on_disk["visits"])
     assert set(dirs) == {tmp_path / "raw"}  # cutouts go where the caller says (API: writable cache)
     assert any("No Gaia source" in n for n in on_disk["notes"])  # honest: fixed position, no motion claim
 

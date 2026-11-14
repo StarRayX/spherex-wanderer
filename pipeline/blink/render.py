@@ -5,7 +5,10 @@ meta.json: {slug, pixel_scale_arcsec: 6.15, upsample: 4,
   visits: [{file, date, mjd, band, wavelength_um (mean of frames), wavelength_min_um, wavelength_max_um,
             star_xy: [x,y]|null,        # null = not detected, draw no marker
             predicted_xy: [x,y],        # Gaia-propagated; pixel coords of the un-upsampled image
-            flags_summary}],
+            flags_summary,
+            saturated_pixels: [[x,y],...],  # masked (NaN) pixels in the star's core, drawn as a flat fill: mark "too bright"
+            saturated_core_xy: [x,y]|null,  # their mean, for that marker
+            optional (blink.build): colour_matched, colour_note}],
   motion: {measured_arcsec_per_yr, error_arcsec_per_yr, gaia_arcsec_per_yr, ...optional extras} | null,
   optional (blink.build): target, notes [str], photometry [per visit], detected, cutouts_mb (size of the cutouts used),
   differences [per consecutive visit pair], difference_stretch, spectrum | null, spectrum_reason}
@@ -20,6 +23,30 @@ from PIL import Image
 PIXEL_SCALE = 6.15
 UPSAMPLE = 4
 SOFTENING = 10.0
+CORE_R = 3.0  # px from predicted_xy/star_xy: a NaN hole touching this is the star's core
+
+
+def fill_core(img, xy):
+    """(copy of img with each NaN hole touching the core filled flat with its brightest finite neighbour, the filled
+    [[x, y], ...]). A saturated core is masked in every frame and would draw black (a donut); saturated means at least
+    as bright as its neighbours, so the fill is a lower bound (a ring median drew it grey: still a donut on R Dra).
+    A flat stand-in, not a star profile; holes elsewhere and NaN touching the border (off the frame) stay NaN."""
+    from scipy.ndimage import binary_dilation, label
+    img = np.array(img, float)
+    lab, n = label(~np.isfinite(img))
+    yy, xx = np.indices(img.shape)
+    near = np.hypot(xx - xy[0], yy - xy[1]) <= CORE_R
+    edge = set(np.r_[lab[0], lab[-1], lab[:, 0], lab[:, -1]].tolist())
+    out = []
+    for k in range(1, n + 1):
+        hole = lab == k
+        if k in edge or not (hole & near).any():
+            continue
+        ring = binary_dilation(hole) & ~hole & np.isfinite(img)
+        if ring.any():
+            img[hole] = img[ring].max()
+            out += [[int(x), int(y)] for y, x in zip(*np.nonzero(hole))]
+    return img, out
 
 
 def render_target(slug, visits, out_dir, motion=None, extra=None):
@@ -32,14 +59,17 @@ def render_target(slug, visits, out_dir, motion=None, extra=None):
     span = (white - black) or 1.0
     rows = []
     for i, v in enumerate(visits):
-        x = np.clip((np.nan_to_num(np.asarray(v["image"], float), nan=black) - black) / span, 0, 1)
+        im, sat = fill_core(v["image"], v.get("star_xy") or v["predicted_xy"])
+        x = np.clip((np.nan_to_num(im, nan=black) - black) / span, 0, 1)
         y = np.arcsinh(SOFTENING * x) / np.arcsinh(SOFTENING)
         img = Image.fromarray((y * 255).astype(np.uint8), "L")
         img = img.resize((img.width * UPSAMPLE, img.height * UPSAMPLE), Image.BICUBIC)
         name = f"visit_{i:02d}.png"
         img.save(out / name)
         rows.append({"file": name, **{k: v.get(k) for k in (
-            "date", "mjd", "band", "wavelength_um", "wavelength_min_um", "wavelength_max_um", "star_xy", "predicted_xy", "flags_summary")}})
+            "date", "mjd", "band", "wavelength_um", "wavelength_min_um", "wavelength_max_um", "star_xy", "predicted_xy", "flags_summary")}, "saturated_pixels": sat,
+                     "saturated_core_xy": np.mean(sat, axis=0).round(2).tolist() if sat else None,
+                     **{k: v[k] for k in ("colour_matched", "colour_note") if k in v}})
     meta = {"slug": slug, "pixel_scale_arcsec": PIXEL_SCALE, "upsample": UPSAMPLE,
             "stretch": {"kind": "asinh", "black": black, "white": white, "softening": SOFTENING},
             "visits": rows, "motion": motion}

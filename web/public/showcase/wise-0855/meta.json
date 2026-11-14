@@ -22,7 +22,11 @@
         18.41837262761016,
         18.985571212577266
       ],
-      "flags_summary": "not detected: S/N 3.4 at the predicted position (need 5 within 1.5 px); flags 3/3 frames, bits [21]"
+      "flags_summary": "not detected: S/N 2.0 at the predicted position (need 5 within 1.5 px); flags 3/3 frames, bits [21]",
+      "saturated_pixels": [],
+      "saturated_core_xy": null,
+      "colour_matched": false,
+      "colour_note": "4.944 um, +0.214 um from the visits' median 4.730 um (tolerance 0.062 um): a different colour, so its brightness differs from colour alone; drop or label it"
     },
     {
       "file": "visit_01.png",
@@ -32,15 +36,16 @@
       "wavelength_um": 4.652120246560278,
       "wavelength_min_um": 4.412373201692589,
       "wavelength_max_um": 4.835535039965078,
-      "star_xy": [
-        19.02993598305367,
-        19.457382370820852
-      ],
+      "star_xy": null,
       "predicted_xy": [
         19.0,
         18.999999999997947
       ],
-      "flags_summary": "4/4 frames, bits [6, 21]"
+      "flags_summary": "not separately detected: S/N 5.1, but the S/N includes a blended background star (W2 15.05, about 0.16 mJy, a quarter of the expected blend), so it is not a detection of WISE 0855; flags 4/4 frames, bits [6, 21]",
+      "saturated_pixels": [],
+      "saturated_core_xy": null,
+      "colour_matched": false,
+      "colour_note": "4.652 um, -0.078 um from the visits' median 4.730 um (tolerance 0.059 um): a different colour, so its brightness differs from colour alone; drop or label it"
     },
     {
       "file": "visit_02.png",
@@ -50,22 +55,23 @@
       "wavelength_um": 4.729958126882915,
       "wavelength_min_um": 4.413937388553996,
       "wavelength_max_um": 4.96735815590371,
-      "star_xy": [
-        20.066544314120485,
-        19.540774355794742
-      ],
+      "star_xy": null,
       "predicted_xy": [
         19.710304372734598,
         19.088778789799683
       ],
-      "flags_summary": "4/4 frames, bits [21]"
+      "flags_summary": "not detected: S/N 4.9 at the predicted position (need 5 within 1.5 px); flags 4/4 frames, bits [21]",
+      "saturated_pixels": [],
+      "saturated_core_xy": null,
+      "colour_matched": true,
+      "colour_note": "4.730 um, +0.000 um from the visits' median 4.730 um (tolerance 0.059 um): same colour"
     }
   ],
   "motion": null,
   "detected": [
     false,
-    true,
-    true
+    false,
+    false
   ],
   "photometry": [
     {
@@ -81,7 +87,7 @@
       "masked_pixels": 0,
       "lower_limit": false,
       "aperture_pixels": 86,
-      "snr_stack": 3.4211108780333297,
+      "snr_stack": 2.0408634703176878,
       "frames": [
         {
           "mjd": 60800.700028,
@@ -119,7 +125,7 @@
       "masked_pixels": 3,
       "lower_limit": false,
       "aperture_pixels": 116,
-      "snr_stack": 8.123355218675997,
+      "snr_stack": 5.125197012411046,
       "frames": [
         {
           "mjd": 60989.296807,
@@ -164,7 +170,7 @@
       "masked_pixels": 0,
       "lower_limit": false,
       "aperture_pixels": 115,
-      "snr_stack": 7.876625088538048,
+      "snr_stack": 4.900022220815073,
       "frames": [
         {
           "mjd": 61151.197933,
@@ -199,9 +205,11 @@
   ],
   "notes": [
     "Expected brightness is only marginal: W2 13.9 (about 0.47 mJy) gives an expected S/N of about 2 to 3 per visit.",
-    "A faint background star (AllWISE J085501.95-071428.1, W2 15.05) sits about 1.3 pixels from the 2025-26 position, inside the measuring aperture, so any signal here may be blended. Candidate only unless the build's detection rule passes.",
-    "No motion fit: 2 detected visits, expected drift 3.6 arcsec over the detected span (need 3 visits and half a pixel, 3.1 arcsec).",
-    "Not detected in 1 of 3 visits (2025-05-05): no star marker is drawn there.",
+    "A faint background star (AllWISE J085501.95-071428.1, W2 15.05, about 0.16 mJy) sits about 1.3 pixels from the 2025-26 position, inside the measuring aperture, so any signal here is blended.",
+    "Noise checked 2026-11-14: an earlier build reported S/N 8.1 and 7.9 from the stack's per-pixel spread x sqrt(N), which ignores that reprojection correlates neighbouring pixels. The same aperture at about 1000 blank positions per stack scatters 1.65 to 1.74x more, matching the frame-to-frame scatter within each visit (0.16, 0.12, 0.11 vs 0.19, 0.14, 0.12 in stack units), so S/N is 2.0, 5.1 and 4.9. Single-frame VARIANCE errors match their own blank-sky scatter (median ratio 1.1): the photometry errors stand.",
+    "Not separately detected in any visit: the one stack over S/N 5 (Nov 2025, 5.1) includes the background star, and without it would be about 4. No star marker is drawn.",
+    "2 of 3 visits (2025-05-05, 2025-11-19) are not at the shared wavelength (4.730 um, colour_matched false): in a flipbook their brightness changes from colour alone.",
+    "Detection: forced S/N in a 2 px aperture on the stack against the scatter of the same aperture at blank positions of that stack (reprojection correlates pixels, so a per-pixel noise would overstate S/N); needs S/N 5 and the centre within 1.5 px of the prediction.",
     "Each frame saw a different wavelength at the star's pixel (ranges per visit); a brightness change between visits mixes real change with colour. Not a light curve.",
     "Per visit, only frames with no masked pixel in the aperture are averaged (frames_used); 0 visits had none, so their sums are lower limits.",
     "Photometry: forced 3 px (18.5 arcsec) radius aperture sum on each frame, local sky annulus, VARIANCE errors, no aperture correction, mean per visit."
@@ -248,10 +256,10 @@
   ],
   "difference_stretch": null,
   "spectrum": null,
-  "spectrum_reason": "Too faint: expected S/N about 2 to 3 per visit (not even detected in one), and blended with a background star; per-frame points would be noise.",
+  "spectrum_reason": "Too faint: expected S/N about 2 to 3 per visit (not separately detected in any), and blended with a background star; per-frame points would be noise.",
   "target": {
     "name": "WISE 0855-0714",
-    "claim": "The hardest target: what SPHEREx sees at 4.4 to 5 um at the predicted position.",
+    "claim": "Not separately detected: about 2 sigma per visit in forced photometry (0.39 +/- 0.20, 0.67 +/- 0.28 and 0.31 +/- 0.14 mJy; S/N 2.0, 5.1 and 4.9 in the visit stacks), consistent with the expected 0.47 mJy plus a blended background star.",
     "astrometry": {
       "ra": 133.81890825,
       "dec": -7.247048,
