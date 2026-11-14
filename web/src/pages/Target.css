@@ -1,0 +1,8 @@
+.t-prepared { color: var(--muted); font-size: var(--t-sm); max-width: 60ch; margin: 8px 0 0; }
+.t-tabs { display: flex; gap: var(--s3); border-bottom: 1px solid var(--line); margin-bottom: var(--s3); overflow-x: auto; scrollbar-width: none; }
+.t-tabs [role="tab"] { flex: none; border: 0; background: none; border-radius: 0; padding: 10px 2px; min-height: 44px; font: 600 var(--t-sm) var(--f-display); color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.t-tabs [role="tab"]:hover { color: var(--ink); }
+.t-tabs [role="tab"][aria-selected="true"] { color: var(--ink); border-bottom-color: var(--cyan); }
+.t-tabs [role="tab"]:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+.t-pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: var(--s2); }
+.t-pair > div { display: flex; flex-direction: column; gap: 4px; }

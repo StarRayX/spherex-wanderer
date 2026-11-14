@@ -5,6 +5,7 @@ import type { Meta, PhotometryPoint } from '../lib/types'
 import { axisWords, decDms, fmt, lightYears, monthYear, raHms, tidy, yearsPerMoon } from '../lib/format'
 import Viewer from '../components/Viewer'
 import SpectrumPlot from '../components/SpectrumPlot'
+import './Target.css'
 
 const TABS = [
   { id: 'overview', label: 'Overview' },
@@ -34,18 +35,19 @@ export default function Target({ params, onReady }: PageProps) {
     <div className="page">
       <div className="target-head">
         <div>
-          <h1>{info.name}</h1>
+          <h1>Test star: {info.name}</h1>
           <p className="sub">{info.hook}</p>
+          <p className="t-prepared">This is one of 12 test stars. Its results were prepared and checked in advance, so nothing here is fetched live. To look up a spot of your own, use Any spot.</p>
         </div>
         <div className="target-switch">
-          <label htmlFor="tsel" className="sr-only">Switch target</label>
+          <label htmlFor="tsel" className="sr-only">Switch test star</label>
           <select id="tsel" className="field" value={slug} onChange={e => { location.hash = `#/target/${e.target.value}/${tab}` }}>
             {TARGETS.map(t => <option key={t.slug} value={t.slug}>{t.name}</option>)}
           </select>
         </div>
       </div>
 
-      <div className="tabs" role="tablist" aria-label={`${info.name} sections`}>
+      <div className="t-tabs" role="tablist" aria-label={`${info.name} sections`}>
         {TABS.map(t => (
           <button key={t.id} role="tab" aria-selected={tab === t.id} onClick={() => { location.hash = `#/target/${slug}/${t.id}` }}>{t.label}</button>
         ))}
@@ -73,8 +75,11 @@ function Overview({ m }: { m: Meta }) {
       <div className="card stat">
         <span className="stat-label">How far it moves each year</span>
         {mo ? <>
-          <span className="stat-value">{fmt(mo.measured_arcsec_per_yr, 1)}<small> arcseconds</small></span>
-          <span className="stat-label">Gaia says {fmt(mo.gaia_arcsec_per_yr, 1)}. Our error bar is ± {fmt(mo.error_arcsec_per_yr, 1)}{inside ? '' : ', and Gaia sits just outside it'}. It moves {axisWords(mo)}.</span>
+          <div className="t-pair">
+            <div><span className="stat-value">{fmt(mo.measured_arcsec_per_yr)} ± {fmt(mo.error_arcsec_per_yr)}<small> arcseconds</small></span><span className="stat-label">Our measurement</span></div>
+            <div><span className="stat-value">{fmt(mo.gaia_arcsec_per_yr)}<small> arcseconds</small></span><span className="stat-label">Gaia</span></div>
+          </div>
+          <span className="stat-label">{inside ? 'Gaia sits inside our error bar.' : 'Gaia sits just outside our error bar.'} It moves {axisWords(mo)}.</span>
         </> : <><span className="stat-value">None</span><span className="stat-label">Not measured</span></>}
       </div>
       <div className="card stat">
@@ -94,7 +99,6 @@ function Overview({ m }: { m: Meta }) {
           {a && <p className="mono sm muted">RA {raHms(a.ra)} · Dec {decDms(a.dec)}</p>}
           <div className="cta">
             <a className="btn sm" href={`#/sky?target=${m.slug}`}>Show on the sky map</a>
-            <a className="text" href={`#/target/${m.slug}/visits`}>All {m.visits.length} visits</a>
           </div>
         </div>
       </div>

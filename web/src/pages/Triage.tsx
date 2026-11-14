@@ -71,7 +71,9 @@ export default function Triage({ params, onReady }: PageProps) {
   return slug ? <Detail key={slug} slug={slug} onReady={onReady} /> : <List onReady={onReady} />
 }
 
-const WHO = 'For Backyard Worlds volunteers and Source Discovery users who want to know whether a dot is real.'
+const WHO = 'For Backyard Worlds volunteers and Source Discovery users who want to know what explains a change they see in SPHEREx images.'
+const CHANGE_GLOSS = 'A change is a spot that got brighter or fainter between visits.'
+const D1_GLOSS = "Detector D1 is one of SPHEREx's six detectors. D1 sees the shortest wavelengths."
 
 // ---------- list ----------
 function List({ onReady }: { onReady: () => void }) {
@@ -87,9 +89,9 @@ function List({ onReady }: { onReady: () => void }) {
 
   return (
     <div className="page tg">
-      <h1>Vet this dot</h1>
-      <p className="tg-lede">Saw a dot appear or move between two SPHEREx visits? Pick the field it is in. We list every change we found there and say what explains each one: a known asteroid, a cosmic ray, a bright-star leftover, a detector edge, or nothing we know of.</p>
-      <p className="muted tg-for">{WHO}</p>
+      <h1>Vet a field</h1>
+      <p className="tg-lede">We compared SPHEREx visits of two patches of sky and sorted every change we found, with the evidence. Pick a field, then filter the changes or check a position inside it.</p>
+      <p className="muted tg-for">{WHO} {CHANGE_GLOSS}</p>
 
       {items === null ? (
         <div className="tg-cards" aria-busy="true" aria-label="Loading fields">
@@ -106,7 +108,7 @@ function List({ onReady }: { onReady: () => void }) {
             <li key={f.slug}>
               <a className="card tg-card" href={`#/triage/${encodeURIComponent(f.slug)}`}>
                 <h2>{f.name}</h2>
-                <p className="muted sm">RA {deg(f.ra, 3)}°, Dec {deg(f.dec, 3)}°. Detector {f.detector}. {day(f.date_first)} to {day(f.date_last)}.</p>
+                <p className="muted sm">Field centre RA {deg(f.ra, 3)}°, Dec {deg(f.dec, 3)}°, about 30 arcmin across. Detector {f.detector}. {day(f.date_first)} to {day(f.date_last)}.</p>
                 <p className="tg-total"><b>{total(f.counts)}</b> changes checked</p>
                 <CountBar counts={f.counts} />
                 <span className="tg-open">Open this field</span>
@@ -172,14 +174,17 @@ function Detail({ slug, onReady }: { slug: string; onReady: () => void }) {
   const { meta, rows } = d
   const counts = meta.counts ?? {}
   const o = meta.transient_bit_overlap
+  const n = total(counts) || rows.length
+  const pct = n ? Math.round(100 * (counts.star_residual ?? 0) / n) : 0
+  const crowded = n > 0 && pct >= 50
   return (
     <div className="page tg">
       <a className="tg-back" href="#/triage">All fields</a>
       <header className="tg-head">
         <div>
           <h1>{meta.name}</h1>
-          <p className="muted">RA {deg(meta.ra, 3)}°, Dec {deg(meta.dec, 3)}°. Detector {meta.detector}. {day(meta.date_first)} to {day(meta.date_last)}.</p>
-          <p className="muted tg-for">{WHO}</p>
+          <p className="muted">Field centre RA {deg(meta.ra, 3)}°, Dec {deg(meta.dec, 3)}°, about 30 arcmin across. Detector {meta.detector}. {day(meta.date_first)} to {day(meta.date_last)}.</p>
+          <p className="muted tg-for">{CHANGE_GLOSS} {D1_GLOSS}</p>
         </div>
         <div className="tg-dl" role="group" aria-label="Download the table">
           <a className="btn sm" href={joinUrl(base, 'triage.csv')} download>Download CSV</a>
@@ -194,11 +199,16 @@ function Detail({ slug, onReady }: { slug: string; onReady: () => void }) {
         </aside>
       )}
 
+      {crowded && (
+        <p className="tg-crowd">This field is crowded. {pct}% of its changes ({counts.star_residual} of {n}) are bright-star leftovers, so most of what you see here is subtraction noise, not new objects.</p>
+      )}
+
       <Check rows={rows} meta={meta} base={base} />
 
       <section className="card tg-block" aria-labelledby="tg-all-h">
         <h2 id="tg-all-h" className="card-title">Every change in this field</h2>
-        <p className="caption">{rows.length} changes between visits, each sorted into one cause.{o && o.cosmic_rays > 0 ? ` SPHEREx's own pipeline already flags ${o.flagged_transient_by_pipeline} of the ${o.cosmic_rays} cosmic rays we found.` : ''}</p>
+        <p className="caption">{rows.length} changes between visits, each sorted into one cause.</p>
+        {o && o.cosmic_rays > 0 && <p className="tg-trans">The SPHEREx pipeline already marked {o.flagged_transient_by_pipeline} of the {o.cosmic_rays} cosmic rays we found as TRANSIENT.</p>}
         <Table rows={rows} counts={counts} base={base} slug={meta.slug} />
       </section>
 
@@ -249,8 +259,8 @@ function Check({ rows, meta, base }: { rows: Row[]; meta: Meta; base: string }) 
 
   return (
     <section className="card tg-block" aria-labelledby="tg-check-h">
-      <h2 id="tg-check-h" className="card-title">Check a position</h2>
-      <p className="caption">Type where your dot is. We look for the nearest recorded change within {MATCH_ARCSEC} arcseconds in {meta.name} only.</p>
+      <h2 id="tg-check-h" className="card-title">Check a position in this field</h2>
+      <p className="caption">This only searches inside this field: centre RA {deg(meta.ra, 3)}°, Dec {deg(meta.dec, 3)}°, about 30 arcmin across. A position outside it will always come back empty. We look for the nearest recorded change within {MATCH_ARCSEC} arcseconds.</p>
       <form className="tg-form" onSubmit={run}>
         <label>RA<input inputMode="decimal" value={ra} onChange={e => setRa(e.target.value)} placeholder="210.6 or 14:02:24" autoComplete="off" /></label>
         <label>Dec<input inputMode="decimal" value={dec} onChange={e => setDec(e.target.value)} placeholder="-11.9" autoComplete="off" /></label>
@@ -291,13 +301,13 @@ function VerdictCard({ row, base }: { row: Row; base: string }) {
   const flags = e.flag_names ?? []
   return (
     <div className="tg-vcard">
-      <img src={joinUrl(base, row.thumb)} alt="Cutout of the dot" width={96} height={96} />
+      <img src={joinUrl(base, row.thumb)} alt="Cutout of the change" width={96} height={96} />
       <div>
         <h3><Swatch v={row.verdict} />{V[row.verdict]?.label ?? row.verdict}</h3>
         <p>{row.reason}</p>
         <dl className="tg-ev">
           <div><dt>Known asteroid (JPL)</dt><dd>{e.jpl_name ? `${e.jpl_name}, ${deg(e.jpl_offset_arcsec ?? NaN, 1)} arcsec away` : 'No match'}</dd></div>
-          <div><dt>SPHEREx pixel flags</dt><dd>{flags.length ? flags.join(', ') : 'None'}</dd></div>
+          <div><dt>SPHEREx FLAGS bits</dt><dd>{flags.length ? flags.join(', ') : 'None'}</dd></div>
           <div><dt>Nearest Gaia star</dt><dd>{e.nearest_gaia_sep_arcsec === null || e.nearest_gaia_sep_arcsec === undefined ? 'None nearby' : `Magnitude ${deg(e.nearest_gaia_g ?? NaN, 1)}, ${deg(e.nearest_gaia_sep_arcsec, 1)} arcsec away`}</dd></div>
           <div><dt>Distance to detector edge</dt><dd>{e.edge_px === null || e.edge_px === undefined ? 'Unknown' : `${e.edge_px} pixels`}</dd></div>
           <div><dt>Seen in the next frame</dt><dd>{Yes(e.in_adjacent_frame)}</dd></div>
@@ -331,6 +341,13 @@ function Table({ rows, counts, base, slug }: { rows: Row[]; counts: Counts; base
   return (
     <>
       <CountBar counts={shownCounts} />
+      <dl className="tg-defs">
+        <div><dt>Bright-star leftover</dt><dd>a bright star that did not subtract cleanly.</dd></div>
+        <div><dt>Cosmic ray</dt><dd>a particle hit that lights up one exposure.</dd></div>
+        <div><dt>Detector edge or mask</dt><dd>too close to the edge of the detector, or to a patch we hide, to trust.</dd></div>
+        <div><dt>FLAGS bits</dt><dd>quality markers the SPHEREx pipeline puts on each pixel.</dd></div>
+        <div><dt>TRANSIENT</dt><dd>the pipeline&apos;s marker for a pixel that spiked in one exposure.</dd></div>
+      </dl>
       <div className="tg-chips" role="group" aria-label="Filter by cause">
         <button aria-pressed={filter === 'all'} onClick={() => { setFilter('all'); setLimit(PAGE) }}>All <b>{rows.length}</b></button>
         {VERDICTS.map(v => (

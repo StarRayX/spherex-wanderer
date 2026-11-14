@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import type { KeyboardEvent, PointerEvent } from 'react'
+import type { KeyboardEvent, PointerEvent, ReactNode } from 'react'
 import type { PageProps } from '../lib/router'
 import { getJson, joinUrl } from '../lib/download'
 import './Movers.css'
@@ -80,6 +80,7 @@ function List({ onReady }: { onReady: () => void }) {
         IRSA's Moving Object Search Tool (MOST) tells you which SPHEREx images caught an asteroid or comet. We go one step further: we give you the measured spectrum as a table, one row per image. IRSA's fixed-position tool cannot do that for something that moves.
       </p>
       <p className="mv-for muted">For researchers who study asteroids and comets and need a spectrum, not a list of images. Every file is a download.</p>
+      <p className="mv-disclaimer">These are brightness measurements, not reflectance spectra. Each row in the downloads is one SPHEREx frame.</p>
 
       {items === null ? (
         <div className="mv-cards" aria-busy="true" aria-label="Loading objects">
@@ -96,19 +97,85 @@ function List({ onReady }: { onReady: () => void }) {
             <li key={o.slug}>
               <a className="card mv-card" href={`#/movers/${encodeURIComponent(o.slug)}`}>
                 <h2>{o.name}</h2>
-                <p className="muted sm"><span className="mv-kind" data-kind={o.kind}>{kindWord(o.kind)}</span>. {o.designation}</p>
-                <p className="mv-note">{o.note}</p>
-                <dl className="mv-facts">
-                  <div><dt>Measurements</dt><dd>{o.n_rows}</dd></div>
-                  <div><dt>Wavelength</dt><dd>{f1(o.wl_min_um, 2)} to {f1(o.wl_max_um, 2)} µm</dd></div>
-                  <div><dt>Dates</dt><dd>{day(o.date_first)} to {day(o.date_last)}</dd></div>
-                </dl>
-                <span className="mv-open">Open the spectrum</span>
+                <p className="muted sm"><span className="mv-kind" data-kind={o.kind}>{typeLabel(o)}</span></p>
+                <Spark slug={o.slug} kind={o.kind} />
+                <p className="mv-meta"><b>{o.n_rows}</b> frames</p>
+                <p className="mv-meta muted">{day(o.date_first)} to {day(o.date_last)}</p>
               </a>
             </li>
           ))}
         </ul>
       )}
+    </div>
+  )
+}
+
+// Comet, or Asteroid plus the taxonomic letter when the note names one, e.g. "(M-type)".
+function typeLabel(o: IndexEntry) {
+  if (o.kind === 'comet') return 'Comet'
+  const t = /\(([A-Za-z]{1,2})-type\)/.exec(o.note)
+  return t ? `Asteroid, ${t[1].toUpperCase()}-type` : 'Asteroid'
+}
+
+// One small fetch per object, shared and cached, started only when the card scrolls near the screen.
+type Pt = { w: number; f: number; k: string }
+const sparkCache = new Map<string, Promise<Pt[]>>()
+function loadSpark(slug: string) {
+  let p = sparkCache.get(slug)
+  if (!p) {
+    p = getJson<{ rows: Row[] }>(joinUrl(MOVERS_BASE, encodeURIComponent(slug), 'spectrum.json')).then(s =>
+      (s.rows ?? []).filter(r => Number.isFinite(r.wavelength_um) && Number.isFinite(r.flux_ujy)).map(r => ({ w: r.wavelength_um, f: r.flux_ujy, k: r.iso.slice(0, 7) })))
+    sparkCache.set(slug, p)
+  }
+  return p
+}
+
+function Spark({ slug, kind }: { slug: string; kind: string }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [pts, setPts] = useState<Pt[] | null>(null)
+  const [seen, setSeen] = useState(false)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    if (typeof IntersectionObserver === 'undefined') { setSeen(true); return }
+    const io = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { setSeen(true); io.disconnect() } }, { rootMargin: '200px' })
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
+  useEffect(() => {
+    if (!seen) return
+    let live = true
+    loadSpark(slug).then(p => live && setPts(p)).catch(() => live && setPts([]))
+    return () => { live = false }
+  }, [seen, slug])
+
+  const W = 240, H = 56, P = 4
+  let body: ReactNode = null
+  if (pts && pts.length) {
+    let use = pts
+    if (kind === 'comet') {
+      const c = new Map<string, number>()
+      pts.forEach(p => c.set(p.k, (c.get(p.k) ?? 0) + 1))
+      const main = [...c.entries()].reduce((a, b) => (b[1] > a[1] ? b : a))[0]
+      use = pts.filter(p => p.k === main)
+    }
+    const pos = use.filter(p => p.f > 0)
+    const log = pos.length > 1 && Math.max(...pos.map(p => p.f)) / Math.min(...pos.map(p => p.f)) > LOG_RATIO
+    const d = log ? pos : use
+    const yv = (v: number) => (log ? Math.log10(v) : v)
+    const xs = d.map(p => p.w), ys = d.map(p => yv(p.f))
+    const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys)
+    const X = (v: number) => P + ((v - x0) / (x1 - x0 || 1)) * (W - 2 * P)
+    const Y = (v: number) => H - P - ((yv(v) - y0) / (y1 - y0 || 1)) * (H - 2 * P)
+    body = d.map((p, i) => <circle key={i} cx={X(p.w)} cy={Y(p.f)} r={1.6} />)
+  }
+  return (
+    <div className="mv-spark" ref={ref}>
+      <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" role="img" aria-label={pts && pts.length ? 'Small plot of brightness against wavelength' : 'Plot loading'}>
+        <line x1={P} x2={W - P} y1={H - 1} y2={H - 1} />
+        {body}
+      </svg>
     </div>
   )
 }
@@ -179,43 +246,48 @@ function Detail({ slug, onReady }: { slug: string; onReady: () => void }) {
       <section className="card mv-block" aria-labelledby="mv-plot-h">
         <h2 id="mv-plot-h" className="card-title">Measured spectrum</h2>
         <p className="caption">
-          How bright {meta.name} looked at each infrared colour, in microjanskys (µJy), with error bars. Each point is one SPHEREx image. Thin lines mark colours where common ices and gases absorb or glow. This is brightness, not reflectance: we did not divide out the Sun or correct the aperture.
+          How bright {meta.name} looked at each infrared colour, in <Gloss tip="Microjanskys, a unit of brightness">µJy</Gloss> (microjanskys, a unit of brightness), with error bars. Each point is one SPHEREx image. Thin lines mark colours where common ices and gases absorb or glow.
         </p>
         <Plot rows={rows} bands={meta.bands ?? []} />
+        <p className="mv-limit"><b>Brightness, not reflectance.</b>{meta.kind === 'comet' ? ' Comet values depend on the aperture size, the circle we add the light inside.' : ' We did not divide out the Sun.'}</p>
       </section>
 
-      <div className="mv-two">
-        <section className="card mv-block" aria-labelledby="mv-blink-h">
-          <h2 id="mv-blink-h" className="card-title">Blink the images</h2>
-          <Blink frames={frames} base={base} name={meta.name} />
-        </section>
-        <section className="card mv-block" aria-labelledby="mv-how-h">
-          <h2 id="mv-how-h" className="card-title">How the numbers were made</h2>
-          <dl className="mv-facts mv-facts-col">
-            <div><dt>Measurements</dt><dd>{meta.n_rows}</dd></div>
-            <div><dt>Wavelength</dt><dd>{f1(meta.wl_min_um, 2)} to {f1(meta.wl_max_um, 2)} µm</dd></div>
-            <div><dt>Aperture</dt><dd>{f1(meta.aperture_arcsec, 1)} arcsec</dd></div>
-            <div><dt>Sky ring</dt><dd>{meta.annulus_arcsec?.[0]} to {meta.annulus_arcsec?.[1]} arcsec</dd></div>
-            <div><dt>Orbit from</dt><dd>{meta.ephemeris}</dd></div>
-          </dl>
-          <details className="mv-fold">
-            <summary>Method</summary>
-            <p>{meta.method}</p>
-            <p className="muted sm">Aperture: {f1(meta.aperture_arcsec, 1)} arcseconds. Sky ring: {meta.annulus_arcsec?.[0]} to {meta.annulus_arcsec?.[1]} arcseconds. Orbit source: {meta.ephemeris}.</p>
-          </details>
-          <h3 className="mv-sub">Limits</h3>
-          <ul className="notes-list">
-            {(meta.caveats ?? []).map((c, i) => <li key={i}>{c}</li>)}
-          </ul>
-        </section>
-      </div>
+      <section className="card mv-block" aria-labelledby="mv-blink-h">
+        <h2 id="mv-blink-h" className="card-title">Blink the images</h2>
+        <Blink frames={frames} base={base} name={meta.name} />
+      </section>
 
-      <section className="card mv-block" aria-labelledby="mv-table-h">
-        <h2 id="mv-table-h" className="card-title">The table</h2>
+      <details className="card mv-block mv-sec">
+        <summary>How the numbers were made</summary>
+        <dl className="mv-facts mv-facts-col">
+          <div><dt>Measurements</dt><dd>{meta.n_rows}</dd></div>
+          <div><dt>Wavelength</dt><dd>{f1(meta.wl_min_um, 2)} to {f1(meta.wl_max_um, 2)} µm</dd></div>
+          <div><dt><Gloss tip="The circle we add the light inside">Aperture</Gloss></dt><dd>{f1(meta.aperture_arcsec, 1)} arcsec</dd></div>
+          <div><dt>Sky ring</dt><dd>{meta.annulus_arcsec?.[0]} to {meta.annulus_arcsec?.[1]} arcsec</dd></div>
+          <div><dt>Orbit from</dt><dd>{meta.ephemeris}</dd></div>
+        </dl>
+        <p className="mv-sec-p">{meta.method}</p>
+        <p className="muted sm mv-sec-p">Aperture (the circle we add the light inside): {f1(meta.aperture_arcsec, 1)} arcseconds. Sky ring, used to subtract the background: {meta.annulus_arcsec?.[0]} to {meta.annulus_arcsec?.[1]} arcseconds. Orbit source: {meta.ephemeris}.</p>
+      </details>
+
+      <details className="card mv-block mv-sec">
+        <summary>Limits</summary>
+        <ul className="notes-list">
+          {(meta.caveats ?? []).map((c, i) => <li key={i}>{c}</li>)}
+        </ul>
+      </details>
+
+      <details className="card mv-block mv-sec">
+        <summary>All {rows.length} measurements</summary>
         <RowsTable rows={rows} />
-      </section>
+      </details>
     </div>
   )
+}
+
+// Plain-words gloss on a term: dotted underline and a hover or long-press title.
+function Gloss({ tip, children }: { tip: string; children: ReactNode }) {
+  return <abbr className="mv-gloss" title={tip}>{children}</abbr>
 }
 
 // ---------- spectrum plot ----------
@@ -443,11 +515,11 @@ const COLS: Col[] = [
   { key: 'wavelength_um', label: 'Wavelength (µm)', digits: 3 },
   { key: 'flux_ujy', label: 'Flux (µJy)', digits: 2 },
   { key: 'flux_err_ujy', label: 'Error (µJy)', digits: 2 },
-  { key: 'snr', label: 'S/N', digits: 1, title: 'Signal to noise: flux divided by error' },
+  { key: 'snr', label: 'S/N', digits: 1, title: 'Signal to noise: how far above the noise' },
   { key: 'iso', label: 'Date (UTC)' },
   { key: 'offset_arcsec', label: 'Offset (arcsec)', digits: 2, title: 'Distance between the measured and the predicted position. Blank when the object was too faint to find.' },
   { key: 'detector', label: 'Detector' },
-  { key: 'flags', label: 'Flags', title: 'Sum of SPHEREx flag bits inside the aperture. 0 means none.' },
+  { key: 'flags', label: 'Flags', title: 'SPHEREx quality markers. 0 means none were raised inside the aperture.' },
 ]
 const SHOWN = 50
 
@@ -476,7 +548,7 @@ function RowsTable({ rows }: { rows: Row[] }) {
 
   return (
     <>
-      <p className="caption">One row per SPHEREx image. Click a heading to sort. Flags is the sum of SPHEREx's flag bits inside the aperture, and 0 means none.</p>
+      <p className="caption">One row per SPHEREx image. Click a heading to sort. S/N is signal to noise: how far above the noise. Flags are SPHEREx quality markers, and 0 means none.</p>
       <div className="mv-scroll" tabIndex={0} role="region" aria-label="Measurement table">
         <table className="mv-table">
           <thead>

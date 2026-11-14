@@ -12,29 +12,44 @@
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <script>try{document.documentElement.dataset.nav=localStorage.getItem("blink.nav")||(/^#\/sky/.test(location.hash)?"closed":"open")}catch(e){document.documentElement.dataset.nav="open"}</script>
     <style>
-      /* Boot screen: painted before any stylesheet or script; App.tsx fades it out after the first page draws.
-         Loop: two dots blink in turn inside the reticle, one star seen on two dates. */
-      #boot{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;gap:14px;background:#020305;font:700 15px "Space Grotesk",system-ui,sans-serif;color:#EAF2FA;transition:opacity .35s ease}
-      #boot.gone{opacity:0;pointer-events:none}
-      #boot .lk{display:flex;align-items:center;gap:12px}
-      #boot svg{width:56px;height:56px}
-      #boot .a{animation:bA 1.6s ease-in-out infinite}
-      #boot .b{animation:bB 1.6s ease-in-out infinite}
-      @keyframes bA{0%,40%{opacity:1}50%,90%{opacity:.15}100%{opacity:1}}
-      @keyframes bB{0%,40%{opacity:.15}50%,90%{opacity:1}100%{opacity:.15}}
-      #boot b{color:#4DD0F8}
-      @media (prefers-reduced-motion:reduce){#boot .a,#boot .b{animation:none}}
+      /* First paint: flat deep-space background and a static shell skeleton inside #root. React replaces it on render.
+         No overlay, no minimum delay, no webfont dependency. */
+      html,body{background:#020305;margin:0}
+      .skip{position:absolute;left:8px;top:-64px}
+      body{color:#EAF2FA;font:400 16px/1.5 "Public Sans",system-ui,sans-serif}
+      .ss{display:flex;min-height:100vh}
+      .ss-nav{flex:none;width:232px;height:100vh;padding:16px 8px;background:rgba(255,255,255,.07);border-right:1px solid rgba(255,255,255,.14);display:flex;flex-direction:column;gap:8px}
+      .ss-brand{display:flex;align-items:center;gap:10px;height:48px;padding:0 8px;font:700 16px "Space Grotesk",system-ui,sans-serif}
+      .ss-brand svg{width:28px;height:28px;flex:none}
+      .ss-brand b{color:#4DD0F8}
+      .ss-i{display:block;height:48px;margin:0 0 4px;border-radius:12px;background:rgba(255,255,255,.05)}
+      .ss-main{flex:1;min-width:0;max-width:960px;margin:0 auto;padding:48px 32px}
+      .ss-l{display:block;height:1em;margin:8px 0;border-radius:8px;background:rgba(255,255,255,.07);animation:ssP 1.5s ease-in-out infinite}
+      .ss-h{height:2.5rem;width:62%}
+      .ss-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-top:24px}
+      .ss-c{height:140px;border-radius:16px;background:#131B29}
+      @keyframes ssP{0%,100%{opacity:.55}50%{opacity:1}}
+      @media (max-width:767px){.ss-nav{display:none}.ss-main{padding:24px 16px}}
+      @media (prefers-reduced-motion:reduce){.ss-l{animation:none}}
     </style>
   </head>
   <body>
-    <div id="boot" role="status" aria-live="polite">
-      <div class="lk">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="#EAF2FA" stroke-width="1.4"/><path d="M12 1.5v4.5M12 18v4.5M1.5 12H6M18 12h4.5" stroke="#EAF2FA" stroke-width="1.4" stroke-linecap="round"/><circle class="a" cx="9.8" cy="13.8" r="1.9" fill="#EAF2FA"/><circle class="b" cx="13.6" cy="10" r="2.2" fill="#4DD0F8"/></svg>
-        <span>SPHEREx <b>Blink</b></span>
+    <a class="skip" href="#view">Skip to content</a>
+    <div id="root">
+      <div class="ss" aria-hidden="true">
+        <div class="ss-nav">
+          <div class="ss-brand"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="#EAF2FA" stroke-width="1.4"/><path d="M12 1.5v4.5M12 18v4.5M1.5 12H6M18 12h4.5" stroke="#EAF2FA" stroke-width="1.4" stroke-linecap="round"/><circle cx="9.8" cy="13.8" r="1.9" fill="#EAF2FA"/><circle cx="13.6" cy="10" r="2.2" fill="#4DD0F8"/></svg><span>SPHEREx <b>Blink</b></span></div>
+          <i class="ss-i"></i><i class="ss-i"></i><i class="ss-i"></i>
+        </div>
+        <div class="ss-main">
+          <span class="ss-l" style="width:18%"></span>
+          <span class="ss-l ss-h"></span>
+          <span class="ss-l"></span>
+          <span class="ss-l" style="width:72%"></span>
+          <div class="ss-row"><div class="ss-c"></div><div class="ss-c"></div><div class="ss-c"></div></div>
+        </div>
       </div>
     </div>
-    <a class="skip" href="#view">Skip to content</a>
-    <div id="root"></div>
     <noscript><p style="padding:24px">SPHEREx Blink needs JavaScript to draw its images and charts.</p></noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>

@@ -105,3 +105,29 @@
 .mv-tip p { margin: 0; }
 .mv-tip b { font-family: var(--f-display); font-weight: 700; }
 .mv-tip-w { font-size: var(--t-md); }
+
+/* list cards */
+.mv-disclaimer { max-width: 62ch; margin: 0 0 var(--s3); font-weight: 600; }
+.mv-card .mv-meta { font-size: var(--t-sm); }
+.mv-card .mv-meta b { font-family: var(--f-display); }
+.mv-spark { margin: var(--s1) 0; background: var(--card-2); border-radius: var(--radius-sm); }
+.mv-spark svg { display: block; width: 100%; height: 56px; }
+.mv-spark line { stroke: rgba(255, 255, 255, .12); }
+.mv-spark circle { fill: var(--cyan); opacity: .85; }
+
+/* object page */
+.mv-limit { margin: var(--s1) 0 0; font-size: var(--t-sm); }
+.mv-gloss { text-decoration: underline dotted; text-underline-offset: 3px; cursor: help; }
+.mv-sec { padding: 0; }
+.mv-sec > summary { cursor: pointer; font: 700 var(--t-lg) var(--f-display); padding: var(--s2) var(--s3); min-height: 48px; display: flex; align-items: center; justify-content: space-between; gap: var(--s2); list-style: none; }
+.mv-sec > summary::-webkit-details-marker { display: none; }
+.mv-sec > summary::after { content: '+'; color: var(--cyan); font-size: 1.5rem; line-height: 1; }
+.mv-sec[open] > summary::after { content: '\2212'; }
+.mv-sec > :not(summary) { margin-left: var(--s3); margin-right: var(--s3); }
+.mv-sec > :last-child { margin-bottom: var(--s3); }
+.mv-sec .mv-sec-p { margin-top: var(--s2); margin-bottom: 0; }
+.mv-sec .mv-scroll { margin-left: var(--s2); margin-right: var(--s2); }
+@media (max-width: 800px) {
+  .mv-sec > summary { font-size: var(--t-md); padding: var(--s1) var(--s2); }
+  .mv-sec > :not(summary) { margin-left: var(--s2); margin-right: var(--s2); }
+}

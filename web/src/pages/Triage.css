@@ -1,4 +1,4 @@
-/* Vet a dot. Solid cards, no borders, no gradients. */
+/* Vet a field. Solid cards, no borders, no gradients. */
 .tg h1 { font-size: clamp(1.75rem, 4vw, 2.5rem); margin: var(--s1) 0 var(--s2); }
 .tg h2 { font-size: var(--t-lg); }
 .tg-lede { font-size: 1.125rem; max-width: 62ch; margin: 0 0 var(--s1); }
@@ -96,3 +96,10 @@
   .tg-vcard { grid-template-columns: minmax(0, 1fr); }
 }
 @media (prefers-reduced-motion: reduce) { .tg-card { transition: none; } }
+
+.tg-crowd { background: var(--card); border-radius: var(--radius); padding: var(--s2) var(--s3); margin: 0 0 var(--s2); max-width: 70ch; }
+.tg-trans { margin: 0 0 var(--s1); font-weight: 600; }
+.tg-defs { margin: var(--s1) 0 0; display: grid; gap: var(--s1) var(--s3); grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); font-size: var(--t-sm); }
+.tg-defs dt { display: inline; font-weight: 700; }
+.tg-defs dt::after { content: ': '; }
+.tg-defs dd { display: inline; margin: 0; color: var(--muted); }

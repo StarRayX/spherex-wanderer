@@ -17,7 +17,13 @@ interface Reply { meta: Meta; slug: string; label?: string; error?: string }
 const EXAMPLE_SLUGS = ['barnards-star', 'epsilon-indi-b', 'rw-aurigae']
 const EXAMPLES = EXAMPLE_SLUGS.map(s => TARGETS.find(t => t.slug === s)!)
 const SIZES = ['2', '4', '8']
-const DEFAULT_SLUG = 'barnards-star'
+// Chips fill the form. The first three are prepared (instant); the last needs a live fetch.
+const LIVE_EXAMPLE = { name: 'Orion Nebula', ra: '83.8221', dec: '-5.3911' }
+const STEPS = [
+  { until: 15, text: 'Finding SPHEREx images of this spot' },
+  { until: 60, text: "Downloading the images from NASA's archive" },
+  { until: Infinity, text: 'Measuring the star in each visit' },
+]
 
 const coord = (n: number) => n.toFixed(4)
 
@@ -40,7 +46,7 @@ export default function AnySpot({ params, onReady }: PageProps) {
   const [ra, setRa] = useState(q0.get('ra') ?? '')
   const [dec, setDec] = useState(q0.get('dec') ?? '')
   const [size, setSize] = useState(q0.get('size') ?? '4')
-  const [selected, setSelected] = useState<string | null>(hasQuery ? null : DEFAULT_SLUG)
+  const [selected, setSelected] = useState<string | null>(null)
   const [metas, setMetas] = useState<Record<string, Meta>>({})
   const [metaFailed, setMetaFailed] = useState(false)
   const [live, setLive] = useState<Live | null>(null)
@@ -51,18 +57,14 @@ export default function AnySpot({ params, onReady }: PageProps) {
 
   useEffect(() => { onReady() }, [onReady])
 
-  // Load the three showcase metas once. Prefill Barnard's Star unless the URL carried coordinates.
+  // Load the three showcase metas once, so a prepared spot can answer instantly.
   useEffect(() => {
     let alive = true
     EXAMPLES.forEach(t => {
       loadMeta(t.slug).then(m => {
         if (!alive) return
         setMetas(prev => ({ ...prev, [t.slug]: m }))
-        if (t.slug === DEFAULT_SLUG && !hasQuery && m.target?.astrometry) {
-          setRa(r => r === '' ? coord(m.target!.astrometry!.ra) : r)
-          setDec(d => d === '' ? coord(m.target!.astrometry!.dec) : d)
-        }
-      }).catch(() => { if (alive && t.slug === DEFAULT_SLUG) setMetaFailed(true) })
+      }).catch(() => { if (alive && t.slug === EXAMPLE_SLUGS[0]) setMetaFailed(true) })
     })
     return () => { alive = false }
   }, [hasQuery])
@@ -84,21 +86,19 @@ export default function AnySpot({ params, onReady }: PageProps) {
     })?.slug ?? null
   }
 
-  function pick(slug: string) {
-    const a = metas[slug]?.target?.astrometry
+  // A chip only fills the form. The result appears when the user presses Show photos.
+  function fill(r: string, d: string) {
     reqId.current++
     setLive(null)
+    setSelected(null)
     setSubmitted(false)
-    setSelected(slug)
-    if (a) { setRa(coord(a.ra)); setDec(coord(a.dec)) }
+    setRa(r)
+    setDec(d)
   }
 
-  function edit(setter: (v: string) => void, v: string, other: 'ra' | 'dec') {
-    setter(v)
-    const r = other === 'ra' ? v : ra
-    const d = other === 'dec' ? v : dec
-    const m = matchExample(r, d)
-    if (m) { reqId.current++; setLive(null); setSelected(m) } else setSelected(null)
+  function pick(slug: string) {
+    const a = metas[slug]?.target?.astrometry
+    if (a) fill(coord(a.ra), coord(a.dec))
   }
 
   async function runLive(rs: string, ds: string, sz: string) {
@@ -154,8 +154,15 @@ export default function AnySpot({ params, onReady }: PageProps) {
         <span className="skel" style={{ height: 28, width: 'min(34ch, 90%)' }} />
         <span className="skel as-skel-img" />
         <div className="as-working">
-          <p>Fetching photos from NASA's archive, about 1 to 2 minutes. <span className="num">{elapsed}s</span></p>
+          <p className="as-working-head">Building this spot live <span className="num">{elapsed}s</span> of about 60 to 120s</p>
+          <ul className="as-steps">
+            {STEPS.map((st, i) => {
+              const cur = STEPS.findIndex(x => elapsed < x.until)
+              return <li key={st.text} className={i < cur ? 'done' : i === cur ? 'now' : ''}><span>{i < cur ? 'Done' : i === cur ? 'Now' : 'Next'}</span>{st.text}</li>
+            })}
+          </ul>
           <div className="bar" />
+          <p className="muted as-fine">The steps are our best guess from the time passed. Stay on this page.</p>
         </div>
       </div>
     )
@@ -165,7 +172,7 @@ export default function AnySpot({ params, onReady }: PageProps) {
         <div className="as-errbox" role="alert">
           <h2>We could not build this spot</h2>
           <p>{live.message}</p>
-          <p className="muted">Check the coordinates, then try again. The three examples on the left always work.</p>
+          <p className="muted">Check the coordinates, then try again. The prepared examples always work.</p>
         </div>
       </div>
     )
@@ -185,44 +192,41 @@ export default function AnySpot({ params, onReady }: PageProps) {
     )
   } else {
     result = (
-      <div className="as-result" aria-busy="true">
-        <span className="skel" style={{ height: 28, width: 'min(34ch, 90%)' }} />
-        <span className="skel as-skel-img" />
+      <div className="as-empty">
+        <h2>Nothing is fetched yet</h2>
+        <p>Enter a position or tap an example, then press Show photos. The photos and the star's motion appear here.</p>
+        <p className="muted">Want a star we already checked? Open Test stars in the menu.</p>
       </div>
     )
   }
 
   return (
     <div className="page as-page">
-      <h1>See any patch of sky through SPHEREx</h1>
-      <p className="as-lede">Pick a spot. We show every SPHEREx photo of it and how far its star moved.</p>
+      <h1>Look up any spot in the sky</h1>
+      <p className="as-lede">Type a position and we find every SPHEREx photo of it, live from NASA's archive, and measure how far its star moved.</p>
 
       <div className="as-grid">
         <div className="as-inputs">
           <div>
-            <h2 className="as-h">Start with an example</h2>
-            <div className="as-examples">
-              {EXAMPLES.map(t => {
-                const m = metas[t.slug]
-                return (
-                  <button key={t.slug} type="button" className="as-ex" aria-pressed={selected === t.slug} onClick={() => pick(t.slug)}>
-                    <span className="as-ex-name">{t.name}</span>
-                    <span className="as-ex-sub">{t.hook}{m ? ` ${m.visits.length} SPHEREx visits.` : ''}</span>
-                  </button>
-                )
-              })}
+            <h2 className="as-h">Try an example</h2>
+            <div className="as-chips">
+              {EXAMPLES.map(t => (
+                <button key={t.slug} type="button" className="as-chip" aria-pressed={ra === coord(metas[t.slug]?.target?.astrometry?.ra ?? NaN) && dec === coord(metas[t.slug]?.target?.astrometry?.dec ?? NaN)} onClick={() => pick(t.slug)} disabled={!metas[t.slug]}>{t.name}</button>
+              ))}
+              <button type="button" className="as-chip" aria-pressed={ra === LIVE_EXAMPLE.ra && dec === LIVE_EXAMPLE.dec} onClick={() => fill(LIVE_EXAMPLE.ra, LIVE_EXAMPLE.dec)}>{LIVE_EXAMPLE.name}</button>
             </div>
+            <p className="as-hint">The first three are ready at once. {LIVE_EXAMPLE.name} is fetched live.</p>
           </div>
 
           <form className="as-form" onSubmit={submit} noValidate>
             <div>
               <label className="as-label" htmlFor="as-ra">Right ascension (RA), degrees</label>
-              <input id="as-ra" className="field" inputMode="decimal" value={ra} onChange={e => edit(setRa, e.target.value, 'ra')} aria-invalid={!!raErr} aria-describedby="as-ra-note" />
+              <input id="as-ra" className="field" inputMode="decimal" value={ra} onChange={e => setRa(e.target.value)} aria-invalid={!!raErr} aria-describedby="as-ra-note" />
               {raErr ? <p className="as-err" id="as-ra-note">{raErr}</p> : <p className="as-hint" id="as-ra-note">Sky longitude, 0 to 360</p>}
             </div>
             <div>
               <label className="as-label" htmlFor="as-dec">Declination (Dec), degrees</label>
-              <input id="as-dec" className="field" inputMode="decimal" value={dec} onChange={e => edit(setDec, e.target.value, 'dec')} aria-invalid={!!decErr} aria-describedby="as-dec-note" />
+              <input id="as-dec" className="field" inputMode="decimal" value={dec} onChange={e => setDec(e.target.value)} aria-invalid={!!decErr} aria-describedby="as-dec-note" />
               {decErr ? <p className="as-err" id="as-dec-note">{decErr}</p> : <p className="as-hint" id="as-dec-note">Sky latitude, -90 to 90</p>}
             </div>
             <div>
@@ -234,8 +238,8 @@ export default function AnySpot({ params, onReady }: PageProps) {
               </div>
             </div>
             <div className="as-go">
+              <p className="as-note"><b>This fetches SPHEREx images live, which takes 1 to 2 minutes.</b> Spots we already prepared show at once.</p>
               <button className="btn as-btn" disabled={working}>{working ? 'Working…' : 'Show photos'}</button>
-              <p className="as-note">New spots take 1 to 2 minutes. The three examples load instantly.</p>
             </div>
           </form>
         </div>
@@ -253,7 +257,7 @@ function Answer({ meta, name, src }: { meta: Meta; name: string; src: (f: string
   return (
     <div className="as-result">
       {m
-        ? <p className="as-answer">{title} moves <span className="num">{fmt(m.measured_arcsec_per_yr, 1)}</span> arcseconds a year across {n} SPHEREx visits. Gaia says <span className="num">{fmt(m.gaia_arcsec_per_yr, 1)}</span>.</p>
+        ? <p className="as-answer">{title} moves <span className="num">{fmt(m.measured_arcsec_per_yr)}</span> arcseconds a year across {n} SPHEREx visits. Gaia says <span className="num">{fmt(m.gaia_arcsec_per_yr)}</span>.</p>
         : <p className="as-answer">{meta.target?.claim ?? `${n} SPHEREx visits found at this spot.`}</p>}
       <Viewer meta={meta} src={src} />
     </div>

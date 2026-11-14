@@ -61,12 +61,25 @@ function tune(v: AladinView, url: string) {
   setTimeout(fix, 300)
 }
 
-// Probe every host at once and keep the most preferred one that answered, so a dead server costs one
-// timeout (5 s) instead of one per host in turn.
-async function pick(hosts: Host[]) {
-  const ok = await Promise.all(hosts.map(h => probe(h, 5000)))
-  return hosts.find((_, i) => ok[i]) ?? null
+// Probe every host at once and resolve with the most preferred one that answered, as soon as that is known
+// (a host answering is final once every host listed before it has failed). A dead server costs one timeout
+// (5 s), not one per host in turn, and a fast preferred host does not wait for a slow mirror.
+function pick(hosts: Host[]) {
+  return new Promise<Host | null>(resolve => {
+    const ok: (boolean | undefined)[] = hosts.map(() => undefined)
+    hosts.forEach((h, i) => void probe(h, 5000).then(r => {
+      ok[i] = r
+      for (let j = 0; j < hosts.length; j++) {
+        if (ok[j] === undefined) return
+        if (ok[j]) return resolve(hosts[j])
+      }
+      resolve(null)
+    }))
+  })
 }
+const SLOW_MS = 6000 // no survey server answered by now: show the note with a Retry button
+const COL_KEY = 'sky.panel.collapsed'
+type Res = { ir?: Host | null; vis?: Host | null; mel?: Host | null } // undefined: still probing; null: none answered
 
 // Where a star is in a given year, from Gaia's position and drift (proper motion only; parallax is under 1").
 function at(a: { ra: number; dec: number; pmra: number; pmdec: number; epoch_from: number }, year: number): [number, number] {
@@ -93,8 +106,6 @@ function faint(alpha: number) {
 
 // Aladin draws a selected catalogue source in its selectionColor (green by default); transparent turns that off.
 const NO_RING = 'rgba(0,0,0,0)'
-
-const STEPS = ['Finding a sky image server', 'Loading the sky map', 'Placing the five test stars']
 
 // Stereographic projection: the view from the centre of the sky sphere, like a skybox camera. Capped at 100
 // degrees across, about a normal camera's field; wider than that the edges stretch as you pan.
@@ -226,7 +237,12 @@ export default function Sky({ params, onReady }: PageProps) {
   const anim = useRef(0)
   const marks = useRef<{ cat: any; src: Map<string, any> } | null>(null)
   const [picked, setPicked] = useState<Meta | null>(null)
-  const [step, setStep] = useState(0)
+  const [slow, setSlow] = useState(false) // no survey server has answered after SLOW_MS
+  const resRef = useRef<Res>({})
+  const slowTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+  const retryProbes = useRef<(() => void) | null>(null)
+  const userLayer = useRef(false)
+  const [collapsed, setCollapsed] = useState(() => { try { return localStorage.getItem(COL_KEY) === '1' } catch { return false } })
   const [sheet, setSheet] = useState(false) // phones: the cards are a bottom sheet over the map
   const [fast, setFast] = useState<FastStar | null>(null)
   const [fastCount, setFastCount] = useState(0)
@@ -312,6 +328,7 @@ export default function Sky({ params, onReady }: PageProps) {
 
   const fly = useCallback(async (slug: string) => {
     const m = await loadMeta(slug)
+    setCollapsed(false) // picking a star on the map opens the card (the saved preference is untouched)
     setFast(null)
     fastPick.current?.removeAll?.()
     setPicked(m)
@@ -417,6 +434,7 @@ export default function Sky({ params, onReady }: PageProps) {
   // ra, dec: the clicked marker's own (propagated) position, so the ring sits exactly on the dot
   function pickFast(s: FastStar, ra = s.ra, dec = s.dec) {
     setPicked(null)
+    setCollapsed(false)
     overlay.current?.removeAll?.()
     epochs.current?.removeAll?.()
     clearGlide()
@@ -435,21 +453,46 @@ export default function Sky({ params, onReady }: PageProps) {
     ;(async () => {
       try {
         if (!document.createElement('canvas').getContext('webgl2')) throw new Error('no WebGL2')
-        setStep(0)
-        const [A, ir, vis, mel] = await Promise.all([
-          import('aladin-lite').then(mod => mod.default as any),
-          pick(LAYERS[0].hosts), pick(LAYERS[1].hosts), pick(MELLINGER),
-        ])
-        setWideVis(mel)
-        const first = ir ?? vis
-        if (!first) throw new Error('no sky server answered')
-        setStep(1)
+        // The probes run beside the map start-up and never gate it: the map opens at once on the default
+        // survey, then switches to the better one if a probe finds it. No answer by SLOW_MS shows the note.
+        const res: Res = {}
+        let run = 0
+        const apply = () => {
+          const ir = res.ir ?? undefined, vis = res.vis ?? undefined
+          setHosts({ ir, vis })
+          setWideVis(res.mel ?? null)
+          if (res.ir === null && vis && !userLayer.current && layerRef.current === 'ir') { layerRef.current = 'vis'; setLayer('vis') }
+          const vw = view.current
+          if (!vw) return
+          const want = layerRef.current === 'ir' ? ir?.url : (res.mel && vis && vw.getFoV()[0] > WIDE_FOV ? res.mel.url : vis?.url)
+          if (want && want !== surveyRef.current) { surveyRef.current = want; vw.setImageSurvey(want); tune(vw, want) }
+        }
+        const startProbes = () => {
+          const my = ++run
+          let okAny = !!(res.ir || res.vis || res.mel), done = 0
+          clearTimeout(slowTimer.current)
+          setSlow(false)
+          slowTimer.current = setTimeout(() => { if (my === run && !dead && !okAny) setSlow(true) }, SLOW_MS)
+          const todo = (['ir', 'vis', 'mel'] as const).filter(k => !res[k])
+          if (!todo.length) return
+          const groups = { ir: LAYERS[0].hosts, vis: LAYERS[1].hosts, mel: MELLINGER }
+          todo.forEach(k => void pick(groups[k]).then(h => {
+            if (my !== run || dead) return
+            res[k] = h
+            if (h) { okAny = true; setSlow(false) }
+            if (++done === todo.length && !okAny) setSlow(true)
+            apply()
+          }))
+        }
+        resRef.current = res
+        retryProbes.current = () => { for (const k of ['ir', 'vis', 'mel'] as const) if (!res[k]) res[k] = undefined; startProbes() }
+        startProbes()
+        const A = await import('aladin-lite').then(mod => mod.default as any)
         await A.init
         if (dead || !box.current) return
         lib.current = A
-        setHosts({ ir: ir ?? undefined, vis: vis ?? undefined })
-        setLayer(ir ? 'ir' : 'vis')
-        layerRef.current = ir ? 'ir' : 'vis'
+        const first = LAYERS[0].hosts[0]
+        layerRef.current = 'ir'
         surveyRef.current = first.url
         const v: AladinView = A.aladin(box.current, {
           survey: first.url, fov: WHOLE_SKY_FOV, target: '266.4 -28.9', projection: 'STG', cooFrame: 'ICRSd',
@@ -465,7 +508,6 @@ export default function Sky({ params, onReady }: PageProps) {
         box.current.addEventListener('pointerdown', stop)
         box.current.addEventListener('wheel', stop, { passive: true })
         tune(v, first.url)
-        setStep(2)
         const metas = await Promise.all(TARGETS.map(t => loadMeta(t.slug).catch(() => null)))
         const cat = A.catalog({ name: 'Test targets', sourceSize: 22, color: accent(), hoverColor: accent(), selectionColor: NO_RING, shape: 'circle',
           displayLabel: true, labelColumn: 'name', labelColor: '#E8EEF6', labelFont: '600 13px Public Sans' })
@@ -563,6 +605,7 @@ export default function Sky({ params, onReady }: PageProps) {
           const w = fov > WIDE_FOV
           if (w !== wideRef.current) { wideRef.current = w; setWide(w) }
           // Visible light: the smooth Mellinger mosaic when zoomed out, detailed DSS2 when zoomed in.
+          const { vis, mel } = resRef.current
           if (layerRef.current === 'vis' && mel && vis) {
             const want = fov > WIDE_FOV ? mel.url : vis.url
             if (want !== surveyRef.current) { surveyRef.current = want; v.setImageSurvey(want); tune(v, want) }
@@ -571,13 +614,14 @@ export default function Sky({ params, onReady }: PageProps) {
         v.on('positionChanged', sync)
         v.on('zoomChanged', sync)
         sync()
+        apply() // a probe that finished while Aladin was starting
         setState('ready')
       } catch (e) {
         console.error('Sky map failed to start:', e)
         if (!dead) setState('failed')
       }
     })()
-    return () => { dead = true; cancelAnimationFrame(anim.current) }
+    return () => { dead = true; clearTimeout(slowTimer.current); cancelAnimationFrame(anim.current) }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -604,6 +648,7 @@ export default function Sky({ params, onReady }: PageProps) {
   function switchLayer(k: 'ir' | 'vis') {
     const h = hosts[k]
     if (!h) return
+    userLayer.current = true
     setLayer(k)
     layerRef.current = k
     const url = k === 'vis' && wideVis && wideRef.current ? wideVis.url : h.url
@@ -611,11 +656,11 @@ export default function Sky({ params, onReady }: PageProps) {
     if (view.current) { view.current.setImageSurvey(url); tune(view.current, url) }
   }
 
-  const shown = layer === 'vis' && wideVis && wide ? wideVis : hosts[layer]
+  const shown = layer === 'vis' && wideVis && wide ? wideVis : hosts[layer] ?? (layer === 'ir' ? LAYERS[0].hosts[0] : undefined)
   const info = picked ? TARGETS.find(t => t.slug === picked.slug)! : null
 
   return (
-    <div className="skypage">
+    <div className={'skypage' + (collapsed ? ' col-off' : '')}>
       <div className="skywrap">
         <div ref={box} className="aladin" aria-label="Interactive map of the sky" />
         {state !== 'ready' && (
@@ -627,7 +672,6 @@ export default function Sky({ params, onReady }: PageProps) {
                 <p className="loader-step">It needs WebGL2 and a sky image server, and neither answered. Each star still opens its SPHEREx photos.</p>
               </> : <>
                 <p className="loader-title">Loading the sky</p>
-                <p className="loader-step">Step {step + 1} of {STEPS.length} · {STEPS[step]}</p>
                 <div className="bar" />
               </>}
             </div>
@@ -638,6 +682,12 @@ export default function Sky({ params, onReady }: PageProps) {
         </div>
         <div className="sky-tip" ref={tip} aria-hidden />
         {shown && <p className="sky-credit">Sky: {shown.credit}. Map: Aladin Lite (CDS).</p>}
+        {slow && (
+          <div className="sky-slow" role="status">
+            <p>Sky images are slow to load from the survey servers. The markers and SPHEREx photos still work.</p>
+            <button className="btn sm" onClick={() => retryProbes.current?.()}>Retry</button>
+          </div>
+        )}
         <div className="sky-tools">
           {Object.keys(hosts).length > 0 && (
             <div className="seg" role="group" aria-label="Sky images">
@@ -650,7 +700,15 @@ export default function Sky({ params, onReady }: PageProps) {
         </div>
       </div>
 
-      <div className={'skycol' + (sheet ? ' open' : '')}>
+      <button className="sky-toggle" onClick={() => {
+        const n = !collapsed
+        setCollapsed(n)
+        try { localStorage.setItem(COL_KEY, n ? '1' : '0') } catch { /* private mode: the preference is just not kept */ }
+      }} aria-expanded={!collapsed} aria-controls="sky-panel" aria-label={collapsed ? 'Show the star panel' : 'Hide the star panel'}>
+        <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden><path d="M10 3 5 8l5 5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
+        {collapsed && <span>Stars</span>}
+      </button>
+      <div id="sky-panel" className={'skycol' + (sheet ? ' open' : '')}>
         <button className="handle" onClick={() => setSheet(o => !o)} aria-expanded={sheet} aria-label={sheet ? 'Lower the panel' : 'Raise the panel'}>
           <span className="handle-t">{picked && info ? info.name : fast ? fast.name : 'Pick a star'}</span>
         </button>
@@ -664,11 +722,11 @@ export default function Sky({ params, onReady }: PageProps) {
               <div className="picked-stats">
                 <div className="stat">
                   <span className="stat-label">{picked.motion ? `Drift, ${axisWords(picked.motion)}` : 'Drift'}</span>
-                  <span className="stat-value">{picked.motion ? <>{fmt(picked.motion.measured_arcsec_per_yr, 1)}<small> ″/yr</small></> : 'None'}</span>
+                  <span className="stat-value">{picked.motion ? <>{fmt(picked.motion.measured_arcsec_per_yr, 2)} ± {fmt(picked.motion.error_arcsec_per_yr, 2)}<small> arcsec/yr</small></> : 'None'}</span>
                 </div>
                 <div className="stat">
                   <span className="stat-label">Gaia says</span>
-                  <span className="stat-value">{picked.motion ? <>{fmt(picked.motion.gaia_arcsec_per_yr, 1)}<small> ″/yr</small></> : 'n/a'}</span>
+                  <span className="stat-value">{picked.motion ? <>{fmt(picked.motion.gaia_arcsec_per_yr, 2)}<small> arcsec/yr</small></> : 'n/a'}</span>
                 </div>
               </div>
               <div ref={viewerBox}><Viewer meta={picked} src={f => imageUrl(picked.slug, f)} compact /></div>

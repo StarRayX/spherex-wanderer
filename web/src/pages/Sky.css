@@ -14,3 +14,27 @@
 .glide { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
 .glide input[type=range] { flex: 1; min-width: 0; accent-color: var(--cyan); }
 .glide-year { min-width: 3.2ch; text-align: right; font-size: var(--t-xs); }
+
+/* Left panel: narrower than the base 380px so it covers less of the map, and collapsible to a slim handle. */
+.sky-toggle { display: none; }
+.sky-slow { position: absolute; z-index: 7; display: flex; align-items: center; gap: 12px; max-width: 420px; padding: 10px 12px; border-radius: var(--radius);
+  background: var(--glass); -webkit-backdrop-filter: var(--frost); backdrop-filter: var(--frost); border: var(--edge); box-shadow: var(--shadow); color: #E8EEF6; }
+.sky-slow p { margin: 0; font: 400 var(--t-sm)/1.4 var(--f-text); }
+.sky-slow .btn { flex: none; }
+@media (min-width: 768px) {
+  .skypage .skycol { width: 316px; }
+  .skypage.col-off .skycol { display: none; }
+  .skypage .sky-cover { padding-left: 356px; }
+  .sky-slow { left: 356px; bottom: var(--s2); }
+  .skypage.col-off .sky-slow { left: 124px; }
+  .skypage .sky-toggle { position: absolute; z-index: 7; top: var(--s2); left: 340px; display: flex; align-items: center; gap: 6px; height: 36px; min-width: 36px; padding: 0 11px;
+    justify-content: center; border: var(--edge); border-radius: 18px; cursor: pointer; color: #E8EEF6; font: 600 var(--t-sm) var(--f-text);
+    background: var(--glass); -webkit-backdrop-filter: var(--frost); backdrop-filter: var(--frost); box-shadow: var(--shadow); }
+  .skypage .sky-toggle:hover { background: var(--float); }
+  .skypage.col-off .sky-toggle { left: var(--s2); }
+  .skypage.col-off .sky-toggle svg { transform: rotate(180deg); }
+}
+@media (max-width: 767px) {
+  .sky-slow { top: 76px; left: var(--s2); right: var(--s2); max-width: none; }
+}
+.skypage .picked-stats .stat-value { font-size: 1.25rem; }

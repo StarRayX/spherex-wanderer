@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import type { PageProps } from '../lib/router'
 import { imageUrl, loadMeta } from '../lib/targets'
 import type { Meta } from '../lib/types'
-import { fmt, monthYear } from '../lib/format'
+import { monthYear } from '../lib/format'
 import Mark from '../components/Mark'
 import './Home.css'
 
@@ -34,46 +34,33 @@ export default function Home({ onReady }: PageProps) {
           <span className="h1-2">We give you its measured spectrum as a table.</span>
         </h1>
         <p className="def">MOST is IRSA's Moving Object Search Tool. IRSA's fixed-position tool cannot measure something that moves from image to image. SPHEREx is a NASA space telescope that maps the whole sky in infrared light.</p>
-        <div className="cta">
-          <a className="btn" href="#/movers">See moving-object spectra {ARROW}</a>
-          <a className="text" href="#/triage">Vet a dot</a>
-        </div>
-
         <div className="hm-tools">
           <a className="card hm-tool" href="#/movers">
             <h2>Moving objects</h2>
             <p>Pick a comet or an asteroid. Get its brightness at every infrared colour SPHEREx saw, with error bars, as a table you can download as CSV, VOTable or JSON.</p>
-            <span className="hm-go">Open the spectra {ARROW}</span>
+            <span className="hm-go">Moving objects {ARROW}</span>
           </a>
           <a className="card hm-tool" href="#/triage">
-            <h2>Vet a dot</h2>
-            <p>Is this dot real? Type a position. We say whether it is a known asteroid, a cosmic ray, a bright-star leftover, a detector edge, or unexplained, and show the evidence.</p>
-            <span className="hm-go">Check a position {ARROW}</span>
+            <h2>Vet a field</h2>
+            <p>Shows every change between visits in two pre-run fields, sorted with evidence.</p>
+            <span className="hm-go">Vet a field {ARROW}</span>
           </a>
         </div>
 
-        <section className="hm-who" aria-labelledby="hm-who-h">
-          <h2 id="hm-who-h">Who it is for</h2>
-          <dl>
-            <div><dt>Solar-system researchers</dt><dd>Go from a list of images to a spectrum without a day of scripting for each object.</dd></div>
-            <div><dt>People vetting a candidate</dt><dd>Backyard Worlds volunteers and Source Discovery users checking whether a dot is real.</dd></div>
-            <div><dt>Educators</dt><dd>Show students the infrared sky and how an object gives itself away by moving.</dd></div>
-          </dl>
-        </section>
+        <p className="hm-who muted sm">For solar-system researchers, Backyard Worlds and Source Discovery volunteers, and educators.</p>
 
-        <section className="hm-more" aria-labelledby="hm-more-h">
-          <h2 id="hm-more-h">Also here</h2>
-          <div className="hm-more-grid">
-            <a className="card" href="#/any"><h3>RA/Dec flipbook</h3><p className="muted sm">Type any position and flip through every SPHEREx image of it.</p></a>
-            <a className="card" href="#/sky"><h3>Sky map</h3><p className="muted sm">See where SPHEREx looked and open the nearby fast-moving stars.</p></a>
-            <a className="card" href="#/target/barnards-star"><h3>Test targets</h3><p className="muted sm">Five stars with known motion, used to test the pipeline.</p></a>
-          </div>
-        </section>
+        <p className="hm-more sm">
+          <a href="#/sky">Sky map</a>
+          <a href="#/target/barnards-star">Test stars</a>
+          <a href="#/any">Any spot</a>
+          <a href="#/method">Method</a>
+        </p>
 
         <a className="preview hm-valid" href="#/target/barnards-star/visits">
           <div className="hm-valid-text">
-            <h2>Validation</h2>
-            <p>Our pipeline measures Barnard's Star moving {fmt(measured, 2)} ± {fmt(error, 2)} arcsec/yr; Gaia says {fmt(gaia, 2)}. This checks the code; it is not new science.</p>
+            <h2>Validation: Barnard's Star</h2>
+            <p className="hm-num">{measured.toFixed(2)} ± {error.toFixed(2)} arcsec per year, Gaia {gaia.toFixed(2)}</p>
+            <p>This checks the code; it is not new science.</p>
             <span className="pv-cap">See the images {ARROW}</span>
           </div>
           <div className="pv-strip">
