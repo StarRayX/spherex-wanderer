@@ -33,6 +33,11 @@ def robust_std(x):
     return float(1.4826 * np.median(np.abs(x - np.median(x))))
 
 
+def _r2(c):
+    """JSON-safe 2-decimal float (NaN -> None)."""
+    return round(float(c), 2) if np.isfinite(c) else None
+
+
 def cutout_mb(size_arcmin):
     """Estimated MB per cutout: the EPSF table (~3.8 MB) dominates; 2' measured 3.95 MB, 10' 5.2 MB."""
     return 4.0 + 0.012 * size_arcmin ** 2
@@ -61,9 +66,10 @@ def split_long(visits, max_span=60, bin_days=30):
     return out
 
 
-def plan(frames, band, frames_per_visit, max_frames, ra=None, dec=None, match_wavelength=False):
+def plan(frames, band, frames_per_visit, max_frames, ra=None, dec=None, match_wavelength=False, target_um=None):
     """Choose (band, visits): one band, at most max_frames frames, visits spread evenly over time if there are
-    too many, and per visit frames_per_visit frames spread in time (or closest in wavelength, via blink.select)."""
+    too many, and per visit frames_per_visit frames spread in time (or closest in wavelength to target_um,
+    default the median over visits, via blink.select)."""
     band = band or Counter(f["band"] for f in frames).most_common(1)[0][0]
     visits = []
     for v in split_long(group_visits(frames)):
@@ -77,7 +83,7 @@ def plan(frames, band, frames_per_visit, max_frames, ra=None, dec=None, match_wa
         visits = [visits[i] for i in np.linspace(0, len(visits) - 1, n_vis).round().astype(int)]
     if match_wavelength:
         from blink.select import pick_frames
-        picked, _, target = pick_frames(visits, ra, dec, frames_per_visit)
+        picked, _, target = pick_frames(visits, ra, dec, frames_per_visit, target_um)
         print(f"wavelength-matched to {target:.3f} um")
         return band, [sorted(v, key=lambda f: f["mjd"]) for v in picked]
     out = []
@@ -147,11 +153,12 @@ def snr_at(img, x, y, r=2.0):
 
 
 def build_target(slug, ra, dec, astrometry, out_dir, band=None, max_mb=100, frames_per_visit=3, size_arcmin=2.0,
-                 progress=None, *, match_wavelength=False):
+                 progress=None, *, match_wavelength=False, target_um=None):
     """Build out_dir/visit_NN.png + meta.json for one sky position; returns the meta dict.
 
     astrometry: {ra, dec, pmra, pmdec (mas/yr, pmra with cos dec), parallax (mas), epoch_from (Julian yr)} or None
-    for a static position at (ra, dec). match_wavelength: pick frames per visit by wavelength at the star (blink.select).
+    for a static position at (ra, dec). match_wavelength: pick frames per visit by wavelength at the star (blink.select),
+    closest to target_um (default: median over visits).
     """
     say = progress or (lambda d, t, m="": None)
     a = dict(astrometry) if astrometry else None
@@ -177,7 +184,7 @@ def build_target(slug, ra, dec, astrometry, out_dir, band=None, max_mb=100, fram
     if not frames:
         raise ValueError(f"no SPHEREx frames cover {ra0:.5f}, {dec0:+.5f}")
     mb_each = cutout_mb(size_arcmin)
-    band, visits = plan(frames, band, frames_per_visit, int(max_mb // mb_each), ra0, dec0, match_wavelength)
+    band, visits = plan(frames, band, frames_per_visit, int(max_mb // mb_each), ra0, dec0, match_wavelength, target_um)
     if not visits:
         raise ValueError(f"no {band} frames")
     jobs = []
@@ -211,11 +218,18 @@ def build_target(slug, ra, dec, astrometry, out_dir, band=None, max_mb=100, fram
         cx, cy = centroid(img, px, py)
         detected = bool(snr >= SNR_MIN and np.isfinite(cx) and np.hypot(cx - px, cy - py) <= MAX_OFFSET_PX)
         sra = sdec = np.nan
+        sem, frame_off = (np.nan, np.nan), []
         if detected:  # per-frame fit on each frame's own WCS, carried to the visit's mean date along the track, averaged
             fp = np.array([frame_position(p, float(r_), float(d_)) for p, r_, d_ in zip(paths, fra, fdec)])
             fp = fp + np.stack([pra - fra, pdec - fdec], axis=1)
             if np.isfinite(fp).all(axis=1).any():
                 sra, sdec = np.nanmean(fp, axis=0)
+                # frame offsets from the visit mean (arcsec) and the standard error of that mean, per axis
+                off = (fp - [sra, sdec]) * [np.cos(np.radians(sdec)) * 3600, 3600]
+                frame_off = [[_r2(c) for c in o] for o in off]
+                n = np.isfinite(off[:, 0]).sum()
+                if n > 1:
+                    sem = tuple(float(s) for s in np.nanstd(off, axis=0, ddof=1) / np.sqrt(n))
         ok = bool(np.isfinite(sra))
         bits = [flag_bits(p, float(r_), float(d_)) for p, r_, d_ in zip(paths, fra, fdec)]
         allbits = sorted(set().union(*bits))
@@ -226,7 +240,7 @@ def build_target(slug, ra, dec, astrometry, out_dir, band=None, max_mb=100, fram
         date = Time(m, format="mjd").iso[:10]
         vis.append(dict(image=img, date=date, mjd=m, band=band, wavelength_um=float(np.mean(wls)),
                         wavelength_min_um=min(wls), wavelength_max_um=max(wls), flags_summary=fl,
-                        predicted_xy=[px, py], star_xy=[sx, sy] if ok else None))
+                        predicted_xy=[px, py], star_xy=[sx, sy] if ok else None, frame_offsets_arcsec=frame_off))
         ph = [aperture(p, float(r_), float(d_)) for p, r_, d_ in zip(paths, fra, fdec)]
         ok = [q for q in ph if not q[2]] or ph  # frames with nothing masked in the aperture; else all (lower limits)
         s = np.array([q[0] for q in ok])
@@ -237,7 +251,7 @@ def build_target(slug, ra, dec, astrometry, out_dir, band=None, max_mb=100, fram
                          snr_stack=snr,
                          frames=[dict(mjd=f["mjd"], wavelength_um=wl, aperture_mjy=q[0], error_mjy=q[1], masked_pixels=q[2])
                                  for f, wl, q in zip(v, wls, ph)]))
-        pos_rows.append((m, sra, sdec))
+        pos_rows.append((m, sra, sdec, *sem))
         print(f"  {date} n={len(v)} wl {min(wls):.2f}-{max(wls):.2f} S/N {snr:.1f} star_xy {sx and round(sx, 2)},{sy and round(sy, 2)} "
               f"pred {px:.2f},{py:.2f} ap {s.mean():.3g} mJy masked {phot[-1]['masked_pixels']}")
 
@@ -248,6 +262,8 @@ def build_target(slug, ra, dec, astrometry, out_dir, band=None, max_mb=100, fram
         drift = np.hypot(a["pmra"], a["pmdec"]) / 1000 * span
         if len(good) >= 3 and drift >= 0.5 * PIXEL_SCALE:
             motion = _motion(good, gra, gdec, a, pos)
+            motion["frame_offsets_arcsec"] = [v["frame_offsets_arcsec"] for v in vis if v["star_xy"] is not None]
+            motion["visit_sem_arcsec"] = [[_r2(c) for c in r[3:]] for r in good]
             if abs(motion["measured_arcsec_per_yr"]) < 3 * motion["error_arcsec_per_yr"]:
                 notes.append("Measured drift is below 3 sigma: no motion claim.")
         else:
@@ -285,12 +301,13 @@ def build_target(slug, ra, dec, astrometry, out_dir, band=None, max_mb=100, fram
 
 def _motion(good, gra, gdec, a, pos):
     """Straight-line drift per axis vs Gaia, raw and with the parallax shift removed. Main axis = larger Gaia pm."""
-    m_, ra_, dec_ = good.T
+    m_, ra_, dec_, e_ra, e_dec = good.T
     d = {"ra": (ra_ - gra) * np.cos(np.radians(gdec)) * 3600, "dec": (dec_ - gdec) * 3600}
+    err = {"ra": e_ra, "dec": e_dec}  # per-visit standard error from the frame-to-frame scatter (nan if one frame)
     pr, pd = parallax_offset(m_, gra, gdec, a["parallax"])
     corr = {"ra": d["ra"] - pr, "dec": d["dec"] - pd}
     gaia = {"ra": a["pmra"] / 1000, "dec": a["pmdec"] / 1000}
-    fits_ = {k: (fit_motion(m_, d[k]), fit_motion(m_, corr[k])) for k in d}
+    fits_ = {k: (fit_motion(m_, d[k], err[k]), fit_motion(m_, corr[k], err[k])) for k in d}
     gr, gd = pos(m_)
     res = [[float(d["ra"][k] - (gr[k] - gra) * np.cos(np.radians(gdec)) * 3600), float(d["dec"][k] - (gd[k] - gdec) * 3600)]
            for k in range(len(m_))]

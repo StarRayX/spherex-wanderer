@@ -31,6 +31,16 @@ def test_motion_fit_recovers_rate():
     assert abs(rate - true_px * 6.15) < max(3 * err, 1.0)
 
 
+def test_motion_error_uses_point_errors():
+    t = [60900, 61100, 61280]
+    y = [0.0, 1.0, 1.9]  # three points almost on a line: tiny scatter error
+    assert fit_motion(t, y)[1] < 0.01
+    rate, err = fit_motion(t, y, [1.7, 0.3, 0.2])  # but the visits themselves are uncertain
+    d = np.array(t) / 365.25 - np.mean(t) / 365.25
+    assert np.isclose(err, np.sqrt((d ** 2 * [1.7 ** 2, 0.3 ** 2, 0.2 ** 2]).sum()) / (d ** 2).sum()) and err > 1
+    assert fit_motion(t, y, [np.nan, 0.3, 0.2])[1] < 0.01  # an unknown error falls back to scatter
+
+
 def write(path, data, flags):
     w = target_wcs(RA, DEC, N)
     hdr = w.to_header()

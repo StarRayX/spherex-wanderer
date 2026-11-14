@@ -41,6 +41,14 @@ def test_plan_band_cap_split():
     assert len(build.plan(fr, None, 2, 6)[1]) == 3  # 6 frames / 2 per visit: 3 of 5 visits kept
 
 
+def test_plan_target_wavelength(monkeypatch):
+    import blink.select as sel
+    fr = [dict(mjd=60000 + 200 * v + i, band="SPHEREx-D6", wl=4.4 + 0.05 * i) for v in range(2) for i in range(12)]
+    monkeypatch.setattr(sel, "predict_wavelength", lambda v, ra, dec: np.array([f["wl"] for f in v]))
+    _, v = build.plan(fr, "SPHEREx-D6", 2, 100, 0, 0, match_wavelength=True, target_um=4.9)
+    assert all(sorted(round(f["wave_um"], 2) for f in x) == [4.85, 4.9] for x in v)
+
+
 def test_budget_refusal(monkeypatch, tmp_path):
     assert build.check_budget(10, 4.0, 60) == 40
     with pytest.raises(build.BudgetError):

@@ -55,8 +55,15 @@ def centroid(img, x0, y0, r=3.5, n_iter=30):
     return x, y
 
 
-def fit_motion(mjds, offsets_arcsec):
-    """Straight line through offsets vs time. Returns (rate arcsec/yr, 1-sigma error)."""
-    # ponytail: error from scatter about the line only; ignores per-frame error bars and parallax
-    f = linregress(np.asarray(mjds) / 365.25, offsets_arcsec)
-    return f.slope, f.stderr
+def fit_motion(mjds, offsets_arcsec, sigma=None):
+    """Straight line through offsets vs time. Returns (rate arcsec/yr, 1-sigma error).
+
+    Error: from the scatter about the line, or, if per-point errors sigma are given (all finite), the larger of
+    that and sigma propagated into the slope. Three points can sit on a line by chance (Barnard RA: +/-0.01
+    from scatter while frames within a visit disagree by 5 arcsec), so the scatter alone is not trusted."""
+    t = np.asarray(mjds) / 365.25
+    f = linregress(t, offsets_arcsec)
+    if sigma is None or not np.isfinite(sigma).all():
+        return f.slope, f.stderr
+    d = t - t.mean()
+    return f.slope, max(np.nan_to_num(f.stderr), float(np.sqrt((d ** 2 * np.asarray(sigma) ** 2).sum()) / (d ** 2).sum()))

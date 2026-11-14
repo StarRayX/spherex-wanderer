@@ -18,17 +18,29 @@ GAIA = "Gaia DR3 archive TAP (gea.esac.esa.int, gaiadr3.gaia_source), fetched 20
 TARGETS = {
     "barnards-star": dict(
         name="Barnard's Star", astrometry=BARNARD, source=f"Gaia DR3 4472832130942575872; {GAIA}",
-        band="SPHEREx-D4", frames_per_visit=3,
-        claim="The star's drift across the sky, measured from SPHEREx and compared with Gaia."),
+        # D6 near 4.9 um: the one place this star is not hard-saturated (finite core, 1-2 OVERFLOW pixels; in D2 and
+        # D4 the core is NaN). Chosen for that reason before comparing with Gaia; see the notes for why it matters.
+        band="SPHEREx-D6", frames_per_visit=3, match_wavelength=True, target_um=4.9,
+        claim="The star's drift across the sky, measured from SPHEREx and compared with Gaia.",
+        notes=["Why D6 at 4.9 um (checked 2026-11-14 on cached frames): in D2 and D4 the core is saturated, and five Aug "
+               "2025 exposures put the fitted star 3.3 to 3.8 arcsec east of Gaia while other frames of the same visit "
+               "sit about 1 arcsec west, at any wavelength (1.1 to 3.8 um; the same 2.44 um and detector spot gives both). "
+               "15 to 17 Gaia field stars in the same exposures agree with Gaia to 0.2 arcsec, so the WCS is fine; "
+               "fitting the official ePSF instead of a Gaussian gives the same shift; the excess sits within 3 px of the "
+               "core. Cause in the detector not identified. The earlier D4 build (9.6 +/- 1.0 Dec, -2.7 +/- 1.8 RA "
+               "arcsec/yr) included two such frames.",
+               "Motion errors include the frame-to-frame scatter within each visit, not only the scatter about the line."]),
     "epsilon-indi-b": dict(
         name="Epsilon Indi B",
         astrometry=dict(ra=331.07645259656397, dec=-56.79381206688221, pmra=3981.97666296105,
                         pmdec=-2466.8318147663504, parallax=270.6580324694526, epoch_from=2016.0),
         source=f"Gaia DR3 6412596012146801152 (G 18.03, RUWE 4.30: the Ba+Bb binary); {GAIA}",
-        band="SPHEREx-D2", frames_per_visit=3,
+        # T dwarfs peak near 1.27 um (J, between the water/methane bands): brightest and same colour in every visit.
+        band="SPHEREx-D2", frames_per_visit=3, match_wavelength=True, target_um=1.27,
         claim="Detected in every visit; its drift is reported with the error bar, no further claim.",
         notes=["Ba and Bb (0.6 arcsec apart) are one blended source at 6.15 arcsec per pixel.",
-               "Epsilon Indi A is about 400 arcsec away, outside this 2 arcmin field: no common-motion view here."]),
+               "Epsilon Indi A is about 400 arcsec away, outside this 2 arcmin field: no common-motion view here.",
+               "Frames matched to 1.27 um; the Apr 2026 visit has none closer than 1.30 to 1.37 um."]),
     "wise-0855": dict(
         name="WISE 0855-0714",
         astrometry=dict(ra=133.79512916666667, dec=-7.245147222222222, pmra=-8120.0, pmdec=670.0, parallax=None,
@@ -68,7 +80,7 @@ TARGETS = {
 def build(slug, out_root=OUT, **kw):
     t = TARGETS[slug]
     a = t["astrometry"]
-    opts = {k: t[k] for k in ("band", "frames_per_visit", "size_arcmin", "match_wavelength") if k in t}
+    opts = {k: t[k] for k in ("band", "frames_per_visit", "size_arcmin", "match_wavelength", "target_um") if k in t}
     meta = build_target(slug, a["ra"], a["dec"], a, Path(out_root) / slug, max_mb=MAX_MB, **{**opts, **kw})
     meta["target"] = dict(name=t["name"], claim=t["claim"], astrometry=a, astrometry_source=t["source"])
     meta["notes"] = t.get("notes", []) + meta.get("notes", [])
