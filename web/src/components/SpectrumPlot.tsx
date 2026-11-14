@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import type { Spectrum } from '../lib/types'
 import { fmt } from '../lib/format'
 
@@ -11,7 +11,8 @@ const BANDS: [string, number, number][] = [
 const W = 720, H = 300, PAD = { l: 52, r: 16, t: 28, b: 44 }
 const X0 = 0.7, X1 = 5.05
 
-interface Note { at: number; text: string }
+// dy: label offset from the point in px (negative is up); anchor: which way the label runs from its leader line.
+interface Note { at: number; text: string; dy?: number; anchor?: 'start' | 'middle' | 'end' }
 type Pt = { w: number; f: number; e: number }
 
 // Break the line where no photo was sampled, so it never implies data across a gap.
@@ -33,26 +34,10 @@ export default function SpectrumPlot({ spectrum, notes = [] }: { spectrum: Spect
   const x = (w: number) => PAD.l + ((w - X0) / (X1 - X0)) * (W - PAD.l - PAD.r)
   const y = (f: number) => H - PAD.b - (f / yMax) * (H - PAD.t - PAD.b)
 
-  // Draw the points in one by one the first time the plot scrolls into view.
   const ref = useRef<SVGSVGElement>(null)
-  const [shown, setShown] = useState(0)
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    let t: ReturnType<typeof setInterval> | undefined
-    const io = new IntersectionObserver(([e]) => {
-      if (!e.isIntersecting || t) return
-      t = setInterval(() => setShown(n => {
-        if (n >= pts.length) { clearInterval(t); return n }
-        return n + 1
-      }), 35)
-    }, { threshold: 0.1 })
-    io.observe(el)
-    return () => { io.disconnect(); if (t) clearInterval(t) }
-  }, [pts.length])
-
   const [hover, setHover] = useState<number | null>(null)
-  const vis = pts.slice(0, shown)
+  // Every point is drawn at once: nothing waits on scroll events or animations.
+  const vis = pts
   const yTicks = [0, yMax / 2, yMax]
 
   return (
@@ -88,14 +73,14 @@ export default function SpectrumPlot({ spectrum, notes = [] }: { spectrum: Spect
             <rect x={x(p.w) - 8} y={PAD.t} width={16} height={H - PAD.t - PAD.b} fill="transparent" />
           </g>
         ))}
-        {shown >= pts.length && notes.map((n, k) => {
+        {notes.map(n => {
           const p = pts.reduce((a, b) => Math.abs(b.w - n.at) < Math.abs(a.w - n.at) ? b : a)
-          const above = y(p.f) > H / 2
-          const ty = above ? y(p.f) - 44 - k * 4 : y(p.f) + 52
+          const dy = n.dy ?? -40, py = y(p.f), ty = py + dy
+          const pad = n.anchor === 'end' ? -6 : n.anchor === 'start' ? 6 : 0
           return (
             <g key={n.text} className="note">
-              <line x1={x(p.w)} x2={x(p.w)} y1={above ? y(p.f) - 8 : y(p.f) + 8} y2={above ? ty + 6 : ty - 14} />
-              <text x={x(p.w)} y={ty} textAnchor="middle">{n.text}</text>
+              <line x1={x(p.w)} x2={x(p.w)} y1={dy < 0 ? py - 7 : py + 7} y2={dy < 0 ? ty + 5 : ty - 13} />
+              <text x={x(p.w) + pad} y={ty} textAnchor={n.anchor ?? 'middle'}>{n.text}</text>
             </g>
           )
         })}
