@@ -4,6 +4,7 @@ import { STATUS_LABEL, TARGETS, imageUrl, loadMeta } from '../lib/targets'
 import type { Meta } from '../lib/types'
 import { axisWords, decDms, fmt, raHms, totalDrift } from '../lib/format'
 import Viewer from '../components/Viewer'
+import Mark from '../components/Mark'
 
 // The sky page follows LAMBAT's map page: the map fills the screen and the column is a stack of floating
 // cards on the left (a bottom section on phones). Imagery is HiPS tiles. CDS publishes SPHEREx QR2 as an
@@ -48,6 +49,8 @@ const THEN = 1999 // the 2MASS sky survey ran 1997 to 2001
 // The sky map draws on a canvas, so it reads the accent colour from the CSS tokens at start-up.
 const accent = () => getComputedStyle(document.documentElement).getPropertyValue('--cyan').trim() || '#00B8D9'
 
+const STEPS = ['Finding a sky image server', 'Loading the sky map', 'Placing the five test stars']
+
 const WHOLE_SKY_FOV = 180
 const TARGET_FOV = 0.25
 const CUTOUT_DEG = 2 / 60
@@ -76,12 +79,15 @@ export default function Sky({ params, onReady }: PageProps) {
   const [hosts, setHosts] = useState<Partial<Record<'ir' | 'vis', Host>>>({})
   const [pos, setPos] = useState({ ra: 0, dec: 0, fov: WHOLE_SKY_FOV })
   const [picked, setPicked] = useState<Meta | null>(null)
+  const [step, setStep] = useState(0)
+  const [sheet, setSheet] = useState(false) // phones: the cards are a bottom sheet over the map
 
   useEffect(() => { onReady() }, [onReady])
 
   const fly = useCallback(async (slug: string) => {
     const m = await loadMeta(slug)
     setPicked(m)
+    setSheet(true)
     const a = m.target?.astrometry, v = view.current, A = lib.current
     if (!a || !v || !A) return
     const ov = overlay.current
@@ -120,12 +126,14 @@ export default function Sky({ params, onReady }: PageProps) {
     ;(async () => {
       try {
         if (!document.createElement('canvas').getContext('webgl2')) throw new Error('no WebGL2')
+        setStep(0)
         const [A, ir, vis] = await Promise.all([
           import('aladin-lite').then(mod => mod.default as any),
           pick(LAYERS[0].hosts), pick(LAYERS[1].hosts),
         ])
         const first = ir ?? vis
         if (!first) throw new Error('no sky server answered')
+        setStep(1)
         await A.init
         if (dead || !box.current) return
         lib.current = A
@@ -139,9 +147,10 @@ export default function Sky({ params, onReady }: PageProps) {
           showStatusBar: false, showCooLocation: false, showFov: false, backgroundColor: 'rgb(5,7,12)',
         })
         view.current = v
+        setStep(2)
         const metas = await Promise.all(TARGETS.map(t => loadMeta(t.slug).catch(() => null)))
         const cat = A.catalog({ name: 'Test targets', sourceSize: 22, color: accent(), shape: 'circle',
-          displayLabel: true, labelColumn: 'name', labelColor: '#E8EEF6', labelFont: '13px IBM Plex Sans' })
+          displayLabel: true, labelColumn: 'name', labelColor: '#E8EEF6', labelFont: '600 13px Public Sans' })
         // Markers sit where each star is during the SPHEREx visits, not at its 2016 catalogue position.
         metas.forEach((m, i) => {
           const a = m?.target?.astrometry
@@ -149,7 +158,7 @@ export default function Sky({ params, onReady }: PageProps) {
         })
         v.addCatalog(cat)
         epochs.current = A.catalog({ name: 'Then and now', sourceSize: 8, color: 'rgba(0,0,0,0)', shape: 'square',
-          displayLabel: true, labelColumn: 'name', labelColor: '#FFFFFF', labelFont: '12px IBM Plex Sans' })
+          displayLabel: true, labelColumn: 'name', labelColor: '#FFFFFF', labelFont: '600 12px Public Sans' })
         v.addCatalog(epochs.current)
         overlay.current = A.graphicOverlay({ color: accent(), lineWidth: 1.5 })
         v.addOverlay(overlay.current)
@@ -192,10 +201,18 @@ export default function Sky({ params, onReady }: PageProps) {
       <div className="skywrap">
         <div ref={box} className="aladin" aria-label="Interactive map of the sky" />
         {state !== 'ready' && (
-          <div className="sky-cover">
-            {state === 'failed'
-              ? <p>The sky map needs WebGL2 and a connection to a sky image server, and neither answered. The targets on the left still open their SPHEREx images.</p>
-              : <><div className="bar" /><p>Loading the sky…</p></>}
+          <div className="sky-cover" role="status" aria-live="polite">
+            <div className="loader-box">
+              <Mark size={48} />
+              {state === 'failed' ? <>
+                <p className="loader-title">The sky map could not load</p>
+                <p className="loader-step">It needs WebGL2 and a sky image server, and neither answered. Each star still opens its SPHEREx photos.</p>
+              </> : <>
+                <p className="loader-title">Loading the sky</p>
+                <p className="loader-step">Step {step + 1} of {STEPS.length} · {STEPS[step]}</p>
+                <div className="bar" />
+              </>}
+            </div>
           </div>
         )}
         <div className="sky-hud" aria-hidden>
@@ -216,7 +233,10 @@ export default function Sky({ params, onReady }: PageProps) {
         </div>
       </div>
 
-      <div className="skycol">
+      <div className={'skycol' + (sheet ? ' open' : '')}>
+        <button className="handle" onClick={() => setSheet(o => !o)} aria-expanded={sheet} aria-label={sheet ? 'Lower the panel' : 'Raise the panel'}>
+          <span className="handle-t">{picked && info ? info.name : 'Pick a star'}</span>
+        </button>
           {picked && info ? (
             <div className="card">
               <div className="picked-head">
@@ -244,18 +264,24 @@ export default function Sky({ params, onReady }: PageProps) {
             </div>
           ) : (
             <div className="card">
-              <p className="eyebrow">Sky map</p>
-              <h1 className="q">Where are the five test stars, and how do they move?</h1>
-              <p className="caption" style={{ margin: 0 }}>Drag to look around, scroll or pinch to zoom. Pick a star to fly to it.</p>
-              <ul className="target-list">
-                {TARGETS.map(t => (
-                  <li key={t.slug}>
-                    <button onClick={() => void fly(t.slug)} disabled={state === 'loading'}>
-                      <i className={`tdot ${t.status}`} />
-                      <span><span className="tn">{t.name}</span><span className="th">{t.hook}</span></span>
-                    </button>
-                  </li>
-                ))}
+              <h1 className="q">Pick a star to fly to it</h1>
+              <p className="caption" style={{ margin: 0 }}>Drag to look around. Scroll or pinch to zoom.</p>
+              <ul className="target-list" aria-busy={state === 'loading'}>
+                {state === 'loading'
+                  ? TARGETS.map(t => (
+                    <li key={t.slug} className="skel-row" aria-hidden>
+                      <span className="skel" style={{ width: 10, height: 10, borderRadius: '50%', marginTop: 6 }} />
+                      <span style={{ flex: 1 }}><span className="skel skel-line" style={{ width: '45%' }} /><span className="skel skel-line" style={{ width: '85%' }} /></span>
+                    </li>
+                  ))
+                  : TARGETS.map(t => (
+                    <li key={t.slug}>
+                      <button onClick={() => void fly(t.slug)}>
+                        <i className={`tdot ${t.status}`} />
+                        <span><span className="tn">{t.name}</span><span className="th">{t.hook}</span></span>
+                      </button>
+                    </li>
+                  ))}
               </ul>
               {state === 'ready' && hosts.ir && hosts.ir.name !== 'SPHEREx' && (
                 <p className="notice sky-warn">SPHEREx's all-sky map is not reachable right now (CDS server), so the infrared background is 2MASS. The target photos are SPHEREx.</p>

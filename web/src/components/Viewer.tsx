@@ -22,9 +22,10 @@ export default function Viewer({ meta, src, autoplay = true, compact = false }: 
   const [layer, setLayer] = useState<Layer>('images')
   const [zoom, setZoom] = useState(2)
   const [native, setNative] = useState(Math.round((meta.size_arcmin * 60) / meta.pixel_scale_arcsec))
+  const [loaded, setLoaded] = useState(false)
   const frameRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => { setIdx(0); setLayer('images'); setPlaying(autoplay) }, [meta.slug, autoplay])
+  useEffect(() => { setIdx(0); setLayer('images'); setPlaying(autoplay); setLoaded(false) }, [meta.slug, autoplay])
 
   // Pause the loop when the viewer is off screen.
   const [visible, setVisible] = useState(true)
@@ -72,7 +73,7 @@ export default function Viewer({ meta, src, autoplay = true, compact = false }: 
         <div className="sky" style={{ transform: `scaleY(-1) scale(${zoom})` }}>
           {visits.map((x, i) => (
             <img key={x.file} src={src(x.file)} alt="" draggable={false} className={i === idx && !diff ? 'on' : ''}
-              onLoad={e => i === 0 && setNative(Math.round(e.currentTarget.naturalWidth / meta.upsample))} />
+              onLoad={e => { if (i === 0) { setNative(Math.round(e.currentTarget.naturalWidth / meta.upsample)); setLoaded(true) } }} />
           ))}
           {diffs.filter(d => d.file).map(d => (
             <img key={d.file} src={src(d.file!)} alt="" draggable={false} className={diff && diff.file === d.file ? 'on' : ''} />
@@ -84,6 +85,7 @@ export default function Viewer({ meta, src, autoplay = true, compact = false }: 
             {v.star_xy && <Reticle x={v.star_xy[0] + 0.5} y={v.star_xy[1] + 0.5} />}
           </svg>
         </div>
+        {!loaded && <div className="frame-skel skel" aria-hidden />}
         <div className="compass" aria-hidden><span className="n">N</span><span className="e">E</span></div>
         <div className="scalebar" aria-hidden><i style={{ width: `${(scaleArcsec / fov) * zoom * 100}%` }} />{scaleArcsec}″</div>
         {layer === 'changes' && !diff && (
@@ -109,27 +111,20 @@ export default function Viewer({ meta, src, autoplay = true, compact = false }: 
             </button>
           ))}
         </div>
-      </div>
-      <div className="controls">
-        <div className="seg" role="group" aria-label="Zoom">
-          {[1, 2].map(z => <button key={z} onClick={() => setZoom(z)} aria-pressed={zoom === z}>{z === 1 ? 'Whole cutout' : 'Zoom 2×'}</button>)}
-        </div>
+        <button className="chip-btn" onClick={() => setZoom(z => (z === 2 ? 1 : 2))} aria-pressed={zoom === 2} title="Zoom in on the star">2×</button>
         {diffs.some(d => d.file) && (
-          <div className="seg" role="group" aria-label="What to show">
-            <button onClick={() => setLayer('images')} aria-pressed={layer === 'images'}>Photos</button>
-            <button onClick={() => setLayer('changes')} aria-pressed={layer === 'changes'}>What changed</button>
-          </div>
+          <button className="chip-btn" onClick={() => setLayer(l => (l === 'changes' ? 'images' : 'changes'))} aria-pressed={layer === 'changes'}
+            title="Show only what changed since the last visit">Changes</button>
         )}
       </div>
 
       {!compact && (
         <ul className="legend">
           {layer === 'changes'
-            ? <li className="full">Bright where light arrived since the last visit, dark where it left. A moving star leaves a bright and dark pair.</li>
+            ? <li className="full">Bright: light that arrived. Dark: light that left.</li>
             : <>
-              <li><i className="lg-ret" />Where SPHEREx saw it</li>
-              <li><i className="lg-gaia" />Where the Gaia catalogue predicts it</li>
-              <li className="full">One visit is one pass of SPHEREx over this spot. Each pixel is {meta.pixel_scale_arcsec} arcseconds across.</li>
+              <li><i className="lg-ret" />SPHEREx sees it here</li>
+              <li><i className="lg-gaia" />Gaia predicts here</li>
             </>}
         </ul>
       )}

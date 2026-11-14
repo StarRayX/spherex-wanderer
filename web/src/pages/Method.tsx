@@ -32,8 +32,7 @@ export default function Method({ onReady }: PageProps) {
 
   return (
     <div className="page">
-      <p className="eyebrow">Method and limits</p>
-      <h1 style={{ fontSize: 'var(--t-xl)', margin: '8px 0 24px' }}>Five steps, checked against two references.</h1>
+      <h1 style={{ fontSize: 'var(--t-xl)', margin: '0 0 24px' }}>How it works</h1>
 
       <div className="card">
         <ol className="pipeline">
@@ -43,21 +42,21 @@ export default function Method({ onReady }: PageProps) {
 
       <div className="grid3" style={{ marginTop: 16 }}>
         <div className="card">
-          <p className="eyebrow">Check 1 · against Gaia DR3</p>
+          <h2 className="card-title">Checked against Gaia</h2>
           {b?.motion ? <>
             <p className="check-value"><span className="hl">{fmt(b.motion.measured_arcsec_per_yr, 2)} ± {fmt(b.motion.error_arcsec_per_yr, 2)}</span> vs {fmt(b.motion.gaia_arcsec_per_yr, 2)}</p>
             <p className="sm muted" style={{ margin: 0 }}>Barnard's Star's northward drift in arcseconds a year, from {b.visits.length} SPHEREx visits, against the European Space Agency's Gaia catalogue. Inside the error bar.</p>
           </> : <span className="skel skel-big" />}
         </div>
         <div className="card">
-          <p className="eyebrow">Check 2 · against IRSA's own tool</p>
+          <h2 className="card-title">Checked against IRSA's tool</h2>
           {e?.spectrum ? <>
             <p className="check-value"><span className="hl">within 3.3%</span> on all 11 points</p>
             <p className="sm muted" style={{ margin: 0 }}>Our brightness measurements matched IRSA's Spectrophotometry Tool on one isolated star. Not yet checked on brown dwarfs.</p>
           </> : <span className="skel skel-big" />}
         </div>
         <div className="card">
-          <p className="eyebrow">Data</p>
+          <h2 className="card-title">Data</h2>
           <p className="check-value">SPHEREx QR2 + QR3</p>
           <p className="sm muted" style={{ margin: 0 }}>Calibrated images from NASA/IPAC's IRSA archive, May 2025 to Oct 2026, read by sky position. Star positions from Gaia DR3.</p>
         </div>

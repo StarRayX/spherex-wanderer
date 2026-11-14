@@ -8,13 +8,14 @@
     <meta property="og:type" content="website" />
     <meta property="og:title" content="SPHEREx Blink: watch nearby stars move" />
     <meta property="og:description" content="Watch nearby stars drift across NASA SPHEREx photos, checked against the Gaia star catalogue." />
-    <meta name="theme-color" content="#0B1F4D" />
+    <meta name="theme-color" content="#020305" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <script>try{document.documentElement.dataset.nav=localStorage.getItem("blink.nav")||(/^#\/sky/.test(location.hash)?"closed":"open")}catch(e){document.documentElement.dataset.nav="open"}</script>
+    <script>try{var t=localStorage.getItem("blink.theme");document.documentElement.dataset.theme=t===null?"glass":t}catch(e){document.documentElement.dataset.theme="glass"}</script>
     <style>
       /* Boot screen: painted before any stylesheet or script; App.tsx fades it out after the first page draws.
          Loop: two dots blink in turn inside the reticle, one star seen on two dates. */
-      #boot{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;gap:14px;background:#EEF1F5;font:600 15px system-ui,sans-serif;color:#0B1F4D;transition:opacity .35s ease}
+      #boot{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;gap:14px;background:#020305;font:700 15px "Space Grotesk",system-ui,sans-serif;color:#EAF2FA;transition:opacity .35s ease}
       #boot.gone{opacity:0;pointer-events:none}
       #boot .lk{display:flex;align-items:center;gap:12px}
       #boot svg{width:56px;height:56px}
@@ -22,14 +23,14 @@
       #boot .b{animation:bB 1.6s ease-in-out infinite}
       @keyframes bA{0%,40%{opacity:1}50%,90%{opacity:.15}100%{opacity:1}}
       @keyframes bB{0%,40%{opacity:.15}50%,90%{opacity:1}100%{opacity:.15}}
-      #boot b{color:#00728A}
+      #boot b{color:#4DD0F8}
       @media (prefers-reduced-motion:reduce){#boot .a,#boot .b{animation:none}}
     </style>
   </head>
   <body>
     <div id="boot" role="status" aria-live="polite">
       <div class="lk">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="#0B1F4D" stroke-width="1.4"/><path d="M12 1.5v4.5M12 18v4.5M1.5 12H6M18 12h4.5" stroke="#0B1F4D" stroke-width="1.4" stroke-linecap="round"/><circle class="a" cx="9.8" cy="13.8" r="1.9" fill="#0B1F4D"/><circle class="b" cx="13.6" cy="10" r="2.2" fill="#00B8D9"/></svg>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="#EAF2FA" stroke-width="1.4"/><path d="M12 1.5v4.5M12 18v4.5M1.5 12H6M18 12h4.5" stroke="#EAF2FA" stroke-width="1.4" stroke-linecap="round"/><circle class="a" cx="9.8" cy="13.8" r="1.9" fill="#EAF2FA"/><circle class="b" cx="13.6" cy="10" r="2.2" fill="#4DD0F8"/></svg>
         <span>SPHEREx <b>Blink</b></span>
       </div>
     </div>

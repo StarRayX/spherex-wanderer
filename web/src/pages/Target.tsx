@@ -34,12 +34,11 @@ export default function Target({ params, onReady }: PageProps) {
     <div className="page">
       <div className="target-head">
         <div>
-          <p className="eyebrow">Test target</p>
           <h1>{info.name}</h1>
           <p className="sub">{info.hook}</p>
         </div>
         <div className="target-switch">
-          <label htmlFor="tsel">Switch target</label>
+          <label htmlFor="tsel" className="sr-only">Switch target</label>
           <select id="tsel" className="field" value={slug} onChange={e => { location.hash = `#/target/${e.target.value}/${tab}` }}>
             {TARGETS.map(t => <option key={t.slug} value={t.slug}>{t.name}</option>)}
           </select>
@@ -72,34 +71,27 @@ function Overview({ m }: { m: Meta }) {
   return (
     <div className="grid3">
       <div className="card stat">
-        <span className="stat-label">{mo ? `Drift across the sky, ${axisWords(mo)}` : 'Drift across the sky'}</span>
+        <span className="stat-label">Drift per year{mo ? `, ${axisWords(mo)}` : ''}</span>
         {mo ? <>
           <span className="stat-value">{fmt(mo.measured_arcsec_per_yr, 1)}<small> ± {fmt(mo.error_arcsec_per_yr, 1)} ″/yr</small></span>
-          <span className="stat-label">Gaia says {fmt(mo.gaia_arcsec_per_yr, 1)} ″/yr, {inside ? 'inside' : 'just outside'} our error bar.</span>
-        </> : <><span className="stat-value">None</span><span className="stat-label">No drift measured. See the notes.</span></>}
+          <span className="stat-label">Gaia says {fmt(mo.gaia_arcsec_per_yr, 1)}″{inside ? ', inside our error bar' : ', just outside our error bar'}</span>
+        </> : <><span className="stat-value">None</span><span className="stat-label">Not measured</span></>}
       </div>
       <div className="card stat">
         <span className="stat-label">Distance</span>
         <span className="stat-value">{ly === null ? 'n/a' : ly < 100 ? fmt(ly, 1) : Math.round(ly).toLocaleString('en-US')}<small> light years</small></span>
-        <span className="stat-label">From its Gaia parallax.</span>
       </div>
       <div className="card stat">
         <span className="stat-label">Crosses a full Moon in</span>
         <span className="stat-value">{moon === null ? 'n/a' : (moon < 1000 ? Math.round(moon) : Math.round(moon / 100) * 100).toLocaleString('en-US')}<small> years</small></span>
-        <span className="stat-label">At the drift Gaia measured.</span>
       </div>
 
       <div className="card wide split">
         <Viewer meta={m} src={f => imageUrl(m.slug, f)} />
         <div className="claim-card">
           <span className={`badge ${info.status}`}><span className="dot" />{STATUS_LABEL[info.status]}</span>
-          <h2 className="card-title" style={{ marginTop: 16 }}>What SPHEREx shows</h2>
-          <p>{tidy(m.target?.claim ?? '')}</p>
-          {a && <>
-            <h2 className="card-title">Where it is</h2>
-            <p className="mono sm">RA {raHms(a.ra)}<br />Dec {decDms(a.dec)}</p>
-            <p className="caption">Sky longitude and latitude, Gaia DR3 position for the year {a.epoch_from}.</p>
-          </>}
+          <p style={{ marginTop: 16 }}>{tidy(m.target?.claim ?? '')}</p>
+          {a && <p className="mono sm muted">RA {raHms(a.ra)} · Dec {decDms(a.dec)}</p>}
           <div className="cta">
             <a className="btn sm" href={`#/sky?target=${m.slug}`}>Show on the sky map</a>
             <a className="text" href={`#/target/${m.slug}/visits`}>All {m.visits.length} visits</a>
@@ -117,7 +109,7 @@ function Visits({ m }: { m: Meta }) {
       <div className="card"><Viewer meta={m} src={f => imageUrl(m.slug, f)} /></div>
       <div className="card">
         <h2 className="card-title">Every visit</h2>
-        <p className="caption">One stacked image per pass of SPHEREx over this spot. The crosshair is fixed, so you can see the star move against it.</p>
+        <p className="caption">One image per visit. The crosshair is fixed.</p>
         <div className="filmstrip">
           {m.visits.map((v, i) => (
             <figure key={v.file}>

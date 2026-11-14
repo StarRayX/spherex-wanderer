@@ -62,9 +62,8 @@ export default function AnySpot({ params, onReady }: PageProps) {
 
   return (
     <div className="page">
-      <p className="eyebrow">Any spot in the sky</p>
-      <h1 style={{ fontSize: 'var(--t-xl)', margin: '8px 0 12px' }}>Point SPHEREx anywhere.</h1>
-      <p className="muted" style={{ maxWidth: '60ch' }}>Type sky coordinates. Blink asks NASA's archive for every SPHEREx photo of that spot, stacks them by visit, and plays them back. Each photo takes a few seconds to fetch, so a new spot can take a minute or two.</p>
+      <h1 style={{ fontSize: 'var(--t-xl)', margin: '0 0 12px' }}>Any spot in the sky</h1>
+      <p className="muted" style={{ maxWidth: '60ch' }}>Type sky coordinates to see every SPHEREx photo of that spot. A new spot takes a minute or two.</p>
 
       <div className="card" style={{ marginTop: 24 }}>
         <div className="examples">
