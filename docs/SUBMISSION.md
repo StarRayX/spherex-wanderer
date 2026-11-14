@@ -4,13 +4,13 @@ Challenge: Planet X and SPHEREx. Team NYSCP, Manila local event. Deadline Sun No
 
 ## 1. Title and summary
 
-**Title:** SPHEREx Blink
+**Title:** Wanderer
 
-**Summary:** SPHEREx Blink turns NASA SPHEREx images into measured spectra of moving objects and a quick check of whether a faint dot is real, with an RA/Dec flipbook to see it by eye.
+**Summary:** Wanderer turns NASA SPHEREx images into measured spectra of moving objects and a quick check of whether a faint dot is real, with an RA/Dec flipbook to see it by eye.
 
 ## 2. Project description (for the form)
 
-SPHEREx Blink is a web tool built on NASA's SPHEREx all-sky survey. You type an RA and Dec or a name, and it plays SPHEREx images of that spot like a short video, one frame per visit, with Gaia positions marked and difference images between epochs. That covers the challenge's must-have.
+Wanderer is a web tool built on NASA's SPHEREx all-sky survey. You type an RA and Dec or a name, and it plays SPHEREx images of that spot like a short video, one frame per visit, with Gaia positions marked and difference images between epochs. That covers the challenge's must-have.
 
 Two features go further, because IRSA's existing tools leave a gap. IRSA's MOST lists which SPHEREx images caught an asteroid or comet but measures nothing. IRSA's Spectrophotometry Tool measures a fixed position, so it cannot follow a mover. We give you the measured spectrum of a moving object as a table. Given a designation, the pipeline asks JPL where the object was in each frame, measures it there, and returns a CSV or VOTable with one row per frame: MJD, predicted and measured RA/Dec, wavelength, flux, error, flags and aperture. The site ships precomputed spectra for 11 objects, not a designation input. We start with comet 3I/ATLAS, where a rough 116-point spectrum (87 December 2025 frames and 29 August 2025 frames) shows H2O at 2.7 um, CO2 at 4.26 um and CO at 4.67 um, in line with the molecules in a published result. We also ship 10 asteroid spectra.
 
@@ -38,7 +38,7 @@ Other: DSS2 tiles (CSIRO HiPS) and CDS sky services through Aladin Lite. No NASA
 
 - Python 3.12, managed with uv: Astropy, NumPy, SciPy, Requests, Pillow, reproject, pytest. Research scripts also used pyvo and Matplotlib.
 - Web: TypeScript, React 19, Vite, Aladin Lite 3.8.2, Space Grotesk and Public Sans fonts.
-- Hosting: Vercel (static site plus a Python function `api/live.py`). Live at https://spherex-blink-tool.vercel.app (deployed Nov 15 from main).
+- Hosting: Vercel (static site plus a Python function `api/live.py`). Live at https://spherex-wanderer.vercel.app (deployed Nov 15 from main).
 - Git and GitHub for the repo.
 - Hardware: team laptops only. Pipeline runs and cutout downloads ran locally.
 
@@ -59,7 +59,7 @@ Space Apps allows AI to speed up work but not to come up with the solution idea.
 
 ### 7-slide outline (title and intro count toward the 7)
 
-1. **Title.** SPHEREx Blink. Team NYSCP: Clarence Pagaduan, Samantha Nicole Bracamonte. Challenge: Planet X and SPHEREx.
+1. **Title.** Wanderer. Team NYSCP: Clarence Pagaduan, Samantha Nicole Bracamonte. Challenge: Planet X and SPHEREx.
    - One line: measured spectra of moving objects from SPHEREx.
    - Manila local event, Space Apps 2026.
 2. **The gap.**
@@ -83,7 +83,7 @@ Space Apps allows AI to speed up work but not to come up with the solution idea.
 7. **Who benefits and what is next.**
    - Solar-system researchers, candidate vetters, educators.
    - Depth V 18 to 19, no discovery claim. More movers and batch downloads next.
-   - Links: https://spherex-blink-tool.vercel.app
+   - Links: https://spherex-wanderer.vercel.app
 
 ### 30-second demo script
 
@@ -94,6 +94,6 @@ Space Apps allows AI to speed up work but not to come up with the solution idea.
 | 9 to 17 s | Type 3I/ATLAS. Frames blink with the comet centred, then the spectrum plot with bands labelled | "Type a comet. We measure it in every frame it appears and plot its spectrum." |
 | 17 to 21 s | Click Download CSV, table opens | "One row per frame, as a CSV or VOTable. IRSA's tools do not do this." |
 | 21 to 26 s | Vet this dot: click a dot, verdict card with evidence | "Not sure a dot is real? One click gives a verdict and the evidence." |
-| 26 to 30 s | Closing card: team names, challenge, NASA, JPL and ESA Gaia as text credits, URL | "SPHEREx Blink. Built on NASA and ESA data. No discovery claims, just tools." |
+| 26 to 30 s | Closing card: team names, challenge, NASA, JPL and ESA Gaia as text credits, URL | "Wanderer. Built on NASA and ESA data. No discovery claims, just tools." |
 
 Notes: the video must be 30 seconds or less, public, no login, with English subtitles if not English. Show team name, member names and the challenge. No one under 18 on screen. Voiceover and recording are done by a team member.

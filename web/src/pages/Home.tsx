@@ -28,12 +28,12 @@ export default function Home({ onReady }: PageProps) {
     <div className="home">
       <div className="home-bg" aria-hidden><div className="stars" /></div>
       <div className="home-inner">
-        <div className="brand-line"><Mark size={32} /><span>SPHEREx <b>Blink</b></span></div>
+        <div className="brand-line"><Mark size={32} /><span><b>Wanderer</b></span></div>
         <h1>
           MOST tells you which SPHEREx images caught an asteroid or comet.
           <span className="h1-2">We give you its measured spectrum as a table.</span>
         </h1>
-        <p className="def">MOST is IRSA's Moving Object Search Tool. IRSA's fixed-position tool cannot measure something that moves from image to image. SPHEREx is a NASA space telescope that maps the whole sky in infrared light.</p>
+        <p className="def">Wanderer is a tool for NASA SPHEREx data. MOST is IRSA's Moving Object Search Tool. IRSA's fixed-position tool cannot measure something that moves from image to image. SPHEREx is a NASA space telescope that maps the whole sky in infrared light.</p>
         <div className="hm-tools">
           <a className="card hm-tool" href="#/movers">
             <h2>Moving objects</h2>

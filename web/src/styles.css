@@ -1,4 +1,4 @@
-/* SPHEREx Blink. Layout and components follow LAMBAT's web app (sidebar shell, cards, stat strips, tabs,
+/* Wanderer. Layout and components follow LAMBAT's web app (sidebar shell, cards, stat strips, tabs,
    skeletons); the palette is deep-space navy and cyan. Every colour lives in :root. */
 :root {
   /* Deep-space theme, chosen Nov 14: #020305 near-black, #0160E7 blue, #4DD0F8 light cyan, with frosted-glass

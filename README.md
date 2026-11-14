@@ -1,8 +1,10 @@
-# SPHEREx Blink
+# Wanderer
 
-SPHEREx Blink turns NASA SPHEREx images into a table of measured positions and spectra for moving objects, and into a quick "is this dot real?" check, with an RA/Dec flipbook to see it by eye.
+Renamed from "SPHEREx Blink" on Nov 15, because another Space Apps team (pythonhack000/spherex-blink) already uses that name. "Planet" comes from the Greek for wanderer.
 
-Live site: https://spherex-blink-tool.vercel.app
+Wanderer turns NASA SPHEREx images into a table of measured positions and spectra for moving objects, and into a quick "is this dot real?" check, with an RA/Dec flipbook to see it by eye.
+
+Live site: https://spherex-wanderer.vercel.app
 
 Built for NASA Space Apps 2026 (Manila), challenge [Planet X and SPHEREx](https://www.spaceappschallenge.org/2026/challenges/planet-x-and-spherex/).
 
@@ -10,7 +12,7 @@ This tool does not claim any discovery. It has not found Planet X. Its search de
 
 ## Who it is for
 
-| Group | What they need | What SPHEREx Blink gives them |
+| Group | What they need | What Wanderer gives them |
 |---|---|---|
 | Solar-system researchers (asteroid taxonomy, 3 um hydration, comets) | Go from IRSA's MOST image list to a 0.75 to 5 um spectrum, which takes about a day of scripting per object today | A designation in; a CSV or VOTable out, one row per frame: MJD, predicted and measured RA/Dec, wavelength, flux, error, flags, aperture |
 | People vetting a candidate (Backyard Worlds volunteers, Source Discovery users) | "Is this dot real?" | A verdict per position and time: known asteroid, cosmic ray, bright-star residual, edge artefact, or unexplained, with the evidence |

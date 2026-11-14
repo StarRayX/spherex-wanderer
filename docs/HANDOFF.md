@@ -1,10 +1,10 @@
-# SPHEREx Blink handoff (written Sat Nov 14, about 23:45 Manila, before a manual compact)
+# Wanderer handoff (written Sat Nov 14, about 23:45 Manila, before a manual compact)
 
 Read this first. Then `docs/REVIEW_TOOL_VALUE_2026-11-14.md` (the decision that is open), `docs/PLAN.md` (deadline, rules), `docs/evidence_notes.md` (facts) and `docs/FRONTEND_NOTES.md` (data contract).
 
 ## Where we are
 - **Deadline:** Sun Nov 15, 23:59 Manila (official Space Apps submission guide). Freeze times are in PLAN.md.
-- **Repo:** https://github.com/StarRayX/spherex-blink (private).
+- **Repo:** https://github.com/StarRayX/spherex-wanderer (private).
   - Branches: `main` and `frontend`. Clarence pushes `frontend` to `main` by fast-forward (`git push origin frontend frontend:main`) after checking that `main` has no new commits from Samantha.
   - Commits carry NO Claude co-author line (PLAN.md).
 - **Team:** Clarence (StarRayX) and Samantha (snrbracamonte). Samantha built the Python pipeline and live API; Claude built the web frontend with agents.

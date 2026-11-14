@@ -1,4 +1,4 @@
-# Tech plan: SPHEREx Blink
+# Tech plan: Wanderer
 
 NASA Space Apps 2026, challenge "Planet X and SPHEREx". Team NYSCP, Manila local event.
 Hackathon: Nov 14-15, 2026. Written at kickoff on Nov 14.

@@ -17,13 +17,13 @@ const PAGES = {
 type Key = keyof typeof PAGES
 
 const TITLES: Record<Key, string> = {
-  home: 'SPHEREx Blink: spectra of moving objects and dot checks',
-  movers: 'Moving objects: SPHEREx Blink',
-  triage: 'Vet a field: SPHEREx Blink',
-  sky: 'Sky map: SPHEREx Blink',
-  target: 'Test stars: SPHEREx Blink',
-  any: 'Any spot: SPHEREx Blink',
-  method: 'Method: SPHEREx Blink',
+  home: 'Wanderer: spectra of moving objects and dot checks',
+  movers: 'Moving objects: Wanderer',
+  triage: 'Vet a field: Wanderer',
+  sky: 'Sky map: Wanderer',
+  target: 'Test stars: Wanderer',
+  any: 'Any spot: Wanderer',
+  method: 'Method: Wanderer',
 }
 
 const Icon = ({ d }: { d: string }) => (
@@ -56,7 +56,7 @@ export default function App() {
   const Page = key ? PAGES[key] : null
 
   useEffect(() => {
-    document.title = key ? TITLES[key] : 'Page not found: SPHEREx Blink'
+    document.title = key ? TITLES[key] : 'Page not found: Wanderer'
     document.body.className = 'route-' + (key ?? 'notfound')
   }, [key])
   useEffect(() => { if (key !== 'sky') window.scrollTo(0, 0) }, [key, route.slug])
@@ -131,7 +131,7 @@ function Nav({ active }: { active: Key | null }) {
     <>
     <nav className="nav" aria-label="Main">
       <div className="nav-head">
-        <a className="nav-brand" href="#/" aria-label="SPHEREx Blink home"><Mark /><span>SPHEREx <b>Blink</b></span></a>
+        <a className="nav-brand" href="#/" aria-label="Wanderer home"><Mark /><span><b>Wanderer</b></span></a>
         <button className="nav-toggle" onClick={toggle} aria-expanded={open} aria-label={open ? 'Collapse the sidebar' : 'Expand the sidebar'}>
           <Icon d='<path d="m15 6-6 6 6 6"/>' />
         </button>
@@ -213,7 +213,7 @@ function NotFound({ onReady }: { onReady: () => void }) {
   return (
     <div className="page">
       <h1>Page not found</h1>
-      <p className="muted" style={{ margin: '8px 0 16px' }}>That address does not match a SPHEREx Blink page.</p>
+      <p className="muted" style={{ margin: '8px 0 16px' }}>That address does not match a Wanderer page.</p>
       <a className="btn" href="#/">Back to home</a>
     </div>
   )

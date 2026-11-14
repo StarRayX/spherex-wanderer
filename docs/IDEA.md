@@ -3,7 +3,7 @@
 Verdict: **Build**, with a narrower scope and a visual demo. Motion is measured on Barnard's Star (see `evidence_notes.md`); whether a newcomer can see it in the flipbook is untested and is the first thing to check on Nov 14.
 
 ## Working name
-SPHEREx Blink
+Wanderer
 
 ## The hook (for judges, plain words)
 SPHEREx photographs a star through a different slice of infrared light every time. Flip those frames naively and the star flickers for no real reason. We line them up so the only thing that changes is the sky.
