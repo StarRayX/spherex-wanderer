@@ -1,7 +1,5 @@
 # Wanderer
 
-Renamed from "SPHEREx Blink" on Nov 15, because another Space Apps team (pythonhack000/spherex-blink) already uses that name. "Planet" comes from the Greek for wanderer.
-
 Wanderer turns NASA SPHEREx images into a table of measured positions and spectra for moving objects, and into a quick "is this dot real?" check, with an RA/Dec flipbook to see it by eye.
 
 Live site: https://spherex-wanderer.vercel.app
