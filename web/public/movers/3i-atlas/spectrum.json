@@ -18,11 +18,11 @@
   "ephemeris": "IRSA comet3iatlas table",
   "method": "Per frame: a 6 arcmin cutout at IRSA's predicted comet position, a fixed 4 pixel (24.6 arcsec) radius aperture, sky from the median of a 12 to 20 pixel annulus, times the pixel solid angle to get microjanskys; error from the annulus scatter; wavelength from each frame's per-pixel wavelength map at the measured centroid. Qualitatively this can be compared with Lisse et al. (arXiv:2601.06759), the SPHEREx team's 3I/ATLAS spectrum, whose bands (water, C-H, CO2, CO) are the ones listed under bands; no numbers from that paper are used here.",
   "caveats": [
-   "The comet is an extended coma, so the flux depends on the aperture: these are 4 pixel (24.6 arcsec) radius sums with no aperture correction, and a different aperture gives a different spectrum.",
-   "This is flux, not reflectance: the solar spectrum and the changing comet-Sun and comet-SPHEREx distances are not divided out.",
+   "The coma is extended, so flux depends on the aperture: these are 4 pixel (24.6 arcsec) radius sums, no aperture correction. Another aperture gives another spectrum.",
+   "Flux, not reflectance: the solar spectrum and the changing distances to the Sun and to SPHEREx are not divided out.",
    "No water-ice claim is made from the December data.",
-   "Each frame sees one wavelength at a different time, so rotation and activity changes between frames are mixed into the spectrum along with wavelength.",
-   "The August 2025 rows come from a different date, when the comet was much fainter and farther away, so they sit 10 to 50 times lower and should be read as a separate epoch, not part of the December spectrum.",
+   "Each frame is one wavelength at a different time, so rotation and activity changes mix into the spectrum.",
+   "The August 2025 rows are a separate epoch: the comet was much fainter and farther away, so they sit 10 to 50 times lower. They are not part of the December spectrum.",
    "The sky annulus (12 to 20 pixels) can contain outer coma, so the fluxes may read low."
   ],
   "bands": [

@@ -55,9 +55,12 @@ export default function HeroBlink() {
         <span className="hb-date">{date(f.iso)}</span>
       </figcaption>
       <div className="hb-row">
-        <button type="button" className="hb-btn" aria-pressed={!playing} onClick={() => setPlaying(p => !p)}>{playing ? 'Pause' : 'Play'}</button>
+        <button type="button" className="icon-btn" aria-label={playing ? 'Pause' : 'Play'} onClick={() => setPlaying(p => !p)}>{playing ? <PauseIcon /> : <PlayIcon />}</button>
         <a className="hb-link" href="#/movers/3i-atlas">See its spectrum →</a>
       </div>
     </figure>
   )
 }
+
+const PlayIcon = () => <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden><path d="M4.5 2.5v11l9-5.5z" fill="currentColor" /></svg>
+const PauseIcon = () => <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden><path d="M4 2.5h3v11H4zM9 2.5h3v11H9z" fill="currentColor" /></svg>

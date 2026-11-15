@@ -240,9 +240,10 @@ def unexplained_caveat(rows):
     if not u:
         return []
     vis = sorted({r["iso"] for r in u})
-    return [f"{len(u)} changes are left unexplained, at {', '.join(vis)} (UTC), a median {int(np.median([r['evidence']['edge_px'] for r in u]))} "
-            f"pixels from the nearest cutout edge. No known asteroid is within {MATCH_ARCSEC} arcsec, nothing bright is at the spot in the other days' images, "
-            "and each shows in at least 2 exposures of its visit. They have not been shown to be real or instrumental; look at the thumbnails."]
+    edge = int(np.median([r['evidence']['edge_px'] for r in u]))
+    return [f"{len(u)} changes remain unexplained ({', '.join(vis)} UTC, a median {edge} pixels from the cutout edge): "
+            f"no known asteroid within {MATCH_ARCSEC} arcsec, nothing bright there on other days, and each is in at least "
+            "2 exposures of its visit. Not shown to be real or instrumental; see the thumbnails."]
 
 
 def thumb(stk, ref, c, path, half=12):
@@ -315,8 +316,8 @@ def build_field(f):
     first, last = Time(min(x["mjd"] for x in fr), format="mjd").strftime("%Y-%m-%d"), Time(max(x["mjd"] for x in fr), format="mjd").strftime("%Y-%m-%d")
     meta = dict(
         slug=f["slug"], name=f["name"], ra=f["ra"], dec=f["dec"], detector=f["det"], date_first=first, date_last=last,
-        depth_note=("Depth is about V 18 to 19 for a point source at 5 sigma, so a count of 'unexplained' (even 0) says nothing "
-                    "about anything fainter, Planet X included. This is a vetting aid for bright changes, not a search."),
+        depth_note=("Depth is about V 18 to 19 (5 sigma), so the 'unexplained' count (even 0) says nothing about fainter "
+                    'objects, Planet X included. A vetting aid for bright changes, not a search.'),
         method=(f"SPHEREx {f['det']} exposures are regridded onto one 30 arcmin field, bad pixels masked, and each visit "
                 "is compared with the median of the visits on other days; every blob brighter than 5 sigma is a change. "
                 "Each change is then checked against JPL's asteroid positions for that time, Gaia stars, the exposures "
@@ -325,8 +326,10 @@ def build_field(f):
             f"{len(fr)} exposures in {len(seqs_all)} visits over {first} to {last}; wavelengths differ between visits, so "
             "very red or blue objects can change brightness without moving.",
             f"A JPL asteroid counts as a match within {MATCH_ARCSEC} arcsec (about 3 pixels) of the predicted position.",
-            "Gaia positions are epoch 2016 and are not moved for proper motion; stars here are only used as nearby-star evidence.",
-            "'unconfirmable' means the visit had one exposure or the change is one pixel wide; they are not explained, only not testable here.",
+            "Gaia positions are at epoch 2016 (not moved for proper motion) and only serve as nearby-star "
+            "evidence.",
+            "'Unconfirmable': the visit had one exposure or the change is one pixel wide. Not explained, just not"
+            ' testable here.',
             "Positions are from the regridded image and good to about one pixel (6 arcsec).",
         ] + unexplained_caveat(rows),
         counts=counts,

@@ -61,7 +61,8 @@ export default function Viewer({ meta, src, autoplay = true, compact = false, as
   const offColour = Math.abs(v.wavelength_um - median) > 0.04 * median
   const saturated = (meta.notes ?? []).some(n => /whole core is masked|saturates on this star/i.test(n))
   // Sky panel (compact) and the side-column layout (aside) share one control layout.
-  const stacked = compact || !!aside
+  // Every viewer uses one control structure; CSS puts it on one line or two depending on the viewer's width.
+  const stacked = true
   const showLabel = (i: number) => visits.length <= (compact ? 3 : 4) || i === 0 || i === visits.length - 1 || i === idx
 
   const fov = native * meta.pixel_scale_arcsec
@@ -133,11 +134,16 @@ export default function Viewer({ meta, src, autoplay = true, compact = false, as
       </div>
   )
 
-  const controls = (
-      <div className="controls">
+  const playBtn = (
         <button className="icon-btn" onClick={() => setPlaying(p => !p)} aria-label={playing ? 'Pause' : 'Play'}>
           {playing ? <PauseIcon /> : <PlayIcon />}
         </button>
+  )
+
+  // Two-line layouts (sky panel, Test stars on narrow screens): the dates get the whole first line, and play,
+  // zoom and Changes share the second. Test stars on wide screens shows all of it on one line (see Viewer.css).
+  const controls = (
+      <div className="controls">
         <div className="scrub" role="group" aria-label="Visits" style={{ ['--n' as string]: visits.length }}>
           {visits.map((x, i) => (
             <button key={x.file} className={'stop' + (i === idx ? ' on' : '')} onClick={() => { setIdx(i); setPlaying(false) }}
@@ -146,14 +152,12 @@ export default function Viewer({ meta, src, autoplay = true, compact = false, as
             </button>
           ))}
         </div>
-        {!stacked && zoomBtn}
-        {!stacked && changesBtn}
       </div>
   )
 
   // Compact (sky panel): 2x and Changes share a row below the controls, half width each.
-  const tools = stacked && (
-      <div className="viewer-tools">{zoomBtn}{changesBtn}</div>
+  const tools = (
+      <div className="viewer-tools">{playBtn}{zoomBtn}{changesBtn}</div>
   )
 
   const legend = !compact && (
@@ -170,7 +174,7 @@ export default function Viewer({ meta, src, autoplay = true, compact = false, as
   if (aside) {
     return (
       <div className="viewer viewer-split">
-        <div className="viewer-main">{frame}{controls}{tools}</div>
+        <div className="viewer-main">{frame}<div className="ctl-wrap">{controls}{tools}</div></div>
         <div className="viewer-aside">
           <div className="va-top">{aside.top}</div>
           <div className="va-mid">{top}{legend}</div>
@@ -179,7 +183,7 @@ export default function Viewer({ meta, src, autoplay = true, compact = false, as
       </div>
     )
   }
-  return <div className="viewer">{top}{frame}{controls}{tools}{legend}</div>
+  return <div className="viewer">{top}{frame}<div className="ctl-wrap">{controls}{tools}</div>{legend}</div>
 }
 
 // Overlay sizes, in image pixels (the overlay scales with the image and the 2x zoom).

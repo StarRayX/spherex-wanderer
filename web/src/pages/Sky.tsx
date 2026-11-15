@@ -794,7 +794,7 @@ export default function Sky({ params, onReady }: PageProps) {
               <Logo height={48} />
               {state === 'failed' ? <>
                 <p className="loader-title">The sky map could not load</p>
-                <p className="loader-step">It needs WebGL2 and a sky image server, and neither answered. Each star still opens its SPHEREx photos.</p>
+                <p className="loader-step">It needs WebGL2 and a sky image server; neither answered. Each star still opens its SPHEREx photos.</p>
               </> : <>
                 <p className="loader-title">Loading the sky</p>
                 <div className="bar" />
@@ -812,7 +812,7 @@ export default function Sky({ params, onReady }: PageProps) {
         {shown && <p className="sky-credit">Sky: {shown.credit}. Map: Aladin Lite (CDS).</p>}
         {slow && (
           <div className="sky-slow" role="status">
-            <p>Sky images are slow to load from the survey servers. The markers and SPHEREx photos still work.</p>
+            <p>The survey servers are slow. Markers and SPHEREx photos still work.</p>
             <button className="btn sm" onClick={() => retryProbes.current?.()}>Retry</button>
           </div>
         )}
@@ -870,7 +870,7 @@ export default function Sky({ params, onReady }: PageProps) {
               )}
               <p className="caption" style={{ marginTop: 12 }}>
                 {(totalDrift(picked.target?.astrometry) ?? 0) > 1
-                  ? <>On the map, the star has moved from the white circle ({THEN}) to the blue circle (today).{shown?.name === '2MASS' && <> The background photo is from {THEN}, so it still shows the star in the white circle.</>}{layer === 'vis' && <> The visible-light photo is older, taken between the 1950s and 1990s, so the star appears further back along its path, outside both circles.</>}</>
+                  ? <>The star moved from the white circle ({THEN}) to the blue one (today).{shown?.name === '2MASS' && <> The background photo is from {THEN}, so it shows the star in the white circle.</>}{layer === 'vis' && <> This visible-light photo dates from the 1950s to 1990s, so the star shows even further back, outside both circles.</>}</>
                   : <>On the map, the blue circle shows where the star is today.</>}
               </p>
               <a className="btn sm btn-block" href={`#/target/${picked.slug}`}>Open the full dashboard</a>
@@ -902,7 +902,7 @@ export default function Sky({ params, onReady }: PageProps) {
                 <p className="caption fast-hint"><i className="fast-dot" aria-hidden />Faint dots are the 300 fastest-moving stars in the Gaia catalogue. Click one.</p>
               )}
               {state === 'ready' && hosts.ir && hosts.ir.name !== 'SPHEREx' && (
-                <p className="notice sky-warn">SPHEREx's all-sky map is not reachable right now (CDS server), so the infrared background is 2MASS. The target photos are SPHEREx.</p>
+                <p className="notice sky-warn">SPHEREx's sky map (CDS) isn't reachable, so the infrared background is 2MASS. Target photos are still SPHEREx.</p>
               )}
               {state === 'failed' && (
                 <p className="notice sky-warn">The map could not load, but each target still opens its SPHEREx photos: <a href="#/target/barnards-star">open the dashboard</a>.</p>

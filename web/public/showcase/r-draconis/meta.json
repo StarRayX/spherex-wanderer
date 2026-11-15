@@ -625,12 +625,12 @@
   "photometry": null,
   "notes": [
     "Near the north ecliptic pole SPHEREx sees this star almost continuously; 'visits' here are 30-day bins.",
-    "SPHEREx saturates on this star in every band checked (the whole core is masked), so no brightness is reported. The images are shown as a flipbook only.",
-    "Difference images: the saturated core is transparent (unknown); the ring around it mixes residual from the saturated star with any real change (R Dra is a variable): not a measurement.",
-    "1 of 7 visits (2025-06-06) are not at the shared wavelength (0.940 um, colour_matched false): in a flipbook their brightness changes from colour alone.",
-    "Detection: forced S/N in a 2 px aperture on the stack against the scatter of the same aperture at blank positions of that stack (reprojection correlates pixels, so a per-pixel noise would overstate S/N); needs S/N 5 and the centre within 1.5 px of the prediction.",
-    "No motion fit: 7 detected visits, expected drift 0.0 arcsec over the detected span (need 3 visits and half a pixel, 3.1 arcsec).",
-    "Each frame saw a different wavelength at the star's pixel (ranges per visit); a brightness change between visits mixes real change with colour. Not a light curve."
+    "SPHEREx saturates on this star in every band checked (the whole core is masked): no brightness is reported, images only.",
+    "Difference images: the saturated core is blank, and the ring around it mixes leftovers from the saturated star with real change (R Dra varies). Not a measurement.",
+    "1 of 7 visits (2025-06-06) are at a different wavelength from the rest (0.940 um), so their brightness changes from colour alone.",
+    "Detected means S/N of at least 5 in a 2 px aperture on the stacked image (noise from blank spots in the same stack) and a centre within 1.5 px of the prediction.",
+    "No motion fit: 7 detected visits and 0.0 arcsec of expected drift; a fit needs 3 visits and half a pixel (3.1 arcsec).",
+    "Each frame saw a different wavelength, so brightness changes between visits mix real change with colour. Not a light curve."
   ],
   "cutouts_mb": 55.4,
   "size_arcmin": 2.0,

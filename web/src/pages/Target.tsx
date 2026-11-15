@@ -6,6 +6,7 @@ import { axisWords, decDms, fmt, lightYears, monthYear, raHms, tidy, yearsPerMoo
 import Viewer from '../components/Viewer'
 import SpectrumPlot from '../components/SpectrumPlot'
 import './Target.css'
+import BalancedList from '../components/BalancedList'
 
 const TABS = [
   { id: 'overview', label: 'Overview' },
@@ -37,7 +38,7 @@ export default function Target({ params, onReady }: PageProps) {
         <div>
           <h1>Test star: {info.name}</h1>
           <p className="sub">{info.hook}</p>
-          <p className="t-prepared">This is one of 12 test stars. Its results were prepared and checked in advance, so nothing here is fetched live. To look up a spot of your own, use Any spot.</p>
+          <p className="t-prepared">One of 12 test stars, prepared and checked in advance. For your own spot, use Any spot.</p>
         </div>
         <div className="target-switch">
           <label htmlFor="tsel" className="sr-only">Switch test star</label>
@@ -115,7 +116,7 @@ function Overview({ m }: { m: Meta }) {
 function Visits({ m }: { m: Meta }) {
   const n = Math.round((m.size_arcmin * 60) / m.pixel_scale_arcsec) + 1
   return (
-    <div className="split">
+    <div className="split t-visits">
       <div className="card"><Viewer meta={m} src={f => imageUrl(m.slug, f)} /></div>
       <div className="card">
         <h2 className="card-title">Every visit</h2>
@@ -154,12 +155,12 @@ function Colour({ m }: { m: Meta }) {
           {m.slug === 'epsilon-indi-b' && (
             <div className="card">
               <h2 className="card-title">Water vapour, in a failed star</h2>
-              <p className="sm">Brown dwarfs are too small to burn like the Sun. They are cold enough for water vapour and methane in their air, and those molecules swallow light at certain wavelengths. The dips in this curve are where that happens. The peak near 4 microns is the glow of a cold object.</p>
+              <p className="sm">Brown dwarfs are too small to burn like the Sun, and cold enough for water vapour and methane, which absorb certain wavelengths. Those are the dips. The peak near 4 microns is the glow of a cold object.</p>
             </div>
           )}
           <div className="card">
             <h2 className="card-title">How sure are we?</h2>
-            <p className="sm">Our method matched IRSA's own tool on one ordinary star. This object is much redder than that star, so treat the curve as a careful first look.</p>
+            <p className="sm">Our method matched IRSA's tool on one ordinary star. This object is much redder, so treat the curve as a first look.</p>
             <ul className="notes-list">{s.caveats.map(c => <li key={c}>{tidy(c)}</li>)}</ul>
           </div>
         </>
@@ -205,8 +206,8 @@ function Notes({ m }: { m: Meta }) {
       )}
       <section className="card">
         <h2 className="card-title">Limits</h2>
-        <p className="notes-intro">What SPHEREx could and could not measure for this star, before you trust the numbers.</p>
-        <ul className="notes-list">{(m.notes ?? []).map(n => <li key={n}>{tidy(n)}</li>)}</ul>
+        <p className="notes-intro">What SPHEREx could and couldn't measure for this star.</p>
+        <BalancedList items={(m.notes ?? []).map(n => tidy(n))} />
       </section>
 
     </div>

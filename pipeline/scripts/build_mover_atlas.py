@@ -45,11 +45,15 @@ SNR_MIN = 5.0
 BAD_AP = BAD_FLAGS & ~(1 << 19)
 SOFT = 10.0
 CAVEATS = [
-    "The comet is an extended coma, so the flux depends on the aperture: these are 4 pixel (24.6 arcsec) radius sums with no aperture correction, and a different aperture gives a different spectrum.",
-    "This is flux, not reflectance: the solar spectrum and the changing comet-Sun and comet-SPHEREx distances are not divided out.",
+    "The coma is extended, so flux depends on the aperture: these are 4 pixel (24.6 arcsec) radius sums, "
+    "no aperture correction. Another aperture gives another spectrum.",
+    "Flux, not reflectance: the solar spectrum and the changing distances to the Sun and to SPHEREx are "
+    "not divided out.",
     "No water-ice claim is made from the December data.",
-    "Each frame sees one wavelength at a different time, so rotation and activity changes between frames are mixed into the spectrum along with wavelength.",
-    "The August 2025 rows come from a different date, when the comet was much fainter and farther away, so they sit 10 to 50 times lower and should be read as a separate epoch, not part of the December spectrum.",
+    "Each frame is one wavelength at a different time, so rotation and activity changes mix into the "
+    "spectrum.",
+    "The August 2025 rows are a separate epoch: the comet was much fainter and farther away, so they sit "
+    "10 to 50 times lower. They are not part of the December spectrum.",
     "The sky annulus (12 to 20 pixels) can contain outer coma, so the fluxes may read low.",
 ]
 # (um, label, half-window um) tested against the data; labelled only if they show up, see band_test.

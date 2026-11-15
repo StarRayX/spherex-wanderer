@@ -205,14 +205,14 @@
   ],
   "notes": [
     "Expected brightness is only marginal: W2 13.9 (about 0.47 mJy) gives an expected S/N of about 2 to 3 per visit.",
-    "A faint background star (AllWISE J085501.95-071428.1, W2 15.05, about 0.16 mJy) sits about 1.3 pixels from the 2025-26 position, inside the measuring aperture, so any signal here is blended.",
-    "Noise checked 2026-11-14: an earlier build reported S/N 8.1 and 7.9 from the stack's per-pixel spread x sqrt(N), which ignores that reprojection correlates neighbouring pixels. The same aperture at about 1000 blank positions per stack scatters 1.65 to 1.74x more, matching the frame-to-frame scatter within each visit (0.16, 0.12, 0.11 vs 0.19, 0.14, 0.12 in stack units), so S/N is 2.0, 5.1 and 4.9. Single-frame VARIANCE errors match their own blank-sky scatter (median ratio 1.1): the photometry errors stand.",
-    "Not separately detected in any visit: the one stack over S/N 5 (Nov 2025, 5.1) includes the background star, and without it would be about 4. No star marker is drawn.",
-    "2 of 3 visits (2025-05-05, 2025-11-19) are not at the shared wavelength (4.730 um, colour_matched false): in a flipbook their brightness changes from colour alone.",
-    "Detection: forced S/N in a 2 px aperture on the stack against the scatter of the same aperture at blank positions of that stack (reprojection correlates pixels, so a per-pixel noise would overstate S/N); needs S/N 5 and the centre within 1.5 px of the prediction.",
-    "Each frame saw a different wavelength at the star's pixel (ranges per visit); a brightness change between visits mixes real change with colour. Not a light curve.",
-    "Per visit, only frames with no masked pixel in the aperture are averaged (frames_used); 0 visits had none, so their sums are lower limits.",
-    "Photometry: forced 3 px (18.5 arcsec) radius aperture sum on each frame, local sky annulus, VARIANCE errors, no aperture correction, mean per visit."
+    "A faint background star (AllWISE J085501.95-071428.1, W2 15.05, about 0.16 mJy) sits inside the aperture, about 1.3 pixels from the 2025-26 position, so any signal is blended.",
+    "Noise re-checked 2026-11-14: an earlier build's S/N (8.1 and 7.9) ignored that reprojection correlates neighbouring pixels. Measured at about 1000 blank positions per stack, the noise is 1.65 to 1.74x higher, matching the scatter between frames, so S/N is 2.0, 5.1 and 4.9. Single-frame errors match blank-sky scatter (median ratio 1.1), so the photometry errors stand.",
+    "Not detected on its own in any visit: the one stack over S/N 5 (Nov 2025, 5.1) includes the background star and would be about 4 without it. No star marker is drawn.",
+    "2 of 3 visits (2025-05-05, 2025-11-19) are at a different wavelength from the rest (4.730 um), so their brightness changes from colour alone.",
+    "Detected means S/N of at least 5 in a 2 px aperture on the stacked image (noise from blank spots in the same stack) and a centre within 1.5 px of the prediction.",
+    "Each frame saw a different wavelength, so brightness changes between visits mix real change with colour. Not a light curve.",
+    "Only frames with no masked pixel in the aperture are averaged; 0 visits had none, so their values are lower limits.",
+    "Brightness: light summed in a 3 px (18.5 arcsec) circle on each frame, minus the local sky, averaged per visit; no aperture correction."
   ],
   "cutouts_mb": 43.7,
   "size_arcmin": 4.0,

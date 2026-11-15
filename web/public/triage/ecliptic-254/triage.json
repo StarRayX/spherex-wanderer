@@ -7,15 +7,15 @@
   "detector": "D1",
   "date_first": "2026-03-01",
   "date_last": "2026-03-06",
-  "depth_note": "Depth is about V 18 to 19 for a point source at 5 sigma, so a count of 'unexplained' (even 0) says nothing about anything fainter, Planet X included. This is a vetting aid for bright changes, not a search.",
+  "depth_note": "Depth is about V 18 to 19 (5 sigma), so the 'unexplained' count (even 0) says nothing about fainter objects, Planet X included. A vetting aid for bright changes, not a search.",
   "method": "SPHEREx D1 exposures are regridded onto one 30 arcmin field, bad pixels masked, and each visit is compared with the median of the visits on other days; every blob brighter than 5 sigma is a change. Each change is then checked against JPL's asteroid positions for that time, Gaia stars, the exposures of the same visit, the image edge and the SPHEREx pixel flags.",
   "caveats": [
    "18 exposures in 7 visits over 2026-03-01 to 2026-03-06; wavelengths differ between visits, so very red or blue objects can change brightness without moving.",
    "A JPL asteroid counts as a match within 20 arcsec (about 3 pixels) of the predicted position.",
-   "Gaia positions are epoch 2016 and are not moved for proper motion; stars here are only used as nearby-star evidence.",
-   "'unconfirmable' means the visit had one exposure or the change is one pixel wide; they are not explained, only not testable here.",
+   "Gaia positions are at epoch 2016 (not moved for proper motion) and only serve as nearby-star evidence.",
+   "'Unconfirmable': the visit had one exposure or the change is one pixel wide. Not explained, just not testable here.",
    "Positions are from the regridded image and good to about one pixel (6 arcsec).",
-   "11 changes are left unexplained, at 2026-03-04 10:32, 2026-03-04 18:38 (UTC), a median 30 pixels from the nearest cutout edge. No known asteroid is within 20 arcsec, nothing bright is at the spot in the other days' images, and each shows in at least 2 exposures of its visit. They have not been shown to be real or instrumental; look at the thumbnails."
+   "11 changes remain unexplained (2026-03-04 10:32, 2026-03-04 18:38 UTC, a median 30 pixels from the cutout edge): no known asteroid within 20 arcsec, nothing bright there on other days, and each is in at least 2 exposures of its visit. Not shown to be real or instrumental; see the thumbnails."
   ],
   "counts": {
    "known_asteroid": 4,

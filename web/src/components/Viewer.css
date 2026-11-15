@@ -41,7 +41,7 @@
 /* While a note is showing it spans the top, so the compass moves to the free bottom-right corner. */
 .viewer .frame:has(.frame-note) .compass { top: auto; bottom: 24px; }
 /* Sky panel: 2x and Changes side by side under the controls. */
-.viewer .viewer-tools { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s1); }
+.viewer .viewer-tools { display: grid; grid-template-columns: auto 1fr 1fr; align-items: center; gap: var(--s1); }
 .viewer .viewer-tools .chip-btn { width: 100%; min-height: var(--ctl-h); }
 
 /* Legend icons match the marks. */
@@ -61,3 +61,24 @@
 .viewer .zoom-seg .chip-btn:last-child { border-top-left-radius: 0; border-bottom-left-radius: 0; margin-left: -1px; }
 .viewer .viewer-tools .zoom-seg { display: flex; }
 .viewer .viewer-tools .zoom-seg .chip-btn { flex: 1; width: auto; }
+
+/* Controls: every viewer sizes itself. Narrow (sky panel, phones): the dates get the whole first line and
+   play, 1x|2x and Changes share the second. 420 px and wider: one line, play, dates, zoom, Changes. */
+.viewer { container: viewer / inline-size; }
+/* In the side-column layout the controls sit under the image, so they size to the image column. */
+.viewer-split .viewer-main { container: viewer / inline-size; }
+.viewer .ctl-wrap { display: flex; flex-direction: column; align-items: stretch; gap: var(--s1); }
+@container viewer (min-width: 420px) {
+  .viewer .ctl-wrap { flex-direction: row; align-items: center; gap: var(--s2); }
+  .viewer .ctl-wrap .controls, .viewer .ctl-wrap .viewer-tools { display: contents; }
+  .viewer .ctl-wrap .icon-btn { order: -1; flex: none; }
+  .viewer .ctl-wrap .scrub { flex: 1 1 auto; min-width: 0; }
+  .viewer .ctl-wrap .viewer-tools .zoom-seg .chip-btn { flex: none; width: auto; }
+  .viewer .ctl-wrap .viewer-tools > .chip-btn { width: auto; flex: none; padding: 0 var(--s2); }
+}
+
+/* Visit dates: the track runs nearly edge to edge. Each stop is as wide as its date (min 56 px), the first and
+   last sit at the ends, and every date stays centred under its dot. */
+.viewer .controls .scrub { justify-content: space-between; }
+.viewer .controls .stop, .viewer .controls .stop:last-child { flex: none; min-width: 56px; align-items: center; }
+.viewer .controls .scrub::before { left: 28px; right: 28px; }
