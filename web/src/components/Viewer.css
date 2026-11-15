@@ -11,3 +11,41 @@
 /* The control row never wraps: the scrubber gives up width (and hides middle dates) before the 2x chip moves. */
 .viewer .controls { flex-wrap: nowrap; }
 .viewer .controls .stop { min-width: 0; }
+/* The scrubber stops are exactly one control tall, so the controls row matches the buttons beside it
+   (and the side column's sky-map button lines up with them). */
+.viewer .controls .stop { padding: 2px 0; min-height: var(--ctl-h); }
+
+/* ---------- overlay: instrument marks + viewfinder ----------
+   A thin measuring ring and ticks outside the star's glow, Gaia's prediction per visit (older ones fainter),
+   the trail with an arrowhead on its last step, a faint crosshair through the star, and camera-style corner
+   brackets. Every line has a thin dark edge so it stays visible where it crosses the white star. */
+.viewer .overlay * { vector-effect: non-scaling-stroke; }
+.viewer .overlay .xhair line { stroke: #fff; stroke-width: 1; opacity: .12; }
+.viewer .overlay .gaia { fill: none; stroke: #fff; stroke-width: 1; stroke-dasharray: none; paint-order: stroke; filter: drop-shadow(0 0 1px rgba(0, 0, 0, .8)); }
+.viewer .overlay .trail-halo { fill: none; stroke: rgba(0, 0, 0, .5); stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; }
+.viewer .overlay .trail { fill: none; stroke: var(--cyan); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.viewer .overlay .arrow { fill: var(--cyan); stroke: rgba(0, 0, 0, .5); stroke-width: 1; stroke-linejoin: round; }
+.viewer .overlay .dot { fill: var(--cyan); stroke: rgba(0, 0, 0, .55); stroke-width: 1; }
+.viewer .overlay .reticle circle { fill: none; stroke: var(--cyan); stroke-width: 1.25; filter: drop-shadow(0 0 1px rgba(0, 0, 0, .7)); }
+.viewer .overlay .reticle line { stroke: var(--cyan); stroke-width: 1.25; stroke-linecap: butt; }
+
+.viewer .vf { position: absolute; inset: 12px; pointer-events: none; }
+.viewer .vf i { position: absolute; width: 18px; height: 18px; border: 0 solid rgba(77, 208, 248, .7); }
+.viewer .vf i:nth-child(1) { left: 0; top: 0; border-left-width: 1.5px; border-top-width: 1.5px; }
+.viewer .vf i:nth-child(2) { right: 0; top: 0; border-right-width: 1.5px; border-top-width: 1.5px; }
+.viewer .vf i:nth-child(3) { left: 0; bottom: 0; border-left-width: 1.5px; border-bottom-width: 1.5px; }
+.viewer .vf i:nth-child(4) { right: 0; bottom: 0; border-right-width: 1.5px; border-bottom-width: 1.5px; }
+.viewer .frame-tag { position: absolute; transform: translate(-50%, 6px); padding: 1px 6px; border-radius: 4px; background: rgba(2, 3, 5, .72); border: 1px solid rgba(255, 255, 255, .18); color: #fff; font: 600 11px var(--f-mono); white-space: nowrap; pointer-events: none; transition: left 300ms ease, top 300ms ease; }
+/* The compass and scale bar sit inside the brackets. */
+.viewer .compass { right: 36px; top: 32px; }
+.viewer .scalebar { left: 38px; bottom: 30px; width: calc(50% - 26px); }
+
+/* Legend icons match the marks. */
+.viewer .legend .lg-ret { background: none; border: 1.25px solid var(--cyan); border-radius: 50%; }
+.viewer .legend .lg-gaia { border: 1px solid rgba(255, 255, 255, .85); }
+
+/* ---------- scrubber: every date centred under its dot ----------
+   Stops share the width equally, so dots sit at segment centres; the track runs from the first dot's centre
+   to the last one's (--n = number of visits). */
+.viewer .controls .stop, .viewer .controls .stop:last-child { flex: 1 1 0; align-items: center; }
+.viewer .controls .scrub::before { left: calc(100% / var(--n, 3) / 2); right: calc(100% / var(--n, 3) / 2); top: 9px; }

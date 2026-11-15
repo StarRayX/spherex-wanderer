@@ -85,13 +85,33 @@ export default function Viewer({ meta, src, autoplay = true, compact = false, as
             <img key={d.file} src={src(d.file!)} alt="" draggable={false} className={diff && diff.file === d.file ? 'on' : ''} />
           ))}
           <svg className="overlay" viewBox={`0 0 ${native} ${native}`} preserveAspectRatio="none" aria-hidden>
-            <circle cx={v.predicted_xy[0] + 0.5} cy={v.predicted_xy[1] + 0.5} r="1.5" className="gaia" />
-            {trail.length > 1 && <polyline points={trail.map(p => p.join(',')).join(' ')} className="trail" />}
-            {trail.slice(0, -1).map(([x, y], i) => <circle key={i} cx={x} cy={y} r="0.12" className="dot" />)}
+            {/* Faint crosshair through the measured position, across the whole frame. */}
+            {v.star_xy && <g className="xhair">
+              <line x1={-native} x2={2 * native} y1={v.star_xy[1] + 0.5} y2={v.star_xy[1] + 0.5} />
+              <line x1={v.star_xy[0] + 0.5} x2={v.star_xy[0] + 0.5} y1={-native} y2={2 * native} />
+            </g>}
+            {/* Gaia's prediction for every visit so far; older ones are fainter. */}
+            {visits.slice(0, idx + 1).map((x, i) => (
+              <circle key={'g' + i} cx={x.predicted_xy[0] + 0.5} cy={x.predicted_xy[1] + 0.5} r={R_GAIA} className="gaia" style={{ opacity: age(i, idx) }} />
+            ))}
+            {trail.length > 1 && <>
+              <polyline points={trail.map(p => p.join(',')).join(' ')} className="trail-halo" />
+              <polyline points={trail.map(p => p.join(',')).join(' ')} className="trail" />
+              <Arrow from={trail[trail.length - 2]} to={trail[trail.length - 1]} />
+            </>}
+            {/* Past measured positions, fading with age. */}
+            {trail.slice(0, -1).map(([x, y], i) => <circle key={i} cx={x} cy={y} r={R_DOT} className="dot" style={{ opacity: age(i, idx) }} />)}
             {v.star_xy && <Reticle x={v.star_xy[0] + 0.5} y={v.star_xy[1] + 0.5} />}
           </svg>
         </div>
         {!loaded && <div className="frame-skel skel" aria-hidden />}
+        <div className="vf" aria-hidden><i /><i /><i /><i /></div>
+        {idx > 0 && v.star_xy && (
+          <span className="frame-tag" aria-hidden style={{
+            left: `${(((v.star_xy[0] + 0.5) / native - 0.5) * zoom + 0.5) * 100}%`,
+            top: `${((0.5 - (v.star_xy[1] + 0.5) / native) * zoom + 0.5 + (R_TICK / native) * zoom) * 100}%`,
+          }}>{monthYear(visits[0].date, true)} → {monthYear(v.date, true)}</span>
+        )}
         <div className="compass" aria-hidden><span className="n">N</span><span className="e">E</span></div>
         <div className="scalebar" aria-hidden><i style={{ width: `${(scaleArcsec / fov) * zoom * 100}%` }} />{scaleArcsec}″</div>
         {layer === 'changes' && !diff && (
@@ -111,7 +131,7 @@ export default function Viewer({ meta, src, autoplay = true, compact = false, as
         <button className="icon-btn" onClick={() => setPlaying(p => !p)} aria-label={playing ? 'Pause' : 'Play'}>
           {playing ? <PauseIcon /> : <PlayIcon />}
         </button>
-        <div className="scrub" role="group" aria-label="Visits">
+        <div className="scrub" role="group" aria-label="Visits" style={{ ['--n' as string]: visits.length }}>
           {visits.map((x, i) => (
             <button key={x.file} className={'stop' + (i === idx ? ' on' : '')} onClick={() => { setIdx(i); setPlaying(false) }}
               aria-label={`Visit ${i + 1}, ${monthYear(x.date)}`}>
@@ -150,15 +170,33 @@ export default function Viewer({ meta, src, autoplay = true, compact = false, as
   return <div className="viewer">{top}{frame}{controls}{legend}</div>
 }
 
-// Four ticks around the measured centre, leaving the star itself visible.
+// Overlay sizes, in image pixels (the overlay scales with the image and the 2x zoom).
+const R_RING = 1.7 // measuring ring: just outside the star's glow at 2x
+const R_TICK = 2.35 // ticks run from the ring out to here
+const R_GAIA = 0.24
+const R_DOT = 0.15
+// Opacity for visit i when visit `now` is shown: the newest is solid, older ones fade.
+const age = (i: number, now: number) => (now === 0 ? 1 : 0.4 + 0.6 * (i / now))
+
+// A thin measuring ring with four ticks outside it, leaving the star itself visible.
 function Reticle({ x, y }: { x: number; y: number }) {
-  const a = 2.1, b = 3.2
+  const a = R_RING, b = R_TICK
   return (
     <g className="reticle">
+      <circle cx={x} cy={y} r={a} />
       <line x1={x - b} x2={x - a} y1={y} y2={y} /><line x1={x + a} x2={x + b} y1={y} y2={y} />
       <line x1={x} x2={x} y1={y - b} y2={y - a} /><line x1={x} x2={x} y1={y + a} y2={y + b} />
     </g>
   )
+}
+
+// Arrowhead on the trail's last step, pointing along that step, with its tip on the current position.
+function Arrow({ from, to }: { from: readonly [number, number]; to: readonly [number, number] }) {
+  const dx = to[0] - from[0], dy = to[1] - from[1], len = Math.hypot(dx, dy)
+  if (len < 0.2) return null
+  const ux = dx / len, uy = dy / len, L = Math.min(0.34, len * 0.6), W = L * 0.55
+  const bx = to[0] - ux * L, by = to[1] - uy * L
+  return <polygon className="arrow" points={`${to[0]},${to[1]} ${bx - uy * W},${by + ux * W} ${bx + uy * W},${by - ux * W}`} />
 }
 
 const PlayIcon = () => <svg viewBox="0 0 16 16" width="14" height="14"><path d="M4.5 2.5v11l9-5.5z" fill="currentColor" /></svg>
