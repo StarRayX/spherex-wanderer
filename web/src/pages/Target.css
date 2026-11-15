@@ -23,9 +23,10 @@
   .ov > .stat:not(:first-child) { justify-content: center; }
 }
 
-/* Overview viewer: image and controls on the left; on the right, top to bottom, the claim, the visit line
-   and legend, then the result, coordinates and the sky-map button level with the controls. */
-.viewer-split { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s3); }
+/* Overview viewer: two cards like the Visits tab. Image and controls in the left card; in the right card, top
+   to bottom, the claim, the visit line and legend, then the result, coordinates and the sky-map button level
+   with the controls. */
+.viewer-split { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s2); align-items: stretch; }
 .viewer-main { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
 .viewer-aside { display: flex; flex-direction: column; gap: var(--s3); min-width: 0; }
 .viewer-aside .va-top { display: flex; flex-direction: column; align-items: flex-start; gap: var(--s2); }
@@ -36,7 +37,8 @@
 /* Same as the Home validation numbers. */
 .ov-result { font: 700 var(--t-lg)/1.25 var(--f-mono); color: var(--ink); }
 @media (min-width: 961px) {
-  .viewer-split { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s3) var(--s5); }
+  .viewer-split { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .viewer-split > .viewer-aside { padding: var(--s3) 0 var(--s3) var(--s2); }
 }
 
 /* Use the card's width: short notices and source lines span it, and long note lists flow into two
@@ -49,14 +51,30 @@
   .viewer-aside .va-bottom .cta { margin-top: auto; }
 }
 
-/* Visits tab, wide screens: the viewer and "Every visit" cards are equal width and equal height, and the visits
-   list runs down the card (image, then its date and wavelength) spread over the card's full height. */
+/* Colour tab, wide screens: the short "Water vapour" card takes one third and "How sure are we?" two thirds, so
+   the longer list isn't squeezed beside a mostly empty card. */
 @media (min-width: 961px) {
-  .t-visits { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch; }
-  .t-visits > .card:last-child { display: flex; flex-direction: column; }
-  .t-visits .filmstrip { flex: 1; display: flex; flex-direction: column; justify-content: space-between; gap: var(--s2); }
-  .t-visits .filmstrip figure { display: flex; align-items: center; gap: var(--s3); }
-  .t-visits .filmstrip .well { flex: none; width: min(150px, 34%); }
-  .t-visits .filmstrip figcaption { align-items: flex-start; text-align: left; padding: 0; font-size: var(--t-sm); gap: 4px; }
-  .t-visits .filmstrip figcaption b { font-size: var(--t-md); }
+  .t-colour-aside { grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); }
+}
+
+/* Colour tab, brightness table: three equal, left-aligned columns, so the space is shared evenly instead of one
+   wide gap before the last column. */
+.t-phot { table-layout: fixed; }
+.t-phot th, .t-phot td { text-align: left; }
+
+/* Visits tab: "Every visit" sits on the page, not in a card, beside the viewer card on wide screens (its top
+   lines up with the viewer card's content). Three visits per row, numbered like the Method steps, with a chevron
+   in the gap before each visit except the first of a row, level with the middle of the image
+   (20px number + 6px gap + half the image, which is as wide as the figure). */
+.t-visits-list { min-width: 0; }
+.t-visits .filmstrip { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s2) 28px; }
+.t-visits .filmstrip figure { position: relative; display: flex; flex-direction: column; gap: 6px; container-type: inline-size; }
+.t-visits .v-n { font: 600 var(--t-sm)/20px var(--f-mono); color: var(--cyan); }
+.t-visits .filmstrip figure:not(:nth-child(3n+1))::before { content: ''; position: absolute; left: -14px; top: calc(26px + 50cqw); width: 7px; height: 7px;
+  border: solid var(--muted); border-width: 1.5px 1.5px 0 0; transform: translate(-50%, -50%) rotate(45deg); }
+.t-visits .filmstrip figcaption { align-items: flex-start; text-align: left; padding-top: var(--s1); font-size: var(--t-sm); gap: 2px; }
+.t-visits .filmstrip figcaption b { font-size: var(--t-md); }
+@media (min-width: 961px) {
+  .t-visits { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .t-visits > .t-visits-list { padding: var(--s3) 0 0 var(--s2); }
 }

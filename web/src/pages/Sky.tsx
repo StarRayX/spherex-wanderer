@@ -622,6 +622,8 @@ export default function Sky({ params, onReady }: PageProps) {
           showGotoControl: false, showFrame: false, showCooGridControl: false, showSimbadPointerControl: false,
           showProjectionControl: false, showContextMenu: false, showSettingsControl: false, showShareControl: false,
           showStatusBar: false, showCooLocation: false, showFov: false, backgroundColor: 'rgb(5,7,12)',
+          // No usage ping to CDS: it isn't needed, and when CDS is unreachable it threw an uncaught error.
+          log: false,
         })
         view.current = v
         v.setFoVRange(0.02, WHOLE_SKY_FOV)

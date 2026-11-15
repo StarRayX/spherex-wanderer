@@ -257,7 +257,7 @@ function Answer({ meta, name, src }: { meta: Meta; name: string; src: (f: string
       {m
         ? <p className="as-answer">{title} moves <span className="num">{fmt(m.measured_arcsec_per_yr)}</span> arcseconds a year across {n} SPHEREx visits. Gaia says <span className="num">{fmt(m.gaia_arcsec_per_yr)}</span>.</p>
         : <p className="as-answer">{meta.target?.claim ?? `${n} SPHEREx visits found at this spot.`}</p>}
-      <Viewer meta={meta} src={src} />
+      <div className="card"><Viewer meta={meta} src={src} /></div>
     </div>
   )
 }

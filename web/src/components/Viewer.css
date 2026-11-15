@@ -69,12 +69,12 @@
 .viewer-split .viewer-main { container: viewer / inline-size; }
 .viewer .ctl-wrap { display: flex; flex-direction: column; align-items: stretch; gap: var(--s1); }
 @container viewer (min-width: 420px) {
-  .viewer .ctl-wrap { flex-direction: row; align-items: center; gap: var(--s2); }
-  .viewer .ctl-wrap .controls, .viewer .ctl-wrap .viewer-tools { display: contents; }
-  .viewer .ctl-wrap .icon-btn { order: -1; flex: none; }
-  .viewer .ctl-wrap .scrub { flex: 1 1 auto; min-width: 0; }
-  .viewer .ctl-wrap .viewer-tools .zoom-seg .chip-btn { flex: none; width: auto; }
-  .viewer .ctl-wrap .viewer-tools > .chip-btn { width: auto; flex: none; padding: 0 var(--s2); }
+  .viewer:not(.many) .ctl-wrap { flex-direction: row; align-items: center; gap: var(--s2); }
+  .viewer:not(.many) .ctl-wrap .controls, .viewer:not(.many) .ctl-wrap .viewer-tools { display: contents; }
+  .viewer:not(.many) .ctl-wrap .icon-btn { order: -1; flex: none; }
+  .viewer:not(.many) .ctl-wrap .scrub { flex: 1 1 auto; min-width: 0; }
+  .viewer:not(.many) .ctl-wrap .viewer-tools .zoom-seg .chip-btn { flex: none; width: auto; }
+  .viewer:not(.many) .ctl-wrap .viewer-tools > .chip-btn { width: auto; flex: none; padding: 0 var(--s2); }
 }
 
 /* Visit dates: the track runs nearly edge to edge. Each stop is as wide as its date (min 56 px), the first and
@@ -82,3 +82,8 @@
 .viewer .controls .scrub { justify-content: space-between; }
 .viewer .controls .stop, .viewer .controls .stop:last-child { flex: none; min-width: 56px; align-items: center; }
 .viewer .controls .scrub::before { left: 28px; right: 28px; }
+
+/* Many visits (more than four): always two lines, and the stops share the width equally (they may be narrower
+   than a date; only the current date and far-away end dates are labelled, so labels never collide). */
+.viewer.many .controls .stop, .viewer.many .controls .stop:last-child { flex: 1 1 0; min-width: 0; }
+.viewer.many .controls .scrub::before { left: calc(100% / var(--n) / 2); right: calc(100% / var(--n) / 2); }
