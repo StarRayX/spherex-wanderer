@@ -60,6 +60,8 @@ export default function Viewer({ meta, src, autoplay = true, compact = false, as
   const median = [...visits.map(x => x.wavelength_um)].sort((a, b) => a - b)[Math.floor(visits.length / 2)]
   const offColour = Math.abs(v.wavelength_um - median) > 0.04 * median
   const saturated = (meta.notes ?? []).some(n => /whole core is masked|saturates on this star/i.test(n))
+  // Sky panel (compact) and the side-column layout (aside) share one control layout.
+  const stacked = compact || !!aside
   const showLabel = (i: number) => visits.length <= (compact ? 3 : 4) || i === 0 || i === visits.length - 1 || i === idx
 
   const fov = native * meta.pixel_scale_arcsec
@@ -140,17 +142,17 @@ export default function Viewer({ meta, src, autoplay = true, compact = false, as
           {visits.map((x, i) => (
             <button key={x.file} className={'stop' + (i === idx ? ' on' : '')} onClick={() => { setIdx(i); setPlaying(false) }}
               aria-label={`Visit ${i + 1}, ${monthYear(x.date)}`}>
-              <i /><span>{showLabel(i) ? monthYear(x.date, compact || visits.length > 4) : ''}</span>
+              <i /><span>{showLabel(i) ? monthYear(x.date, stacked || visits.length > 4) : ''}</span>
             </button>
           ))}
         </div>
-        {!compact && zoomBtn}
-        {!compact && changesBtn}
+        {!stacked && zoomBtn}
+        {!stacked && changesBtn}
       </div>
   )
 
   // Compact (sky panel): 2x and Changes share a row below the controls, half width each.
-  const tools = compact && (
+  const tools = stacked && (
       <div className="viewer-tools">{zoomBtn}{changesBtn}</div>
   )
 
@@ -168,7 +170,7 @@ export default function Viewer({ meta, src, autoplay = true, compact = false, as
   if (aside) {
     return (
       <div className="viewer viewer-split">
-        <div className="viewer-main">{frame}{controls}</div>
+        <div className="viewer-main">{frame}{controls}{tools}</div>
         <div className="viewer-aside">
           <div className="va-top">{aside.top}</div>
           <div className="va-mid">{top}{legend}</div>

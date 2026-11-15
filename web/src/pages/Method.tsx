@@ -72,30 +72,29 @@ export default function Method({ params, onReady }: PageProps) {
       </ol>
       </>}
 
-      {tab === 'data' && <>
-      <div className="card" style={{ marginBottom: 16 }}>
+      {tab === 'data' && <div className="notes-stack">
+
+      <section className="card">
         <h2 className="card-title">Data</h2>
         <p className="check-value">SPHEREx QR2 + QR3</p>
-        <p className="sm muted" style={{ margin: 0 }}>Calibrated images from NASA/IPAC's IRSA archive, May 2025 to Oct 2026, read by sky position. Star positions from Gaia DR3.</p>
-      </div>
+        <p className="notes-intro">Calibrated images from NASA/IPAC's IRSA archive, May 2025 to Oct 2026, read by sky position. Star positions from Gaia DR3.</p>
+      </section>
 
-      <div className="grid2" >
-        <div className="card">
-          <h2 className="card-title">Limits</h2>
-          <ul className="notes-list">{LIMITS.map(l => <li key={l}>{l}</li>)}</ul>
-        </div>
-        <div className="card">
-          <h2 className="card-title">Data and tools</h2>
-          <ul className="refs">
-            <li>NASA SPHEREx Quick Release images: NASA/IPAC Infrared Science Archive (IRSA), doi:10.26131/IRSA652.</li>
-            <li>Gaia Data Release 3: ESA/Gaia/DPAC.</li>
-            <li>All-sky image tiles (HiPS) and Aladin Lite: CDS, Strasbourg.</li>
-            <li>2MASS and DSS2 sky images, used as map backgrounds when SPHEREx tiles are unavailable.</li>
-            <li>Astropy, pyvo and reproject for the image pipeline.</li>
-          </ul>
-        </div>
-      </div>
-      </>}
+      <section className="card">
+        <h2 className="card-title">Data and tools</h2>
+        <ul className="refs">
+          <li>NASA SPHEREx Quick Release images: NASA/IPAC Infrared Science Archive (IRSA), doi:10.26131/IRSA652.</li>
+          <li>Gaia Data Release 3: ESA/Gaia/DPAC.</li>
+          <li>All-sky image tiles (HiPS) and Aladin Lite: CDS, Strasbourg.</li>
+          <li>2MASS and DSS2 sky images, used as map backgrounds when SPHEREx tiles are unavailable.</li>
+          <li>Astropy, pyvo and reproject for the image pipeline.</li>
+        </ul>
+      </section>
+      <section className="card">
+        <h2 className="card-title">Limits</h2>
+        <ul className="notes-list">{LIMITS.map(l => <li key={l}>{l}</li>)}</ul>
+      </section>
+      </div>}
     </div>
   )
 }

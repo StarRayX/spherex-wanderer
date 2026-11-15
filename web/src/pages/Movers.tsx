@@ -4,6 +4,7 @@ import type { PageProps } from '../lib/router'
 import { getJson, joinUrl } from '../lib/download'
 import { wlColor } from '../lib/wavelength'
 import PageTabs from '../components/PageTabs'
+import Pager from '../components/Pager'
 import './Movers.css'
 
 // Where the precomputed files live. Switch to '/movers' to test with fixtures.
@@ -264,8 +265,9 @@ function Detail({ slug, tabParam, onReady }: { slug: string; tabParam: string | 
         <Blink frames={frames} base={base} name={meta.name} />
       </section>}
 
-      {tab === 'notes' && <>
-      <section className="mv-block">
+      {tab === 'notes' && <div className="notes-stack">
+
+      <section className="card">
         <h2 className="card-title">How the numbers were made</h2>
         <dl className="mv-facts mv-facts-col">
           <div><dt>Measurements</dt><dd>{meta.n_rows}</dd></div>
@@ -277,14 +279,13 @@ function Detail({ slug, tabParam, onReady }: { slug: string; tabParam: string | 
         <p className="mv-sec-p">{meta.method}</p>
         <p className="muted sm mv-sec-p">Aperture (the circle we add the light inside): {f1(meta.aperture_arcsec, 1)} arcseconds. Sky ring, used to subtract the background: {meta.annulus_arcsec?.[0]} to {meta.annulus_arcsec?.[1]} arcseconds. Orbit source: {meta.ephemeris}.</p>
       </section>
-
-      <section className="mv-block">
+      <section className="card">
         <h2 className="card-title">Limits</h2>
         <ul className="notes-list">
           {(meta.caveats ?? []).map((c, i) => <li key={i}>{c}</li>)}
         </ul>
       </section>
-      </>}
+      </div>}
 
       {tab === 'table' && <section className="mv-block">
         <h2 className="card-title">All {rows.length} measurements</h2>
@@ -539,13 +540,12 @@ const COLS: Col[] = [
   { key: 'detector', label: 'Detector' },
   { key: 'flags', label: 'Flags', title: 'SPHEREx quality markers. 0 means none were raised inside the aperture.' },
 ]
-const SHOWN = 10 // rows shown first
-const MORE = 25 // rows added per "Show more"
+const SHOWN = 10 // rows per page
 
 function RowsTable({ rows }: { rows: Row[] }) {
   const [key, setKey] = useState<keyof Row>('wavelength_um')
   const [asc, setAsc] = useState(true)
-  const [limit, setLimit] = useState(SHOWN)
+  const [page, setPage] = useState(0)
 
   const sorted = useMemo(() => {
     const out = rows.slice()
@@ -559,10 +559,11 @@ function RowsTable({ rows }: { rows: Row[] }) {
     return out
   }, [rows, key, asc])
 
-  const shown = sorted.slice(0, limit)
+  const shown = sorted.slice(page * SHOWN, (page + 1) * SHOWN)
   function sortBy(k: keyof Row) {
     if (k === key) setAsc(a => !a)
     else { setKey(k); setAsc(true) }
+    setPage(0)
   }
 
   return (
@@ -591,14 +592,7 @@ function RowsTable({ rows }: { rows: Row[] }) {
           </tbody>
         </table>
       </div>
-      {rows.length > SHOWN && (
-        <p className="mv-more">
-          <span className="muted sm">Showing {shown.length} of {rows.length} rows.</span>{' '}
-          {rows.length > limit
-            ? <button className="linkbtn" onClick={() => setLimit(l => l + MORE)}>Show {Math.min(MORE, rows.length - limit)} more</button>
-            : <button className="linkbtn" onClick={() => setLimit(SHOWN)}>Show fewer</button>}
-        </p>
-      )}
+      <Pager page={page} size={SHOWN} total={rows.length} onPage={setPage} />
     </>
   )
 }
