@@ -11,7 +11,7 @@
 .hb-sw { width: 10px; height: 10px; border-radius: 50%; flex: none; }
 .hb-date { flex-basis: 100%; color: var(--muted); }
 .hb-row { display: flex; align-items: center; flex-wrap: wrap; gap: var(--s1) var(--s2); margin-top: var(--s0); }
-.hb-btn { min-height: 44px; min-width: 76px; padding: 0 var(--s2); border: 0; border-radius: var(--radius-sm); background: var(--card-2); color: var(--ink); font-weight: 600; cursor: pointer; }
+.hb-btn { min-height: var(--ctl-h); min-width: 0; padding: 0 var(--s2); border: 0; border-radius: var(--radius-sm); background: var(--card-2); color: var(--ink); font-weight: 600; cursor: pointer; }
 .hb-btn:hover { color: var(--cyan); }
 .hb-btn:focus-visible { outline: 3px solid var(--cyan); outline-offset: 2px; }
 .hb-link { display: inline-flex; align-items: center; min-height: 44px; font-weight: 600; }

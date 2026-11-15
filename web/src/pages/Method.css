@@ -1,6 +1,6 @@
 .me-results { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s4); margin: 0 0 var(--s5); }
 .me-result { margin: 0; }
-.me-result .num { display: block; font: 600 clamp(1.75rem, 3.4vw, 2.5rem)/1.1 var(--f-mono); color: var(--cyan); margin: 0 0 var(--s1); }
+.me-result .num { display: block; text-wrap: balance; font: 600 clamp(1.4rem, 2.3vw, 1.85rem)/1.2 var(--f-mono); color: var(--cyan); margin: 0 0 var(--s1); }
 .me-result h2 { font-size: var(--t-md); margin: 0 0 var(--s1); }
 .me-result p { margin: 0; font-size: var(--t-sm); color: var(--muted); max-width: 46ch; }
 .me-result .skel { display: block; height: 2.5rem; width: 14ch; margin-bottom: var(--s1); }
@@ -17,8 +17,9 @@
 .me-arrow svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.5; }
 
 @media (max-width: 1023px) {
-  .me-flow { flex-wrap: wrap; row-gap: var(--s2); }
-  .me-step { flex: 1 1 40%; }
+  /* Two columns of steps: a real gutter between them (the arrows that separate steps on wide screens are hidden here). */
+  .me-flow { flex-wrap: wrap; column-gap: var(--s5); row-gap: var(--s4); }
+  .me-step { flex: 0 0 calc((100% - var(--s5)) / 2); }
   .me-arrow { display: none; }
 }
 @media (max-width: 767px) {

@@ -195,7 +195,6 @@ export default function AnySpot({ params, onReady }: PageProps) {
       <div className="as-empty as-hide-phone">
         <h2>Nothing is fetched yet</h2>
         <p>Enter a position or tap an example, then press Show photos. The photos and the star's motion appear here.</p>
-        <p className="muted">Want a star we already checked? Open Test stars in the menu.</p>
       </div>
     )
   }
@@ -215,7 +214,6 @@ export default function AnySpot({ params, onReady }: PageProps) {
               ))}
               <button type="button" className="as-chip" aria-pressed={ra === LIVE_EXAMPLE.ra && dec === LIVE_EXAMPLE.dec} onClick={() => fill(LIVE_EXAMPLE.ra, LIVE_EXAMPLE.dec)}>{LIVE_EXAMPLE.name} <span className="as-tag">live, 1 to 2 min</span></button>
             </div>
-            <p className="as-hint">The first three are ready at once. {LIVE_EXAMPLE.name} is fetched live.</p>
           </div>
 
           <form className="as-form" onSubmit={submit} noValidate>

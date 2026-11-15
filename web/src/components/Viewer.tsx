@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import type { ReactNode } from 'react'
 import type { Meta } from '../lib/types'
 import { fmt, monthYear } from '../lib/format'
 import './Viewer.css'
@@ -9,6 +10,8 @@ interface Props {
   src: (file: string) => string
   autoplay?: boolean
   compact?: boolean
+  // Optional side column (wide screens): the visit line and legend move into it, between `top` and `bottom`.
+  aside?: { top: ReactNode; bottom: ReactNode }
 }
 
 type Layer = 'images' | 'changes'
@@ -16,7 +19,7 @@ const STEP_MS = 1100
 
 // The PNGs are stored with south at the top (array row 0 = lowest Dec, x grows westward).
 // We flip vertically so the view is the standard sky view: north up, east left.
-export default function Viewer({ meta, src, autoplay = true, compact = false }: Props) {
+export default function Viewer({ meta, src, autoplay = true, compact = false, aside }: Props) {
   const visits = meta.visits
   const [idx, setIdx] = useState(0)
   const [playing, setPlaying] = useState(autoplay)
@@ -62,15 +65,16 @@ export default function Viewer({ meta, src, autoplay = true, compact = false }: 
   const fov = native * meta.pixel_scale_arcsec
   const scaleArcsec = fov > 200 ? 60 : 30
 
-  return (
-    <div className="viewer">
+  const top = (
       <div className="viewer-top">
         <b>Visit {idx + 1} of {visits.length}</b>
         <span>{monthYear(v.date)}</span>
         <span className="mono">λ {fmt(v.wavelength_um)} µm</span>
         {compact && (<>{diffs.some(d => d.file) && ( <button className="chip-btn" onClick={() => setLayer(l => (l === 'changes' ? 'images' : 'changes'))} aria-pressed={layer === 'changes'} title="Show only what changed since the last visit">Changes</button> )}</>)}
       </div>
+  )
 
+  const frame = (
       <div className="frame" ref={frameRef}>
         <div className="sky" style={{ transform: `scaleY(-1) scale(${zoom})` }}>
           {visits.map((x, i) => (
@@ -100,7 +104,9 @@ export default function Viewer({ meta, src, autoplay = true, compact = false }: 
         )}
         {saturated && layer === 'images' && <div className="frame-note info">The star is too bright for SPHEREx's detector: its centre is filled in white and not measured.</div>}
       </div>
+  )
 
+  const controls = (
       <div className="controls">
         <button className="icon-btn" onClick={() => setPlaying(p => !p)} aria-label={playing ? 'Pause' : 'Play'}>
           {playing ? <PauseIcon /> : <PlayIcon />}
@@ -116,8 +122,9 @@ export default function Viewer({ meta, src, autoplay = true, compact = false }: 
         <button className="chip-btn" onClick={() => setZoom(z => (z === 2 ? 1 : 2))} aria-pressed={zoom === 2} title="Zoom in on the star">2×</button>
         {!compact && (<>{diffs.some(d => d.file) && ( <button className="chip-btn" onClick={() => setLayer(l => (l === 'changes' ? 'images' : 'changes'))} aria-pressed={layer === 'changes'} title="Show only what changed since the last visit">Changes</button> )}</>)}
       </div>
+  )
 
-      {!compact && (
+  const legend = !compact && (
         <ul className="legend">
           {layer === 'changes'
             ? <li className="full">Bright: light that arrived. Dark: light that left.</li>
@@ -126,9 +133,21 @@ export default function Viewer({ meta, src, autoplay = true, compact = false }: 
               <li><i className="lg-gaia" />Gaia predicts here</li>
             </>}
         </ul>
-      )}
-    </div>
   )
+
+  if (aside) {
+    return (
+      <div className="viewer viewer-split">
+        <div className="viewer-main">{frame}{controls}</div>
+        <div className="viewer-aside">
+          <div className="va-top">{aside.top}</div>
+          <div className="va-mid">{top}{legend}</div>
+          <div className="va-bottom">{aside.bottom}</div>
+        </div>
+      </div>
+    )
+  }
+  return <div className="viewer">{top}{frame}{controls}{legend}</div>
 }
 
 // Four ticks around the measured centre, leaving the star itself visible.

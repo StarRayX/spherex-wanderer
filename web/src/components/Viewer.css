@@ -1,10 +1,10 @@
 /* One control row: play, visit scrubber, then the 2x chip, all 44 px tall. */
 .viewer .controls { gap: 8px; }
-.viewer .controls .icon-btn { width: 44px; height: 44px; }
-.viewer .controls .chip-btn { min-height: 44px; min-width: 44px; flex: none; }
+.viewer .controls .icon-btn { width: var(--ctl-h); height: var(--ctl-h); }
+.viewer .controls .chip-btn { min-height: var(--ctl-h); min-width: 44px; flex: none; }
 .viewer .controls .scrub { min-width: 140px; }
 .viewer-top { flex-wrap: wrap; }
-.viewer-top .chip-btn { margin-left: auto; min-height: 36px; }
+.viewer-top .chip-btn { margin-left: auto; min-height: var(--ctl-h); }
 /* Compact panel: short dates ("Aug '25") and a scrubber that shrinks instead of sliding under the 2x chip. */
 .viewer .controls .scrub { min-width: 0; flex: 1 1 auto; }
 .viewer .controls .stop:not(:first-child):not(:last-child) { align-items: center; }

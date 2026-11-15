@@ -194,7 +194,7 @@ function NavLink({ n, active }: { n: NavItem; active: Key | null }) {
   return (
     <li>
       <a className="item" href={n.href} title={tip(n)} aria-current={active === n.id ? 'page' : undefined}>
-        <Icon d={n.icon} /><span>{n.label}</span>
+        <Icon d={n.icon} /><span>{n.tab}</span>
       </a>
     </li>
   )

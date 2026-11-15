@@ -78,8 +78,7 @@ function List({ onReady }: { onReady: () => void }) {
   return (
     <div className="page mv">
       <h1>Moving objects</h1>
-      <p className="mv-lede">Pick an object to see its measured brightness at each SPHEREx wavelength and download the table.</p>
-      <p className="mv-disclaimer">These are brightness measurements, not reflectance spectra. Each row in the downloads is one SPHEREx frame.</p>
+      <p className="mv-lede">Measured brightness at each SPHEREx wavelength, one row per frame. Brightness, not reflectance.</p>
 
       {items === null ? (
         <div className="mv-cards" aria-busy="true" aria-label="Loading objects">
@@ -512,7 +511,7 @@ function Blink({ frames, base, name }: { frames: Frame[]; base: string; name: st
         <button className="btn sm quiet" onClick={() => setPlay(p => !p)} aria-pressed={play}>{play ? 'Pause' : 'Play'}</button>
         <input type="range" min={0} max={frames.length - 1} value={i} onChange={e => { setPlay(false); setI(+e.target.value) }} aria-label="Choose an image" />
       </div>
-      <p className="caption">{arcmin ? `Each cutout is about ${arcmin} arcminutes wide. ` : ''}The cross marks where the orbit says the object should be. The colour changes from image to image, so brightness changes too.</p>
+      <p className="caption">{arcmin ? `About ${arcmin}′ across. ` : ''}The cross marks the predicted position. Each frame is a different wavelength.</p>
     </div>
   )
 }
@@ -529,12 +528,13 @@ const COLS: Col[] = [
   { key: 'detector', label: 'Detector' },
   { key: 'flags', label: 'Flags', title: 'SPHEREx quality markers. 0 means none were raised inside the aperture.' },
 ]
-const SHOWN = 50
+const SHOWN = 10 // rows shown first
+const MORE = 25 // rows added per "Show more"
 
 function RowsTable({ rows }: { rows: Row[] }) {
   const [key, setKey] = useState<keyof Row>('wavelength_um')
   const [asc, setAsc] = useState(true)
-  const [all, setAll] = useState(false)
+  const [limit, setLimit] = useState(SHOWN)
 
   const sorted = useMemo(() => {
     const out = rows.slice()
@@ -548,7 +548,7 @@ function RowsTable({ rows }: { rows: Row[] }) {
     return out
   }, [rows, key, asc])
 
-  const shown = all ? sorted : sorted.slice(0, SHOWN)
+  const shown = sorted.slice(0, limit)
   function sortBy(k: keyof Row) {
     if (k === key) setAsc(a => !a)
     else { setKey(k); setAsc(true) }
@@ -556,7 +556,7 @@ function RowsTable({ rows }: { rows: Row[] }) {
 
   return (
     <>
-      <p className="caption">One row per SPHEREx image. Click a heading to sort. S/N is signal to noise: how far above the noise. Flags are SPHEREx quality markers, and 0 means none.</p>
+      <p className="caption">One row per SPHEREx image. Click a heading to sort. Flags 0 means none.</p>
       <div className="mv-scroll" tabIndex={0} role="region" aria-label="Measurement table">
         <table className="mv-table">
           <thead>
@@ -583,7 +583,9 @@ function RowsTable({ rows }: { rows: Row[] }) {
       {rows.length > SHOWN && (
         <p className="mv-more">
           <span className="muted sm">Showing {shown.length} of {rows.length} rows.</span>{' '}
-          <button className="linkbtn" onClick={() => setAll(a => !a)}>{all ? 'Show the first 50' : `Show all ${rows.length}`}</button>
+          {rows.length > limit
+            ? <button className="linkbtn" onClick={() => setLimit(l => l + MORE)}>Show {Math.min(MORE, rows.length - limit)} more</button>
+            : <button className="linkbtn" onClick={() => setLimit(SHOWN)}>Show fewer</button>}
         </p>
       )}
     </>
