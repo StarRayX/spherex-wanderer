@@ -873,7 +873,7 @@ export default function Sky({ params, onReady }: PageProps) {
                   ? <>On the map, the star has moved from the white circle ({THEN}) to the blue circle (today).{shown?.name === '2MASS' && <> The background photo is from {THEN}, so it still shows the star in the white circle.</>}{layer === 'vis' && <> The visible-light photo is older, taken between the 1950s and 1990s, so the star appears further back along its path, outside both circles.</>}</>
                   : <>On the map, the blue circle shows where the star is today.</>}
               </p>
-              <a className="btn sm" href={`#/target/${picked.slug}`}>Open the full dashboard</a>
+              <a className="btn sm btn-block" href={`#/target/${picked.slug}`}>Open the full dashboard</a>
             </div>
           ) : fast ? (
             <FastCard s={fast} onClose={wholeSky} />

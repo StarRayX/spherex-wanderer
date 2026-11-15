@@ -2,6 +2,7 @@ import { Fragment, useEffect, useMemo, useState } from 'react'
 import type { FormEvent } from 'react'
 import type { PageProps } from '../lib/router'
 import { downloadText, getJson, joinUrl, toCsv } from '../lib/download'
+import PageTabs from '../components/PageTabs'
 import './Triage.css'
 
 // Where the precomputed files live. Switch to '/triage' to test with fixtures.
@@ -132,8 +133,12 @@ function CountBar({ counts }: { counts: Counts }) {
 // ---------- detail ----------
 type Load = { state: 'loading' } | { state: 'error' } | { state: 'ok'; meta: Meta; rows: Row[] }
 
+const FIELD_TABS = [{ id: 'changes', label: 'Changes' }, { id: 'check', label: 'Check a position' }, { id: 'notes', label: 'Method and limits' }] as const
+type FieldTab = (typeof FIELD_TABS)[number]['id']
+
 function Detail({ slug, onReady }: { slug: string; onReady: () => void }) {
   const [d, setD] = useState<Load>({ state: 'loading' })
+  const [tab, setTab] = useState<FieldTab>('changes')
   const base = joinUrl(TRIAGE_BASE, encodeURIComponent(slug))
 
   useEffect(() => {
@@ -194,19 +199,21 @@ function Detail({ slug, onReady }: { slug: string; onReady: () => void }) {
         <p className="tg-crowd">This field is crowded. {pct}% of its changes ({counts.star_residual} of {n}) are bright-star leftovers, so most of what you see here is subtraction noise, not new objects.</p>
       )}
 
-      <Check rows={rows} meta={meta} base={base} />
+      <PageTabs tabs={FIELD_TABS} value={tab} onChange={setTab} label={`${meta.name} sections`} />
 
-      <section className="card tg-block" aria-labelledby="tg-all-h">
+      {tab === 'check' && <Check rows={rows} meta={meta} base={base} />}
+
+      {tab === 'changes' && <section className="card tg-block" aria-labelledby="tg-all-h">
         <h2 id="tg-all-h" className="card-title">Every change in this field</h2>
         <p className="caption">{rows.length} changes between visits, each sorted into one cause.</p>
         {o && o.cosmic_rays > 0 && <p className="tg-trans">The SPHEREx pipeline already marked {o.flagged_transient_by_pipeline} of the {o.cosmic_rays} cosmic rays we found as TRANSIENT.</p>}
         <Table rows={rows} counts={counts} base={base} slug={meta.slug} />
-      </section>
+      </section>}
 
-      <div className="tg-pair">
+      {tab === 'notes' && <div className="tg-pair">
       <section className="card tg-block tg-limits" aria-labelledby="tg-lim-h">
         <h2 id="tg-lim-h" className="card-title">Limits</h2>
-        <details className="tg-fold">
+        <details className="tg-fold" open>
           <summary>What an empty result does not tell you</summary>
           {meta.depth_note && <p>{meta.depth_note}</p>}
           {(meta.caveats ?? []).length > 0 && <ul className="notes-list">{(meta.caveats ?? []).map((c, i) => <li key={i}>{c}</li>)}</ul>}
@@ -215,12 +222,12 @@ function Detail({ slug, onReady }: { slug: string; onReady: () => void }) {
 
       <section className="card tg-block" aria-labelledby="tg-how-h">
         <h2 id="tg-how-h" className="card-title">How we checked</h2>
-        <details className="tg-fold">
+        <details className="tg-fold" open>
           <summary>Method</summary>
           <p>{meta.method}</p>
         </details>
       </section>
-      </div>
+      </div>}
     </div>
   )
 }

@@ -558,3 +558,13 @@ body :is(.btn, .hb-btn, .chip-btn, .as-chip, .seg button, .as-seg button, .mv-ep
 
 /* Headings never leave one word on a line of its own. */
 h1, h2 { text-wrap: balance; }
+
+/* A button that fills its container's width. */
+.btn.btn-block { display: flex; width: 100%; }
+
+/* Page tab bar (components/PageTabs and Test stars). */
+.t-tabs { display: flex; gap: var(--s3); border-bottom: 1px solid var(--line); margin-bottom: var(--s3); overflow-x: auto; scrollbar-width: none; }
+.t-tabs [role="tab"] { flex: none; border: 0; background: none; border-radius: 0; padding: 10px 2px; min-height: 44px; font: 600 var(--t-sm) var(--f-display); color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.t-tabs [role="tab"]:hover { color: var(--ink); }
+.t-tabs [role="tab"][aria-selected="true"] { color: var(--ink); border-bottom-color: var(--cyan); }
+.t-tabs [role="tab"]:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }

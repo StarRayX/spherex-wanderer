@@ -100,7 +100,7 @@ function Overview({ m }: { m: Meta }) {
             <p className="ov-claim">{tidy(m.target?.claim ?? '')}</p>
           </>,
           bottom: <>
-            {mo && <p className="ov-result mono">Ours {fmt(mo.measured_arcsec_per_yr)} ± {fmt(mo.error_arcsec_per_yr)}″/yr · Gaia {fmt(mo.gaia_arcsec_per_yr)}″/yr</p>}
+            {mo && <p className="ov-result mono">Ours: {fmt(mo.measured_arcsec_per_yr)} ± {fmt(mo.error_arcsec_per_yr)}″/yr<br />Gaia: {fmt(mo.gaia_arcsec_per_yr)}″/yr</p>}
             {a && <p className="mono sm muted">RA {raHms(a.ra)} · Dec {decDms(a.dec)}</p>}
             <div className="cta">
               <a className="btn sm" href={`#/sky?target=${m.slug}`}>Show on the sky map</a>

@@ -3,6 +3,7 @@ import type { KeyboardEvent, PointerEvent, ReactNode } from 'react'
 import type { PageProps } from '../lib/router'
 import { getJson, joinUrl } from '../lib/download'
 import { wlColor } from '../lib/wavelength'
+import PageTabs from '../components/PageTabs'
 import './Movers.css'
 
 // Where the precomputed files live. Switch to '/movers' to test with fixtures.
@@ -181,8 +182,12 @@ function Spark({ slug, kind }: { slug: string; kind: string }) {
 // ---------- detail ----------
 type Load = { state: 'loading' } | { state: 'error' } | { state: 'ok'; meta: Meta; rows: Row[]; frames: Frame[] }
 
+const DETAIL_TABS = [{ id: 'spectrum', label: 'Spectrum' }, { id: 'images', label: 'Images' }, { id: 'table', label: 'Measurements' }, { id: 'notes', label: 'Method and limits' }] as const
+type DetailTab = (typeof DETAIL_TABS)[number]['id']
+
 function Detail({ slug, onReady }: { slug: string; onReady: () => void }) {
   const [d, setD] = useState<Load>({ state: 'loading' })
+  const [tab, setTab] = useState<DetailTab>('spectrum')
   const base = joinUrl(MOVERS_BASE, encodeURIComponent(slug))
 
   useEffect(() => {
@@ -241,22 +246,25 @@ function Detail({ slug, onReady }: { slug: string; onReady: () => void }) {
         </div>
       </header>
 
-      <section className="mv-block" aria-labelledby="mv-plot-h">
+      <PageTabs tabs={DETAIL_TABS} value={tab} onChange={setTab} label={`${meta.name} sections`} />
+
+      {tab === 'spectrum' && <section className="mv-block" aria-labelledby="mv-plot-h">
         <h2 id="mv-plot-h" className="card-title">Measured spectrum</h2>
         <p className="mv-sub-t"><b>Brightness, not reflectance.</b>{meta.kind === 'comet' ? ' Comet values depend on the aperture size, the circle we add the light inside.' : ' We did not divide out the Sun.'}</p>
         <p className="caption mv-prose">
           How bright {meta.name} looked at each infrared colour, in <Gloss tip="Microjanskys, a unit of brightness">µJy</Gloss> (microjanskys, a unit of brightness). Each point is one SPHEREx image. Shaded bands mark colours where common ices and gases absorb or glow.
         </p>
         <Plot rows={rows} bands={meta.bands ?? []} />
-      </section>
+      </section>}
 
-      <section className="mv-block" aria-labelledby="mv-blink-h">
+      {tab === 'images' && <section className="mv-block" aria-labelledby="mv-blink-h">
         <h2 id="mv-blink-h" className="card-title">Blink the images</h2>
         <Blink frames={frames} base={base} name={meta.name} />
-      </section>
+      </section>}
 
-      <details className="mv-block mv-sec">
-        <summary>How the numbers were made</summary>
+      {tab === 'notes' && <>
+      <section className="mv-block">
+        <h2 className="card-title">How the numbers were made</h2>
         <dl className="mv-facts mv-facts-col">
           <div><dt>Measurements</dt><dd>{meta.n_rows}</dd></div>
           <div><dt>Wavelength</dt><dd>{f1(meta.wl_min_um, 2)} to {f1(meta.wl_max_um, 2)} µm</dd></div>
@@ -266,19 +274,20 @@ function Detail({ slug, onReady }: { slug: string; onReady: () => void }) {
         </dl>
         <p className="mv-sec-p">{meta.method}</p>
         <p className="muted sm mv-sec-p">Aperture (the circle we add the light inside): {f1(meta.aperture_arcsec, 1)} arcseconds. Sky ring, used to subtract the background: {meta.annulus_arcsec?.[0]} to {meta.annulus_arcsec?.[1]} arcseconds. Orbit source: {meta.ephemeris}.</p>
-      </details>
+      </section>
 
-      <details className="mv-block mv-sec">
-        <summary>Limits</summary>
+      <section className="mv-block">
+        <h2 className="card-title">Limits</h2>
         <ul className="notes-list">
           {(meta.caveats ?? []).map((c, i) => <li key={i}>{c}</li>)}
         </ul>
-      </details>
+      </section>
+      </>}
 
-      <details className="mv-block mv-sec">
-        <summary>All {rows.length} measurements</summary>
+      {tab === 'table' && <section className="mv-block">
+        <h2 className="card-title">All {rows.length} measurements</h2>
         <RowsTable rows={rows} />
-      </details>
+      </section>}
     </div>
   )
 }

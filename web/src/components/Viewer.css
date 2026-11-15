@@ -37,7 +37,9 @@
 /* The compass, scale bar and notes sit just inside the corner brackets (12 px inset, 18 px arms). */
 .viewer .compass { right: 24px; top: 24px; }
 .viewer .scalebar { left: 26px; bottom: 22px; width: calc(50% - 14px); }
-.viewer .frame-note { left: 26px; right: 74px; top: 26px; }
+.viewer .frame-note { left: 26px; right: 26px; top: 26px; }
+/* While a note is showing it spans the top, so the compass moves to the free bottom-right corner. */
+.viewer .frame:has(.frame-note) .compass { top: auto; bottom: 24px; }
 /* Sky panel: 2x and Changes side by side under the controls. */
 .viewer .viewer-tools { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s1); }
 .viewer .viewer-tools .chip-btn { width: 100%; min-height: var(--ctl-h); }
@@ -51,3 +53,11 @@
    to the last one's (--n = number of visits). */
 .viewer .controls .stop, .viewer .controls .stop:last-child { flex: 1 1 0; align-items: center; }
 .viewer .controls .scrub::before { left: calc(100% / var(--n, 3) / 2); right: calc(100% / var(--n, 3) / 2); top: 9px; }
+
+/* Zoom switch: 1x | 2x as one joined control. */
+.viewer .zoom-seg { display: inline-flex; flex: none; }
+.viewer .zoom-seg .chip-btn { min-width: 40px; padding: 0 10px; }
+.viewer .zoom-seg .chip-btn:first-child { border-top-right-radius: 0; border-bottom-right-radius: 0; }
+.viewer .zoom-seg .chip-btn:last-child { border-top-left-radius: 0; border-bottom-left-radius: 0; margin-left: -1px; }
+.viewer .viewer-tools .zoom-seg { display: flex; }
+.viewer .viewer-tools .zoom-seg .chip-btn { flex: 1; width: auto; }

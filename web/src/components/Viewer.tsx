@@ -65,7 +65,13 @@ export default function Viewer({ meta, src, autoplay = true, compact = false, as
   const fov = native * meta.pixel_scale_arcsec
   const scaleArcsec = fov > 200 ? 60 : 30
 
-  const zoomBtn = <button className="chip-btn" onClick={() => setZoom(z => (z === 2 ? 1 : 2))} aria-pressed={zoom === 2} title="Zoom in on the star">2×</button>
+  // Zoom switch: both levels visible, the current one highlighted.
+  const zoomBtn = (
+    <div className="zoom-seg" role="group" aria-label="Zoom">
+      <button className="chip-btn" onClick={() => setZoom(1)} aria-pressed={zoom === 1} title="Show the whole cutout">1×</button>
+      <button className="chip-btn" onClick={() => setZoom(2)} aria-pressed={zoom === 2} title="Zoom in on the star">2×</button>
+    </div>
+  )
   const changesBtn = diffs.some(d => d.file) && (
     <button className="chip-btn" onClick={() => setLayer(l => (l === 'changes' ? 'images' : 'changes'))} aria-pressed={layer === 'changes'} title="Show only what changed since the last visit">Changes</button>
   )

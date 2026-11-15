@@ -1,9 +1,4 @@
 .t-prepared { color: var(--muted); font-size: var(--t-sm); max-width: 60ch; margin: 8px 0 0; }
-.t-tabs { display: flex; gap: var(--s3); border-bottom: 1px solid var(--line); margin-bottom: var(--s3); overflow-x: auto; scrollbar-width: none; }
-.t-tabs [role="tab"] { flex: none; border: 0; background: none; border-radius: 0; padding: 10px 2px; min-height: 44px; font: 600 var(--t-sm) var(--f-display); color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
-.t-tabs [role="tab"]:hover { color: var(--ink); }
-.t-tabs [role="tab"][aria-selected="true"] { color: var(--ink); border-bottom-color: var(--cyan); }
-.t-tabs [role="tab"]:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
 .t-pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: var(--s2); }
 .t-pair > div { display: flex; flex-direction: column; gap: 4px; }
 
@@ -38,10 +33,10 @@
 .viewer-aside .va-mid .legend { flex-direction: column; align-items: flex-start; gap: 6px; margin: 0; }
 .viewer-aside .va-bottom p { margin: 0 0 var(--s1); }
 .ov-claim { margin: 0; font-size: var(--t-lg); line-height: 1.35; max-width: 34ch; }
-.ov-result { font-size: var(--t-md); font-weight: 600; color: var(--ink); }
+/* Same as the Home validation numbers. */
+.ov-result { font: 700 var(--t-lg)/1.25 var(--f-mono); color: var(--ink); }
 @media (min-width: 961px) {
   .viewer-split { grid-template-columns: minmax(0, 560px) minmax(0, 1fr); gap: var(--s3) var(--s5); }
-  .viewer-aside .va-bottom { margin-top: auto; }
 }
 
 /* Use the card's width: short notices and source lines span it, and long note lists flow into two
@@ -50,4 +45,10 @@
 @media (min-width: 961px) {
   .card .notes-list { display: block; columns: 2 340px; column-gap: var(--s5); }
   .card .notes-list li { break-inside: avoid; margin-bottom: var(--s2); max-width: none; }
+}
+/* Only the sky-map button drops to the bottom of the side column, level with the viewer's controls row;
+   the result and coordinates stay under the legend. */
+@media (min-width: 961px) {
+  .viewer-aside .va-bottom { display: contents; }
+  .viewer-aside .va-bottom .cta { margin-top: auto; }
 }
