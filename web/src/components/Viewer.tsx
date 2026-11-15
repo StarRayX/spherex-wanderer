@@ -63,7 +63,11 @@ export default function Viewer({ meta, src, autoplay = true, compact = false, as
   // Sky panel (compact) and the side-column layout (aside) share one control layout.
   // Every viewer uses one control structure; CSS puts it on one line or two depending on the viewer's width.
   const stacked = true
-  const showLabel = (i: number) => visits.length <= (compact ? 3 : 4) || i === 0 || i === visits.length - 1 || i === idx
+  // More than four visits (R Draconis has 7): the dates get their own line, and the first and last dates hide
+  // when the current one sits next to them, so labels never overlap.
+  const many = visits.length > 4
+  const showLabel = (i: number) => visits.length <= (compact ? 3 : 4) || i === idx
+    || ((i === 0 || i === visits.length - 1) && (!many || Math.abs(i - idx) >= 2))
 
   const fov = native * meta.pixel_scale_arcsec
   const scaleArcsec = fov > 200 ? 60 : 30
@@ -173,8 +177,8 @@ export default function Viewer({ meta, src, autoplay = true, compact = false, as
 
   if (aside) {
     return (
-      <div className="viewer viewer-split">
-        <div className="viewer-main">{frame}<div className="ctl-wrap">{controls}{tools}</div></div>
+      <div className={'viewer viewer-split' + (many ? ' many' : '')}>
+        <div className="card viewer-main">{frame}<div className="ctl-wrap">{controls}{tools}</div></div>
         <div className="viewer-aside">
           <div className="va-top">{aside.top}</div>
           <div className="va-mid">{top}{legend}</div>
@@ -183,7 +187,7 @@ export default function Viewer({ meta, src, autoplay = true, compact = false, as
       </div>
     )
   }
-  return <div className="viewer">{top}{frame}<div className="ctl-wrap">{controls}{tools}</div>{legend}</div>
+  return <div className={'viewer' + (many ? ' many' : '')}>{top}{frame}<div className="ctl-wrap">{controls}{tools}</div>{legend}</div>
 }
 
 // Overlay sizes, in image pixels (the overlay scales with the image and the 2x zoom).

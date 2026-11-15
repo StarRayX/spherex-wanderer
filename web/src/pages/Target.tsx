@@ -94,7 +94,7 @@ function Overview({ m }: { m: Meta }) {
         <span className="stat-value">{moon === null ? 'n/a' : (moon < 1000 ? Math.round(moon) : Math.round(moon / 100) * 100).toLocaleString('en-US')}<small> years</small></span>
       </div>
 
-      <div className="card wide ov-view">
+      <div className="wide ov-view">
         <Viewer meta={m} src={f => imageUrl(m.slug, f)} aside={{
           top: <>
             <span className={`badge ${info.status}`}><span className="dot" />{STATUS_LABEL[info.status]}</span>
@@ -118,12 +118,13 @@ function Visits({ m }: { m: Meta }) {
   return (
     <div className="split t-visits">
       <div className="card"><Viewer meta={m} src={f => imageUrl(m.slug, f)} /></div>
-      <div className="card">
+      <div className="t-visits-list">
         <h2 className="card-title">Every visit</h2>
         <p className="caption">One image per visit. The crosshair is fixed.</p>
         <div className="filmstrip">
           {m.visits.map((v, i) => (
             <figure key={v.file}>
+              <span className="v-n">{String(i + 1).padStart(2, '0')}</span>
               <div className="well">
                 <img src={imageUrl(m.slug, v.file)} alt={`${m.target?.name}, visit ${i + 1}, ${monthYear(v.date)}`} />
                 <svg viewBox={`0 0 ${n} ${n}`} aria-hidden><line x1={n / 2} x2={n / 2} y1="0" y2={n} className="ref" /><line x1="0" x2={n} y1={n / 2} y2={n / 2} className="ref" /></svg>
@@ -141,7 +142,7 @@ function Colour({ m }: { m: Meta }) {
   const s = m.spectrum
   const phot = Array.isArray(m.photometry) ? (m.photometry as PhotometryPoint[]) : []
   return (
-    <div className="grid2">
+    <div className={'grid2' + (s && m.slug === 'epsilon-indi-b' ? ' t-colour-aside' : '')}>
       {s ? (
         <>
           <div className="card wide">
@@ -149,7 +150,7 @@ function Colour({ m }: { m: Meta }) {
             <p className="caption">{s.n_used} SPHEREx photos from the {s.visit_date} visit, put in order of wavelength.</p>
             <SpectrumPlot spectrum={s} notes={m.slug === 'epsilon-indi-b' ? [
               { at: 1.5, text: 'dip: water vapour absorbs here', dy: -122, anchor: 'start' },
-              { at: 4.03, text: 'brightest near 4 µm: it is cold', dy: 64, anchor: 'end' },
+              { at: 4.03, text: 'brightest near 4 µm: it is cold', dy: -24, anchor: 'end' },
             ] : []} />
           </div>
           {m.slug === 'epsilon-indi-b' && (
@@ -175,14 +176,14 @@ function Colour({ m }: { m: Meta }) {
           <h2 className="card-title">Brightness on each visit</h2>
           <p className="caption">Same small circle around the star each time. Compare rows only at matching wavelengths.</p>
           <div style={{ overflowX: 'auto' }}>
-            <table className="mono sm" style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead><tr style={{ textAlign: 'left', color: 'var(--muted)' }}><th style={{ padding: 8 }}>Visit</th><th style={{ padding: 8 }}>Wavelength</th><th style={{ padding: 8, textAlign: 'right' }}>Brightness</th></tr></thead>
+            <table className="mono sm t-phot" style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead><tr style={{ textAlign: 'left', color: 'var(--muted)' }}><th style={{ padding: 8 }}>Visit</th><th style={{ padding: 8 }}>Wavelength</th><th style={{ padding: 8 }}>Brightness</th></tr></thead>
               <tbody>
                 {phot.map(p => (
                   <tr key={p.date} style={{ borderTop: '1px solid var(--line)' }}>
                     <td style={{ padding: 8 }}>{monthYear(p.date)}</td>
                     <td style={{ padding: 8 }}>{fmt(p.wavelength_min_um)} to {fmt(p.wavelength_max_um)} µm</td>
-                    <td style={{ padding: 8, textAlign: 'right' }}>{p.aperture_mjy == null ? 'n/a' : `${p.lower_limit ? 'over ' : ''}${fmt(p.aperture_mjy, 1)} mJy`}</td>
+                    <td style={{ padding: 8 }}>{p.aperture_mjy == null ? 'n/a' : `${p.lower_limit ? 'over ' : ''}${fmt(p.aperture_mjy, 1)} mJy`}</td>
                   </tr>
                 ))}
               </tbody>

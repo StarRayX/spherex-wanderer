@@ -30,7 +30,8 @@ export default function SpectrumPlot({ spectrum, notes = [] }: { spectrum: Spect
   const pts = useMemo(() => spectrum.wavelength_um
     .map((w, i) => ({ w, f: spectrum.flux_mjy[i], e: spectrum.err_mjy[i] }))
     .sort((a, b) => a.w - b.w), [spectrum])
-  const yMax = Math.ceil(Math.max(...pts.map(p => p.f + p.e)) / 10) * 10
+  // Headroom above the highest point when notes are drawn, so a note can sit above the peak inside the plot.
+  const yMax = Math.ceil((Math.max(...pts.map(p => p.f + p.e)) * (notes.length ? 1.2 : 1)) / 10) * 10
   const x = (w: number) => PAD.l + ((w - X0) / (X1 - X0)) * (W - PAD.l - PAD.r)
   const y = (f: number) => H - PAD.b - (f / yMax) * (H - PAD.t - PAD.b)
 

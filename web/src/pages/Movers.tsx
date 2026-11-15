@@ -53,6 +53,8 @@ interface Band { um: number; label: string; lo_um?: number; hi_um?: number }
 interface Frame { file: string; iso: string; wavelength_um: number; ra: number; dec: number; size_deg: number }
 
 const f1 = (n: number | null | undefined, d = 2) => (n === null || n === undefined || !Number.isFinite(n) ? '' : n.toFixed(d))
+// Fluxes run from about 1 to 100,000 µJy: whole numbers with separators, one decimal below 100.
+const fmtFlux = (n: number) => (Math.abs(n) < 100 ? n.toFixed(1) : Math.round(n).toLocaleString('en-US'))
 const day = (iso: string) => iso.slice(0, 10)
 const when = (iso: string) => iso.slice(0, 16).replace('T', ' ')
 const kindWord = (k: string) => (k === 'comet' ? 'Comet' : 'Asteroid')
@@ -184,7 +186,7 @@ function Spark({ slug, kind }: { slug: string; kind: string }) {
 // ---------- detail ----------
 type Load = { state: 'loading' } | { state: 'error' } | { state: 'ok'; meta: Meta; rows: Row[]; frames: Frame[] }
 
-const DETAIL_TABS = [{ id: 'spectrum', label: 'Spectrum' }, { id: 'images', label: 'Images' }, { id: 'table', label: 'Measurements' }, { id: 'notes', label: 'Method and limits' }] as const
+const DETAIL_TABS = [{ id: 'spectrum', label: 'Spectrum' }, { id: 'images', label: 'Images' }, { id: 'table', label: 'Measurements' }, { id: 'notes', label: 'Method and limits', short: 'Method' }] as const
 type DetailTab = (typeof DETAIL_TABS)[number]['id']
 
 function Detail({ slug, tabParam, onReady }: { slug: string; tabParam: string | null; onReady: () => void }) {
@@ -263,7 +265,7 @@ function Detail({ slug, tabParam, onReady }: { slug: string; tabParam: string | 
 
       {tab === 'images' && <section className="mv-block" aria-labelledby="mv-blink-h">
         <h2 id="mv-blink-h" className="card-title">Blink the images</h2>
-        <Blink frames={frames} base={base} name={meta.name} />
+        <Blink frames={frames} rows={rows} base={base} name={meta.name} />
       </section>}
 
       {tab === 'notes' && <div className="notes-stack">
@@ -494,7 +496,7 @@ function Plot({ rows, bands }: { rows: Row[]; bands: Band[] }) {
 }
 
 // ---------- blink ----------
-function Blink({ frames, base, name }: { frames: Frame[]; base: string; name: string }) {
+function Blink({ frames, rows, base, name }: { frames: Frame[]; rows: Row[]; base: string; name: string }) {
   const [i, setI] = useState(0)
   const [play, setPlay] = useState(() => !reduceMotion())
 
@@ -508,8 +510,12 @@ function Blink({ frames, base, name }: { frames: Frame[]; base: string; name: st
   const f = frames[Math.min(i, frames.length - 1)]
   const arcmin = f.size_deg ? Math.round(f.size_deg * 60 * 10) / 10 : null
 
-  // Where this frame's wavelength sits in SPHEREx's 0.75 to 5 micron range (log scale, as in wlColor).
-  const pos = Math.min(1, Math.max(0, Math.log(f.wavelength_um / 0.75) / Math.log(5 / 0.75))) * 100
+  // Where a wavelength sits in SPHEREx's 0.75 to 5 micron range (log scale, as in wlColor).
+  const at = (um: number) => Math.min(1, Math.max(0, Math.log(um / 0.75) / Math.log(5 / 0.75))) * 100
+  // This image's row in the Measurements table (same time and wavelength).
+  const row = rows.find(r => r.iso === f.iso && Math.abs(r.wavelength_um - f.wavelength_um) < 1e-3)
+  const go = (k: number) => { setPlay(false); setI(k) }
+  const label = (fr: Frame, k: number) => `Image ${k + 1}, ${when(fr.iso)} UTC, ${f1(fr.wavelength_um, 2)} µm`
 
   return (
     <div className="mv-blink">
@@ -522,16 +528,43 @@ function Blink({ frames, base, name }: { frames: Frame[]; base: string; name: st
         </div>
         <div className="mv-ctl">
           <button className="icon-btn" onClick={() => setPlay(p => !p)} aria-label={play ? 'Pause' : 'Play'}>{play ? <PauseIcon /> : <PlayIcon />}</button>
-          <input type="range" min={0} max={frames.length - 1} value={i} onChange={e => { setPlay(false); setI(+e.target.value) }} aria-label="Choose an image" />
+          {/* One stop per image, in its wavelength colour. */}
+          <div className="mv-stops" role="group" aria-label="Choose an image">
+            {frames.map((fr, k) => (
+              <button key={fr.file} className={k === i ? 'on' : ''} onClick={() => go(k)} aria-label={label(fr, k)} aria-current={k === i || undefined}>
+                <i style={{ background: wlColor(fr.wavelength_um) }} />
+              </button>
+            ))}
+          </div>
         </div>
       </div>
-      <div className="mv-blink-side" aria-live="polite">
-        <p className="mv-side-k">Image {i + 1} of {frames.length}</p>
-        <p className="mv-side-t">{when(f.iso)} UTC</p>
-        <p className="mv-side-wl"><span className="mv-wsw" style={{ background: wlColor(f.wavelength_um) }} aria-hidden />{f1(f.wavelength_um, 2)} µm</p>
-        <div className="mv-wlbar" aria-hidden><i style={{ left: `${pos}%` }} /></div>
-        <p className="mv-wlbar-k" aria-hidden><span>0.75 µm</span><span>5 µm</span></p>
-        <p className="caption">{arcmin ? `About ${arcmin}′ across. ` : ''}The cross marks the predicted position. Each frame is a different wavelength, so brightness varies.</p>
+      <div className="mv-blink-side">
+        <div aria-live="polite" className="mv-side-now">
+          <p className="mv-side-k">Image {i + 1} of {frames.length}</p>
+          <p className="mv-side-t">{when(f.iso)} UTC</p>
+          <p className="mv-side-wl"><span className="mv-wsw" style={{ background: wlColor(f.wavelength_um) }} aria-hidden />{f1(f.wavelength_um, 2)} µm</p>
+          <div className="mv-wlbar" aria-hidden>
+            {frames.map((fr, k) => <b key={fr.file} style={{ left: `${at(fr.wavelength_um)}%` }} className={k === i ? 'on' : ''} />)}
+            <i style={{ left: `${at(f.wavelength_um)}%` }} />
+          </div>
+          <p className="mv-wlbar-k" aria-hidden><span>0.75 µm</span><span>5 µm</span></p>
+          {row && (
+            <dl className="mv-now">
+              <div><dt>Brightness</dt><dd>{fmtFlux(row.flux_ujy)} <small>± {fmtFlux(row.flux_err_ujy)} µJy</small></dd></div>
+              <div><dt><abbr className="mv-gloss" title="Signal to noise: how far above the noise">S/N</abbr></dt><dd>{f1(row.snr, 0)}</dd></div>
+              <div><dt>Off prediction</dt><dd>{row.offset_arcsec === null ? <small>not found</small> : <>{f1(row.offset_arcsec, 1)}″</>}</dd></div>
+            </dl>
+          )}
+        </div>
+        <div className="mv-thumbs" role="group" aria-label="All images">
+          {frames.map((fr, k) => (
+            <button key={fr.file} className={k === i ? 'on' : ''} onClick={() => go(k)} aria-label={label(fr, k)} aria-current={k === i || undefined}
+              style={{ ['--wl' as string]: wlColor(fr.wavelength_um) }}>
+              <img src={joinUrl(base, fr.file)} alt="" draggable={false} />
+            </button>
+          ))}
+        </div>
+        <p className="caption">{arcmin ? `About ${arcmin}′ across. ` : ''}The cross marks the predicted position. Each image is a different wavelength, so brightness varies.</p>
         <div className="mv-side-cta"><a className="btn sm" href={`#${base}/spectrum`}>See the spectrum</a></div>
       </div>
     </div>

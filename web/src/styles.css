@@ -569,6 +569,13 @@ h1, h2 { text-wrap: balance; }
 .t-tabs [role="tab"]:hover { color: var(--ink); }
 .t-tabs [role="tab"][aria-selected="true"] { color: var(--ink); border-bottom-color: var(--cyan); }
 .t-tabs [role="tab"]:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+/* Phones: tighter gaps and short labels where a page gives them, so four tabs fit without hiding the last. */
+.t-tabs .tab-short { display: none; }
+@media (max-width: 480px) {
+  .t-tabs { gap: var(--s2); }
+  .t-tabs .tab-long { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .t-tabs .tab-short { display: inline; }
+}
 
 /* Pager under long tables: count on the left, Previous and Next on the right. */
 .pager { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s1) var(--s2); margin-top: var(--s2); }

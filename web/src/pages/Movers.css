@@ -160,7 +160,34 @@
   background: linear-gradient(90deg, #6D7CFF, #3FB8F0, #4FD8A4, #E8D25A, #FF9A4A, #E5483F); }
 .mv-wlbar i { position: absolute; top: 50%; width: 12px; height: 12px; border-radius: 50%; background: #fff; border: 2px solid #020305; transform: translate(-50%, -50%); transition: left .3s ease; }
 .mv-wlbar-k { display: flex; justify-content: space-between; font: 500 var(--t-xs) var(--f-mono); color: var(--muted); }
-.mv-blink-side .caption { margin-top: var(--s2); }
+.mv-blink-side .caption { margin-top: var(--s1); }
+.mv-side-now { display: flex; flex-direction: column; gap: var(--s1); }
+/* Every image's wavelength as a small tick on the bar; the current one gets the white marker. */
+.mv-wlbar b { position: absolute; top: -4px; bottom: -4px; width: 2px; margin-left: -1px; background: rgba(255, 255, 255, .55); border-radius: 1px; }
+.mv-wlbar b.on { opacity: 0; }
+
+/* This image's measurement: three figures in a row. */
+.mv-now { display: grid; grid-template-columns: repeat(3, auto); justify-content: start; gap: var(--s1) var(--s4); margin: var(--s1) 0 0; }
+.mv-now div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.mv-now dt { font-size: var(--t-xs); color: var(--muted); font-weight: 600; }
+.mv-now dd { margin: 0; font: 700 var(--t-md)/1.25 var(--f-mono); color: var(--ink); white-space: nowrap; }
+.mv-now small { font: 500 var(--t-xs) var(--f-mono); color: var(--muted); }
+
+/* All images as small thumbnails, each edged in its wavelength colour; click one to show it. */
+.mv-thumbs { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; margin-top: var(--s2); }
+.mv-thumbs button { position: relative; padding: 0; aspect-ratio: 1; border: 0; border-radius: 6px; background: var(--sky); overflow: hidden; cursor: pointer;
+  box-shadow: inset 0 -3px 0 var(--wl); opacity: .6; transition: opacity .15s, outline-color .15s; outline: 2px solid transparent; outline-offset: 1px; }
+.mv-thumbs button:hover { opacity: .9; }
+.mv-thumbs button.on { opacity: 1; outline-color: var(--wl); }
+.mv-thumbs img { position: absolute; inset: 0; width: 100%; height: calc(100% - 3px); object-fit: cover; image-rendering: pixelated; }
+
+/* The scrubber: one dot per image in its wavelength colour, on a thin line; the current one is larger. */
+.mv-stops { flex: 1; min-width: 0; display: flex; position: relative; height: var(--ctl-h); }
+.mv-stops::before { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 2px; margin-top: -1px; background: var(--line); }
+.mv-stops button { position: relative; flex: 1 1 0; min-width: 0; padding: 0; border: 0; background: none; cursor: pointer; display: grid; place-items: center; }
+.mv-stops i { width: 10px; height: 10px; border-radius: 50%; opacity: .7; transition: transform .15s, opacity .15s; }
+.mv-stops button:hover i { opacity: 1; }
+.mv-stops button.on i { opacity: 1; transform: scale(1.7); box-shadow: 0 0 0 2px var(--card), 0 0 0 3.5px #fff; }
 @media (min-width: 961px) {
   .mv-blink { grid-template-columns: minmax(0, 480px) minmax(0, 1fr); gap: var(--s3) var(--s5); }
   .mv-side-cta { margin-top: auto; }
