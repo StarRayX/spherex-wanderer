@@ -58,7 +58,7 @@ const reduceMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matche
 
 export default function Movers({ params, onReady }: PageProps) {
   const slug = params.slug
-  return slug ? <Detail key={slug} slug={slug} onReady={onReady} /> : <List onReady={onReady} />
+  return slug ? <Detail key={slug} slug={slug} tabParam={params.tab} onReady={onReady} /> : <List onReady={onReady} />
 }
 
 // ---------- list ----------
@@ -185,9 +185,11 @@ type Load = { state: 'loading' } | { state: 'error' } | { state: 'ok'; meta: Met
 const DETAIL_TABS = [{ id: 'spectrum', label: 'Spectrum' }, { id: 'images', label: 'Images' }, { id: 'table', label: 'Measurements' }, { id: 'notes', label: 'Method and limits' }] as const
 type DetailTab = (typeof DETAIL_TABS)[number]['id']
 
-function Detail({ slug, onReady }: { slug: string; onReady: () => void }) {
+function Detail({ slug, tabParam, onReady }: { slug: string; tabParam: string | null; onReady: () => void }) {
   const [d, setD] = useState<Load>({ state: 'loading' })
-  const [tab, setTab] = useState<DetailTab>('spectrum')
+  // The tab lives in the URL (#/movers/<slug>/<tab>), so links and the back button keep it.
+  const tab: DetailTab = DETAIL_TABS.some(t => t.id === tabParam) ? (tabParam as DetailTab) : 'spectrum'
+  const setTab = (id: DetailTab) => { location.hash = `#/movers/${encodeURIComponent(slug)}/${id}` }
   const base = joinUrl(MOVERS_BASE, encodeURIComponent(slug))
 
   useEffect(() => {

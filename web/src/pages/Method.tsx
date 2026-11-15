@@ -26,9 +26,11 @@ const LIMITS = [
 const METHOD_TABS = [{ id: 'overview', label: 'Overview' }, { id: 'data', label: 'Data and limits' }] as const
 type MethodTab = (typeof METHOD_TABS)[number]['id']
 
-export default function Method({ onReady }: PageProps) {
+export default function Method({ params, onReady }: PageProps) {
   const [b, setB] = useState<Meta | null>(null)
-  const [tab, setTab] = useState<MethodTab>('overview')
+  // The tab lives in the URL (#/method/<tab>), so links and the back button keep it.
+  const tab: MethodTab = METHOD_TABS.some(t => t.id === params.slug) ? (params.slug as MethodTab) : 'overview'
+  const setTab = (id: MethodTab) => { location.hash = `#/method/${id}` }
   useEffect(() => {
     loadMeta('barnards-star').then(setB).catch(() => {}).finally(onReady)
   }, [onReady])

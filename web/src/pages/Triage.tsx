@@ -69,7 +69,7 @@ function parseCoord(text: string, isRa: boolean): number | null {
 
 export default function Triage({ params, onReady }: PageProps) {
   const slug = params.slug
-  return slug ? <Detail key={slug} slug={slug} onReady={onReady} /> : <List onReady={onReady} />
+  return slug ? <Detail key={slug} slug={slug} tabParam={params.tab} onReady={onReady} /> : <List onReady={onReady} />
 }
 
 const CHANGE_GLOSS = 'A change is a spot that got brighter or fainter between visits.'
@@ -136,9 +136,11 @@ type Load = { state: 'loading' } | { state: 'error' } | { state: 'ok'; meta: Met
 const FIELD_TABS = [{ id: 'changes', label: 'Changes' }, { id: 'check', label: 'Check a position' }, { id: 'notes', label: 'Method and limits' }] as const
 type FieldTab = (typeof FIELD_TABS)[number]['id']
 
-function Detail({ slug, onReady }: { slug: string; onReady: () => void }) {
+function Detail({ slug, tabParam, onReady }: { slug: string; tabParam: string | null; onReady: () => void }) {
   const [d, setD] = useState<Load>({ state: 'loading' })
-  const [tab, setTab] = useState<FieldTab>('changes')
+  // The tab lives in the URL (#/triage/<slug>/<tab>), so links and the back button keep it.
+  const tab: FieldTab = FIELD_TABS.some(t => t.id === tabParam) ? (tabParam as FieldTab) : 'changes'
+  const setTab = (id: FieldTab) => { location.hash = `#/triage/${encodeURIComponent(slug)}/${id}` }
   const base = joinUrl(TRIAGE_BASE, encodeURIComponent(slug))
 
   useEffect(() => {
