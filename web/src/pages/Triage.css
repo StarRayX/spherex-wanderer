@@ -117,3 +117,13 @@
 @media (max-width: 800px) { .tg-table .tg-ev-pad { display: none; } .tg-table .tg-ev-row td + td { margin-top: var(--s1); } }
 /* Each evidence group is one column of facts inside its table column. */
 .tg-ev.tg-ev-col { grid-template-columns: minmax(0, 1fr); }
+/* Phones: the evidence continues its row's card. Same grid as the row (64 px thumbnail column, then the text
+   column), no gap above it, and only the outer corners rounded, so the facts sit under the verdict text. */
+@media (max-width: 800px) {
+  .tg-table tbody tr.tg-row-open { margin-bottom: 0; border-bottom-left-radius: 0; border-bottom-right-radius: 0; padding-bottom: var(--s1); }
+  .tg-table tbody tr.tg-ev-row { display: grid; grid-template-columns: 64px minmax(0, 1fr); column-gap: var(--s1);
+    margin-top: calc(-1 * var(--s1)); padding: 0 var(--s1) var(--s2); border-radius: 0 0 var(--radius-sm) var(--radius-sm); }
+  .tg-table tbody tr.tg-ev-row td:not(.tg-ev-pad) { grid-column: 2; }
+  .tg-table .tg-ev-row td + td { margin-top: var(--s1); }
+  .tg-table .tg-ev { gap: 6px; }
+}

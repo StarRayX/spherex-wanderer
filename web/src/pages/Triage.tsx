@@ -4,6 +4,7 @@ import type { PageProps } from '../lib/router'
 import { downloadText, getJson, joinUrl, toCsv } from '../lib/download'
 import PageTabs from '../components/PageTabs'
 import Pager from '../components/Pager'
+import BalancedList from '../components/BalancedList'
 import './Triage.css'
 
 // Where the precomputed files live. Switch to '/triage' to test with fixtures.
@@ -99,7 +100,7 @@ function List({ onReady }: { onReady: () => void }) {
       ) : items.length === 0 ? (
         <div className="card tg-empty">
           <h2>Fields are being processed</h2>
-          <p className="muted">Each field takes a few minutes to check, so we run them ahead of time. Check back soon.</p>
+          <p className="muted">Fields are checked ahead of time. Check back soon.</p>
         </div>
       ) : (
         <ul className="tg-cards">
@@ -222,7 +223,7 @@ function Detail({ slug, tabParam, onReady }: { slug: string; tabParam: string | 
       <section className="card" aria-labelledby="tg-lim-h">
         <h2 id="tg-lim-h" className="card-title">Limits</h2>
         {meta.depth_note && <p className="notes-intro">{meta.depth_note}</p>}
-        {(meta.caveats ?? []).length > 0 && <ul className="notes-list">{(meta.caveats ?? []).map((c, i) => <li key={i}>{c}</li>)}</ul>}
+        {(meta.caveats ?? []).length > 0 && <BalancedList items={meta.caveats ?? []} />}
       </section>
       </div>}
     </div>
@@ -249,7 +250,7 @@ function Check({ rows, meta, base }: { rows: Row[]; meta: Meta; base: string }) 
     if (!dateOk) { setRes(null); return }
     const r = parseCoord(raT, true), d = parseCoord(decT, false)
     if (r === null || d === null) {
-      setRes({ kind: 'bad', msg: 'Enter RA and Dec as decimal degrees, like 210.6 and -11.9. RA can also be hours, like 14:02:24.' })
+      setRes({ kind: 'bad', msg: 'RA and Dec in decimal degrees (210.6, -11.9). RA can also be hours (14:02:24).' })
       return
     }
     const near = rows.map(row => ({ row, sep: sepArcsec(r, d, row.ra, row.dec) })).filter(x => x.sep <= MATCH_ARCSEC).sort((a, b) => a.sep - b.sep)
@@ -285,7 +286,7 @@ function Check({ rows, meta, base }: { rows: Row[]; meta: Meta; base: string }) 
         {res?.kind === 'none' && (
           <div className="tg-none">
             <h3>No change recorded here</h3>
-            <p className="muted">{res.elsewhere ? `Nothing on that date, but a change was recorded within ${MATCH_ARCSEC} arcseconds on ${res.elsewhere}. Clear the date to see it.` : `We found no change within ${MATCH_ARCSEC} arcseconds. That does not prove the dot is real or fake. Only this field was searched, and the images are shallow.`}</p>
+            <p className="muted">{res.elsewhere ? `Nothing on that date, but there's a change within ${MATCH_ARCSEC} arcseconds on ${res.elsewhere}. Clear the date to see it.` : `No change within ${MATCH_ARCSEC} arcseconds. That doesn't make the dot real or fake: only this field was searched, and the images are shallow.`}</p>
           </div>
         )}
         {res?.kind === 'hit' && (
@@ -383,7 +384,7 @@ function Table({ rows, counts, base, slug }: { rows: Row[]; counts: Counts; base
       <dl className="tg-defs">
         <div><dt>Bright-star leftover</dt><dd>a bright star that did not subtract cleanly.</dd></div>
         <div><dt>Cosmic ray</dt><dd>a particle hit that lights up one exposure.</dd></div>
-        <div><dt>Detector edge or mask</dt><dd>too close to the edge of the detector, or to a patch we hide, to trust.</dd></div>
+        <div><dt>Detector edge or mask</dt><dd>too close to the detector edge or a masked patch to trust.</dd></div>
         <div><dt>FLAGS bits</dt><dd>quality markers the SPHEREx pipeline puts on each pixel.</dd></div>
         <div><dt>TRANSIENT</dt><dd>the pipeline&apos;s marker for a pixel that spiked in one exposure.</dd></div>
       </dl>

@@ -110,7 +110,7 @@ export default function AnySpot({ params, onReady }: PageProps) {
     setLive({ kind: 'working' })
     try {
       const res = await fetch(`/api/blink?${q}`)
-      if (!(res.headers.get('content-type') ?? '').includes('json')) throw new Error('Live mode needs the deployed API, and it is not running on this copy of the site.')
+      if (!(res.headers.get('content-type') ?? '').includes('json')) throw new Error('Live lookups need the deployed site; they don’t run on this copy.')
       const body = (await res.json()) as Reply
       if (!res.ok || body.error) throw new Error(body.error ?? `The archive request failed (${res.status}).`)
       if (id !== reqId.current) return
@@ -172,7 +172,7 @@ export default function AnySpot({ params, onReady }: PageProps) {
         <div className="as-errbox" role="alert">
           <h2>We could not build this spot</h2>
           <p>{live.message}</p>
-          <p className="muted">Check the coordinates, then try again. The prepared examples always work.</p>
+          <p className="muted">Check the coordinates and try again. The examples always work.</p>
         </div>
       </div>
     )
@@ -186,7 +186,7 @@ export default function AnySpot({ params, onReady }: PageProps) {
       <div className="as-result">
         <div className="as-errbox" role="alert">
           <h2>The example photos did not load</h2>
-          <p>Reload the page to try again, or type coordinates and press Show photos.</p>
+          <p>Reload to try again, or type coordinates and press Show photos.</p>
         </div>
       </div>
     )
@@ -194,7 +194,7 @@ export default function AnySpot({ params, onReady }: PageProps) {
     result = (
       <div className="as-empty as-hide-phone">
         <h2>Nothing is fetched yet</h2>
-        <p>Enter a position or tap an example, then press Show photos. The photos and the star's motion appear here.</p>
+        <p>Enter a position or tap an example, then press Show photos.</p>
       </div>
     )
   }
@@ -202,7 +202,7 @@ export default function AnySpot({ params, onReady }: PageProps) {
   return (
     <div className="page as-page">
       <h1>Look up any spot in the sky</h1>
-      <p className="as-lede">Type a position and we find every SPHEREx photo of it, live from NASA's archive, and measure how far its star moved.</p>
+      <p className="as-lede">Type a position: we fetch its SPHEREx photos live from NASA's archive and measure how far its star moved.</p>
 
       <div className="as-grid">
         <div className="as-inputs">

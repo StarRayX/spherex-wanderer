@@ -400,16 +400,17 @@ def write_outputs(slug, name, designation, ntype, rows, stats, paths_by_obs):
                 "The flux is the sum of the calibrated image inside a 3-pixel-radius circle at the centroid, minus "
                 "the median of a sky ring, times the pixel size, and the wavelength is read at that pixel."),
         caveats=[
-            "These are fluxes, not reflectance: the Sun's spectrum is not divided out and no thermal model is fitted. "
-            "Thermal emission from the asteroid itself dominates beyond about 3.5 um for asteroids this close to the Sun.",
-            "Each frame sees the asteroid at a different time and at a different wavelength, so rotation (brightness "
-            "changes with spin) and wavelength are mixed between neighbouring points.",
-            "Centroids are good to about 1 arcsec from 6.15 arcsec pixels; this is not MPC-grade astrometry. "
-            "Positions are as seen from the SPHEREx spacecraft; Horizons times are matched to the exposure mid-time.",
-            f"Pixels the SPHEREx pipeline flagged OUTLIER are kept because a moving object is flagged that way; frames with a saturated pixel in the aperture ({stats['saturated']}), with a masked or non-finite pixel in the aperture ({stats['masked']}), with another source within 6 pixels "
-            f"({stats['crowded']}), too near the detector edge ({stats['edge']}), centred on a source more than 6 arcsec from the prediction ({stats['offset']}) or without usable sky "
-            f"({stats['nosky']}) were removed, out of {stats['tried']} frames examined; points with S/N below 5 are "
-            "kept and have no measured centroid.",
+            "Fluxes, not reflectance: the Sun's spectrum is not divided out and no thermal model is fitted. "
+            "Beyond about 3.5 um the asteroid's own heat dominates at this distance from the Sun.",
+            "Each frame is a different time and wavelength, so the spin of the asteroid and wavelength are mixed "
+            "between neighbouring points.",
+            "Positions are good to about 1 arcsec (6.15 arcsec pixels), not MPC-grade, and are as seen from "
+            "SPHEREx at the mid-time of each exposure.",
+            "OUTLIER-flagged pixels are kept (moving objects get that flag). "
+            f"Of {stats['tried']} frames, removed: saturated pixel in the aperture ({stats['saturated']}), "
+            f"masked pixel ({stats['masked']}), another source within 6 px ({stats['crowded']}), near the detector edge "
+            f"({stats['edge']}), more than 6 arcsec off the prediction ({stats['offset']}), no usable sky ({stats['nosky']}). "
+            "Points below S/N 5 are kept without a centroid.",
             "No aperture correction and no colour correction; the aperture holds about 98% of a point source.",
         ],
         bands=[])

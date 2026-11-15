@@ -143,3 +143,32 @@
 .mv-legend .mv-dot + .mv-dot { margin-left: -4px; }
 .mv-capline { margin: var(--s0) 0 0; }
 .mv-dl .btn.quiet { min-height: var(--ctl-h); }
+
+/* Images tab: the image and its controls on the left; frame number, time, wavelength (with where it sits in
+   the 0.75 to 5 micron range), caption and a link to the spectrum on the right. Stacks on narrow screens. */
+.mv-blink { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s3); }
+.mv-blink-main { display: flex; flex-direction: column; gap: var(--s1); min-width: 0; }
+.mv-blink-main .mv-frame { max-width: none; }
+.mv-blink-main .mv-ctl { max-width: none; }
+.mv-blink-side { display: flex; flex-direction: column; gap: var(--s1); min-width: 0; }
+.mv-blink-side p { margin: 0; }
+.mv-side-k { font-size: var(--t-sm); color: var(--muted); font-weight: 600; }
+.mv-side-t { font: 700 var(--t-lg)/1.25 var(--f-mono); color: var(--ink); }
+.mv-side-wl { display: flex; align-items: center; gap: var(--s1); font: 600 var(--t-md) var(--f-mono); }
+.mv-side-wl .mv-wsw { width: 12px; height: 12px; }
+.mv-wlbar { position: relative; height: 6px; border-radius: 3px; margin-top: var(--s1);
+  background: linear-gradient(90deg, #6D7CFF, #3FB8F0, #4FD8A4, #E8D25A, #FF9A4A, #E5483F); }
+.mv-wlbar i { position: absolute; top: 50%; width: 12px; height: 12px; border-radius: 50%; background: #fff; border: 2px solid #020305; transform: translate(-50%, -50%); transition: left .3s ease; }
+.mv-wlbar-k { display: flex; justify-content: space-between; font: 500 var(--t-xs) var(--f-mono); color: var(--muted); }
+.mv-blink-side .caption { margin-top: var(--s2); }
+@media (min-width: 961px) {
+  .mv-blink { grid-template-columns: minmax(0, 480px) minmax(0, 1fr); gap: var(--s3) var(--s5); }
+  .mv-side-cta { margin-top: auto; }
+}
+@media (prefers-reduced-motion: reduce) { .mv-wlbar i { transition: none; } }
+
+/* Method facts in one row across the card; the method text uses the full card width. */
+.mv-facts.mv-facts-row { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); margin: 0 0 var(--s2); }
+.notes-stack .mv-sec-p { max-width: none; margin: 0; }
+/* Images tab: a tighter gap between the image and its side column. */
+@media (min-width: 961px) { .mv-blink { gap: var(--s3); } }

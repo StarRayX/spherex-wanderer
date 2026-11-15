@@ -380,11 +380,11 @@
     "Ba and Bb (0.6 arcsec apart) are one blended source at 6.15 arcsec per pixel.",
     "Epsilon Indi A is about 400 arcsec away, outside this 2 arcmin field: no common-motion view here.",
     "Frames matched to 1.27 um; the Apr 2026 visit has none closer than 1.30 to 1.37 um.",
-    "1 of 4 visits (2026-04-25) are not at the shared wavelength (1.260 um, colour_matched false): in a flipbook their brightness changes from colour alone.",
-    "Detection: forced S/N in a 2 px aperture on the stack against the scatter of the same aperture at blank positions of that stack (reprojection correlates pixels, so a per-pixel noise would overstate S/N); needs S/N 5 and the centre within 1.5 px of the prediction.",
-    "Each frame saw a different wavelength at the star's pixel (ranges per visit); a brightness change between visits mixes real change with colour. Not a light curve.",
-    "Frame-to-frame scatter within a visit (scatter_mjy) is far above the VARIANCE error: the error bars understate the real uncertainty.",
-    "Photometry: forced 3 px (18.5 arcsec) radius aperture sum on each frame, local sky annulus, VARIANCE errors, no aperture correction, mean per visit."
+    "1 of 4 visits (2026-04-25) are at a different wavelength from the rest (1.260 um), so their brightness changes from colour alone.",
+    "Detected means S/N of at least 5 in a 2 px aperture on the stacked image (noise from blank spots in the same stack) and a centre within 1.5 px of the prediction.",
+    "Each frame saw a different wavelength, so brightness changes between visits mix real change with colour. Not a light curve.",
+    "Scatter between frames is far above the pipeline's error estimate, so the error bars understate the real uncertainty.",
+    "Brightness: light summed in a 3 px (18.5 arcsec) circle on each frame, minus the local sky, averaged per visit; no aperture correction."
   ],
   "cutouts_mb": 47.5,
   "size_arcmin": 2.0,

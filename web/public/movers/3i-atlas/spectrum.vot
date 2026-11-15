@@ -6,11 +6,11 @@
   <INFO ID="aperture_arcsec" name="aperture_arcsec" value="24.6"/>
   <INFO ID="method" name="method" value="Per frame: a 6 arcmin cutout at IRSA&apos;s predicted comet position, a fixed 4 pixel (24.6 arcsec) radius aperture, sky from the median of a 12 to 20 pixel annulus, times the pixel solid angle to get microjanskys; error from the annulus scatter; wavelength from each frame&apos;s per-pixel wavelength map at the measured centroid. Qualitatively this can be compared with Lisse et al. (arXiv:2601.06759), the SPHEREx team&apos;s 3I/ATLAS spectrum, whose bands (water, C-H, CO2, CO) are the ones listed under bands; no numbers from that paper are used here."/>
   <INFO ID="ephemeris" name="ephemeris" value="IRSA comet3iatlas table"/>
-  <INFO ID="caveat1" name="caveat1" value="The comet is an extended coma, so the flux depends on the aperture: these are 4 pixel (24.6 arcsec) radius sums with no aperture correction, and a different aperture gives a different spectrum."/>
-  <INFO ID="caveat2" name="caveat2" value="This is flux, not reflectance: the solar spectrum and the changing comet-Sun and comet-SPHEREx distances are not divided out."/>
+  <INFO ID="caveat1" name="caveat1" value="The coma is extended, so flux depends on the aperture: these are 4 pixel (24.6 arcsec) radius sums, no aperture correction. Another aperture gives another spectrum."/>
+  <INFO ID="caveat2" name="caveat2" value="Flux, not reflectance: the solar spectrum and the changing distances to the Sun and to SPHEREx are not divided out."/>
   <INFO ID="caveat3" name="caveat3" value="No water-ice claim is made from the December data."/>
-  <INFO ID="caveat4" name="caveat4" value="Each frame sees one wavelength at a different time, so rotation and activity changes between frames are mixed into the spectrum along with wavelength."/>
-  <INFO ID="caveat5" name="caveat5" value="The August 2025 rows come from a different date, when the comet was much fainter and farther away, so they sit 10 to 50 times lower and should be read as a separate epoch, not part of the December spectrum."/>
+  <INFO ID="caveat4" name="caveat4" value="Each frame is one wavelength at a different time, so rotation and activity changes mix into the spectrum."/>
+  <INFO ID="caveat5" name="caveat5" value="The August 2025 rows are a separate epoch: the comet was much fainter and farther away, so they sit 10 to 50 times lower. They are not part of the December spectrum."/>
   <INFO ID="caveat6" name="caveat6" value="The sky annulus (12 to 20 pixels) can contain outer coma, so the fluxes may read low."/>
   <TABLE>
    <FIELD ID="mjd" datatype="double" name="mjd" unit="d"/>

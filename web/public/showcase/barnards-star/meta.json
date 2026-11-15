@@ -294,13 +294,13 @@
     }
   ],
   "notes": [
-    "Why D6 at 4.9 um (checked 2026-11-14 on cached frames): in D2 and D4 the core is saturated, and five Aug 2025 exposures put the fitted star 3.3 to 3.8 arcsec east of Gaia while other frames of the same visit sit about 1 arcsec west, at any wavelength (1.1 to 3.8 um; the same 2.44 um and detector spot gives both). 15 to 17 Gaia field stars in the same exposures agree with Gaia to 0.2 arcsec, so the WCS is fine; fitting the official ePSF instead of a Gaussian gives the same shift; the excess sits within 3 px of the core. Cause in the detector not identified. The earlier D4 build (9.6 +/- 1.0 Dec, -2.7 +/- 1.8 RA arcsec/yr) included two such frames.",
-    "Motion errors include the frame-to-frame scatter within each visit, not only the scatter about the line.",
-    "Detection: forced S/N in a 2 px aperture on the stack against the scatter of the same aperture at blank positions of that stack (reprojection correlates pixels, so a per-pixel noise would overstate S/N); needs S/N 5 and the centre within 1.5 px of the prediction.",
-    "Each frame saw a different wavelength at the star's pixel (ranges per visit); a brightness change between visits mixes real change with colour. Not a light curve.",
-    "Per visit, only frames with no masked pixel in the aperture are averaged (frames_used); 3 visits had none, so their sums are lower limits.",
-    "Frame-to-frame scatter within a visit (scatter_mjy) is far above the VARIANCE error: the error bars understate the real uncertainty.",
-    "Photometry: forced 3 px (18.5 arcsec) radius aperture sum on each frame, local sky annulus, VARIANCE errors, no aperture correction, mean per visit."
+    "Why 4.9 um (detector D6): in D2 and D4 the core is saturated. Five Aug 2025 exposures put the star 3.3 to 3.8 arcsec east of Gaia while other frames of that visit sit about 1 arcsec west. Field stars match Gaia to 0.2 arcsec and a PSF fit gives the same shift; the cause, in the detector, is not identified. An earlier D4 build with two such frames gave 9.6 +/- 1.0 (Dec) and -2.7 +/- 1.8 (RA) arcsec/yr.",
+    "Motion errors include the scatter between frames in each visit, not just the scatter about the fit.",
+    "Detected means S/N of at least 5 in a 2 px aperture on the stacked image (noise from blank spots in the same stack) and a centre within 1.5 px of the prediction.",
+    "Each frame saw a different wavelength, so brightness changes between visits mix real change with colour. Not a light curve.",
+    "Only frames with no masked pixel in the aperture are averaged; 3 visits had none, so their values are lower limits.",
+    "Scatter between frames is far above the pipeline's error estimate, so the error bars understate the real uncertainty.",
+    "Brightness: light summed in a 3 px (18.5 arcsec) circle on each frame, minus the local sky, averaged per visit; no aperture correction."
   ],
   "cutouts_mb": 35.6,
   "size_arcmin": 2.0,

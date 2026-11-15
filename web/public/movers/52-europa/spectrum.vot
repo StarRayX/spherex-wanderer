@@ -3020,10 +3020,10 @@
    <INFO ID="method" name="method" value="The position of the asteroid at each SPHEREx exposure comes from JPL Horizons as seen from the SPHEREx spacecraft, and every exposure whose detector held that position was cut out. The flux is the sum of the calibrated image inside a 3-pixel-radius circle at the centroid, minus the median of a sky ring, times the pixel size, and the wavelength is read at that pixel."/>
    <INFO ID="ephemeris" name="ephemeris" value="JPL Horizons"/>
    <INFO ID="aperture_arcsec" name="aperture_arcsec" value="18.45"/>
-   <INFO ID="caveat1" name="caveat1" value="These are fluxes, not reflectance: the Sun&apos;s spectrum is not divided out and no thermal model is fitted. Thermal emission from the asteroid itself dominates beyond about 3.5 um for asteroids this close to the Sun."/>
-   <INFO ID="caveat2" name="caveat2" value="Each frame sees the asteroid at a different time and at a different wavelength, so rotation (brightness changes with spin) and wavelength are mixed between neighbouring points."/>
-   <INFO ID="caveat3" name="caveat3" value="Centroids are good to about 1 arcsec from 6.15 arcsec pixels; this is not MPC-grade astrometry. Positions are as seen from the SPHEREx spacecraft; Horizons times are matched to the exposure mid-time."/>
-   <INFO ID="caveat4" name="caveat4" value="Pixels the SPHEREx pipeline flagged OUTLIER are kept because a moving object is flagged that way; frames with a saturated pixel in the aperture (14), with a masked or non-finite pixel in the aperture (26), with another source within 6 pixels (1), too near the detector edge (3), centred on a source more than 6 arcsec from the prediction (0) or without usable sky (0) were removed, out of 220 frames examined; points with S/N below 5 are kept and have no measured centroid."/>
+   <INFO ID="caveat1" name="caveat1" value="Fluxes, not reflectance: the Sun&apos;s spectrum is not divided out and no thermal model is fitted. Beyond about 3.5 um the asteroid&apos;s own heat dominates at this distance from the Sun."/>
+   <INFO ID="caveat2" name="caveat2" value="Each frame is a different time and wavelength, so the spin of the asteroid and wavelength are mixed between neighbouring points."/>
+   <INFO ID="caveat3" name="caveat3" value="Positions are good to about 1 arcsec (6.15 arcsec pixels), not MPC-grade, and are as seen from SPHEREx at the mid-time of each exposure."/>
+   <INFO ID="caveat4" name="caveat4" value="OUTLIER-flagged pixels are kept (moving objects get that flag). Of 220 frames, removed: saturated pixel in the aperture (14), masked pixel (26), another source within 6 px (1), near the detector edge (3), more than 6 arcsec off the prediction (0), no usable sky (0). Points below S/N 5 are kept without a centroid."/>
    <INFO ID="caveat5" name="caveat5" value="No aperture correction and no colour correction; the aperture holds about 98% of a point source."/>
   </TABLE>
  </RESOURCE>

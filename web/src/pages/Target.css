@@ -36,7 +36,7 @@
 /* Same as the Home validation numbers. */
 .ov-result { font: 700 var(--t-lg)/1.25 var(--f-mono); color: var(--ink); }
 @media (min-width: 961px) {
-  .viewer-split { grid-template-columns: minmax(0, 560px) minmax(0, 1fr); gap: var(--s3) var(--s5); }
+  .viewer-split { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s3) var(--s5); }
 }
 
 /* Use the card's width: short notices and source lines span it, and long note lists flow into two
@@ -47,4 +47,16 @@
 @media (min-width: 961px) {
   .viewer-aside .va-bottom { display: contents; }
   .viewer-aside .va-bottom .cta { margin-top: auto; }
+}
+
+/* Visits tab, wide screens: the viewer and "Every visit" cards are equal width and equal height, and the visits
+   list runs down the card (image, then its date and wavelength) spread over the card's full height. */
+@media (min-width: 961px) {
+  .t-visits { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch; }
+  .t-visits > .card:last-child { display: flex; flex-direction: column; }
+  .t-visits .filmstrip { flex: 1; display: flex; flex-direction: column; justify-content: space-between; gap: var(--s2); }
+  .t-visits .filmstrip figure { display: flex; align-items: center; gap: var(--s3); }
+  .t-visits .filmstrip .well { flex: none; width: min(150px, 34%); }
+  .t-visits .filmstrip figcaption { align-items: flex-start; text-align: left; padding: 0; font-size: var(--t-sm); gap: 4px; }
+  .t-visits .filmstrip figcaption b { font-size: var(--t-md); }
 }

@@ -5,6 +5,7 @@ import { getJson, joinUrl } from '../lib/download'
 import { wlColor } from '../lib/wavelength'
 import PageTabs from '../components/PageTabs'
 import Pager from '../components/Pager'
+import BalancedList from '../components/BalancedList'
 import './Movers.css'
 
 // Where the precomputed files live. Switch to '/movers' to test with fixtures.
@@ -89,7 +90,7 @@ function List({ onReady }: { onReady: () => void }) {
       ) : sorted.length === 0 ? (
         <div className="card mv-empty">
           <h2>Spectra are being computed</h2>
-          <p className="muted">Each object takes a few minutes to measure, so we compute them ahead of time. Check back soon.</p>
+          <p className="muted">Objects are measured ahead of time. Check back soon.</p>
         </div>
       ) : (
         <ul className="mv-cards">
@@ -253,9 +254,9 @@ function Detail({ slug, tabParam, onReady }: { slug: string; tabParam: string | 
 
       {tab === 'spectrum' && <section className="mv-block" aria-labelledby="mv-plot-h">
         <h2 id="mv-plot-h" className="card-title">Measured spectrum</h2>
-        <p className="mv-sub-t"><b>Brightness, not reflectance.</b>{meta.kind === 'comet' ? ' Comet values depend on the aperture size, the circle we add the light inside.' : ' We did not divide out the Sun.'}</p>
+        <p className="mv-sub-t"><b>Brightness, not reflectance.</b>{meta.kind === 'comet' ? ' Comet values depend on the aperture size (the circle we sum the light in).' : ' We did not divide out the Sun.'}</p>
         <p className="caption mv-prose">
-          How bright {meta.name} looked at each infrared colour, in <Gloss tip="Microjanskys, a unit of brightness">µJy</Gloss> (microjanskys, a unit of brightness). Each point is one SPHEREx image. Shaded bands mark colours where common ices and gases absorb or glow.
+          Brightness at each infrared colour, in <Gloss tip="Microjanskys, a unit of brightness">µJy</Gloss> (microjanskys). One point per SPHEREx image. Shaded bands: where common ices and gases absorb or glow.
         </p>
         <Plot rows={rows} bands={meta.bands ?? []} />
       </section>}
@@ -269,7 +270,7 @@ function Detail({ slug, tabParam, onReady }: { slug: string; tabParam: string | 
 
       <section className="card">
         <h2 className="card-title">How the numbers were made</h2>
-        <dl className="mv-facts mv-facts-col">
+        <dl className="mv-facts mv-facts-row">
           <div><dt>Measurements</dt><dd>{meta.n_rows}</dd></div>
           <div><dt>Wavelength</dt><dd>{f1(meta.wl_min_um, 2)} to {f1(meta.wl_max_um, 2)} µm</dd></div>
           <div><dt><Gloss tip="The circle we add the light inside">Aperture</Gloss></dt><dd>{f1(meta.aperture_arcsec, 1)} arcsec</dd></div>
@@ -277,13 +278,10 @@ function Detail({ slug, tabParam, onReady }: { slug: string; tabParam: string | 
           <div><dt>Orbit from</dt><dd>{meta.ephemeris}</dd></div>
         </dl>
         <p className="mv-sec-p">{meta.method}</p>
-        <p className="muted sm mv-sec-p">Aperture (the circle we add the light inside): {f1(meta.aperture_arcsec, 1)} arcseconds. Sky ring, used to subtract the background: {meta.annulus_arcsec?.[0]} to {meta.annulus_arcsec?.[1]} arcseconds. Orbit source: {meta.ephemeris}.</p>
       </section>
       <section className="card">
         <h2 className="card-title">Limits</h2>
-        <ul className="notes-list">
-          {(meta.caveats ?? []).map((c, i) => <li key={i}>{c}</li>)}
-        </ul>
+        <BalancedList items={meta.caveats ?? []} />
       </section>
       </div>}
 
@@ -489,7 +487,7 @@ function Plot({ rows, bands }: { rows: Row[]; bands: Band[] }) {
         <li><span className="mv-dot" style={{ background: '#4DD0F8' }} /><span className="mv-dot" style={{ background: '#FFB384' }} /> {single ? 'Colour is wavelength' : 'Colour is epoch'}</li>
       </ul>
       <p className="caption mv-prose mv-capline">
-        Point at a dot or tap it to read its values.{log ? ` Flux axis is logarithmic (brightness spans over ${LOG_RATIO}x).` : ''}{hidden > 0 ? ` ${hidden} value${hidden > 1 ? 's' : ''} at or below zero cannot be drawn on it, but ${hidden > 1 ? 'are' : 'is'} in the table.` : ''}{epochs.length > 1 ? ' Epochs are plotted apart because brightness can change a lot between visits.' : ''}
+        Tap or hover a dot to read it.{log ? ` Flux axis is logarithmic (brightness spans over ${LOG_RATIO}x).` : ''}{hidden > 0 ? ` ${hidden} value${hidden > 1 ? 's' : ''} at or below zero can't be drawn here but ${hidden > 1 ? 'are' : 'is'} in the table.` : ''}{epochs.length > 1 ? ' Epochs are plotted separately: brightness can change a lot between them.' : ''}
       </p>
     </div>
   )
@@ -510,20 +508,32 @@ function Blink({ frames, base, name }: { frames: Frame[]; base: string; name: st
   const f = frames[Math.min(i, frames.length - 1)]
   const arcmin = f.size_deg ? Math.round(f.size_deg * 60 * 10) / 10 : null
 
+  // Where this frame's wavelength sits in SPHEREx's 0.75 to 5 micron range (log scale, as in wlColor).
+  const pos = Math.min(1, Math.max(0, Math.log(f.wavelength_um / 0.75) / Math.log(5 / 0.75))) * 100
+
   return (
     <div className="mv-blink">
-      <div className="mv-frame">
-        {frames.map((fr, k) => (
-          <img key={fr.file} className={k === i ? 'on' : ''} src={joinUrl(base, fr.file)} alt={k === i ? `${name} in the SPHEREx image taken ${day(fr.iso)} at ${f1(fr.wavelength_um, 2)} microns, centred on where it should be` : ''} />
-        ))}
-        <svg viewBox="0 0 100 100" aria-hidden><path d="M50 36v8M50 56v8M36 50h8M56 50h8" /></svg>
+      <div className="mv-blink-main">
+        <div className="mv-frame">
+          {frames.map((fr, k) => (
+            <img key={fr.file} className={k === i ? 'on' : ''} src={joinUrl(base, fr.file)} alt={k === i ? `${name} in the SPHEREx image taken ${day(fr.iso)} at ${f1(fr.wavelength_um, 2)} microns, centred on where it should be` : ''} />
+          ))}
+          <svg viewBox="0 0 100 100" aria-hidden><path d="M50 36v8M50 56v8M36 50h8M56 50h8" /></svg>
+        </div>
+        <div className="mv-ctl">
+          <button className="icon-btn" onClick={() => setPlay(p => !p)} aria-label={play ? 'Pause' : 'Play'}>{play ? <PauseIcon /> : <PlayIcon />}</button>
+          <input type="range" min={0} max={frames.length - 1} value={i} onChange={e => { setPlay(false); setI(+e.target.value) }} aria-label="Choose an image" />
+        </div>
       </div>
-      <p className="mv-cap"><b>{when(f.iso)} UTC</b>. <span className="mv-wl"><span className="mv-wsw" style={{ background: wlColor(f.wavelength_um) }} aria-hidden />{f1(f.wavelength_um, 2)} µm</span>. Image {i + 1} of {frames.length}.</p>
-      <div className="mv-ctl">
-        <button className="btn sm quiet" onClick={() => setPlay(p => !p)} aria-pressed={play}>{play ? 'Pause' : 'Play'}</button>
-        <input type="range" min={0} max={frames.length - 1} value={i} onChange={e => { setPlay(false); setI(+e.target.value) }} aria-label="Choose an image" />
+      <div className="mv-blink-side" aria-live="polite">
+        <p className="mv-side-k">Image {i + 1} of {frames.length}</p>
+        <p className="mv-side-t">{when(f.iso)} UTC</p>
+        <p className="mv-side-wl"><span className="mv-wsw" style={{ background: wlColor(f.wavelength_um) }} aria-hidden />{f1(f.wavelength_um, 2)} µm</p>
+        <div className="mv-wlbar" aria-hidden><i style={{ left: `${pos}%` }} /></div>
+        <p className="mv-wlbar-k" aria-hidden><span>0.75 µm</span><span>5 µm</span></p>
+        <p className="caption">{arcmin ? `About ${arcmin}′ across. ` : ''}The cross marks the predicted position. Each frame is a different wavelength, so brightness varies.</p>
+        <div className="mv-side-cta"><a className="btn sm" href={`#${base}/spectrum`}>See the spectrum</a></div>
       </div>
-      <p className="caption">{arcmin ? `About ${arcmin}′ across. ` : ''}The cross marks the predicted position. Each frame is a different wavelength.</p>
     </div>
   )
 }
@@ -568,7 +578,7 @@ function RowsTable({ rows }: { rows: Row[] }) {
 
   return (
     <>
-      <p className="caption">One row per SPHEREx image. Click a heading to sort. Flags 0 means none.</p>
+      <p className="caption">One row per SPHEREx image. Click a heading to sort. Flags: 0 means none.</p>
       <div className="mv-scroll" tabIndex={0} role="region" aria-label="Measurement table">
         <table className="mv-table">
           <thead>
@@ -596,3 +606,6 @@ function RowsTable({ rows }: { rows: Row[] }) {
     </>
   )
 }
+
+const PlayIcon = () => <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden><path d="M4.5 2.5v11l9-5.5z" fill="currentColor" /></svg>
+const PauseIcon = () => <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden><path d="M4 2.5h3v11H4zM9 2.5h3v11H9z" fill="currentColor" /></svg>

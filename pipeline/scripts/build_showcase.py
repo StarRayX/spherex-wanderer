@@ -24,14 +24,12 @@ TARGETS = {
         spectrum_reason="Saturated: all 32 cached frames (D2, D4 and D6) have a saturated pixel in the aperture "
                         "(checked 2026-11-14), so every point would be dropped.",
         claim="The star's drift across the sky, measured from SPHEREx and compared with Gaia.",
-        notes=["Why D6 at 4.9 um (checked 2026-11-14 on cached frames): in D2 and D4 the core is saturated, and five Aug "
-               "2025 exposures put the fitted star 3.3 to 3.8 arcsec east of Gaia while other frames of the same visit "
-               "sit about 1 arcsec west, at any wavelength (1.1 to 3.8 um; the same 2.44 um and detector spot gives both). "
-               "15 to 17 Gaia field stars in the same exposures agree with Gaia to 0.2 arcsec, so the WCS is fine; "
-               "fitting the official ePSF instead of a Gaussian gives the same shift; the excess sits within 3 px of the "
-               "core. Cause in the detector not identified. The earlier D4 build (9.6 +/- 1.0 Dec, -2.7 +/- 1.8 RA "
-               "arcsec/yr) included two such frames.",
-               "Motion errors include the frame-to-frame scatter within each visit, not only the scatter about the line."]),
+        notes=["Why 4.9 um (detector D6): in D2 and D4 the core is saturated. Five Aug 2025 exposures put the star "
+               "3.3 to 3.8 arcsec east of Gaia while other frames of that visit sit about 1 arcsec west. Field stars"
+               " match Gaia to 0.2 arcsec and a PSF fit gives the same shift; the cause, in the detector, is not "
+               "identified. An earlier D4 build with two such frames gave 9.6 +/- 1.0 (Dec) and -2.7 +/- 1.8 (RA) "
+               "arcsec/yr.",
+               "Motion errors include the scatter between frames in each visit, not just the scatter about the fit."]),
     "epsilon-indi-b": dict(
         name="Epsilon Indi B",
         astrometry=dict(ra=331.07645259656397, dec=-56.79381206688221, pmra=3981.97666296105,
@@ -67,15 +65,14 @@ TARGETS = {
         not_detected="the S/N includes a blended background star (W2 15.05, about 0.16 mJy, a quarter of the expected "
                      "blend), so it is not a detection of WISE 0855",
         notes=["Expected brightness is only marginal: W2 13.9 (about 0.47 mJy) gives an expected S/N of about 2 to 3 per visit.",
-               "A faint background star (AllWISE J085501.95-071428.1, W2 15.05, about 0.16 mJy) sits about 1.3 pixels from "
-               "the 2025-26 position, inside the measuring aperture, so any signal here is blended.",
-               "Noise checked 2026-11-14: an earlier build reported S/N 8.1 and 7.9 from the stack's per-pixel spread x "
-               "sqrt(N), which ignores that reprojection correlates neighbouring pixels. The same aperture at about 1000 "
-               "blank positions per stack scatters 1.65 to 1.74x more, matching the frame-to-frame scatter within each "
-               "visit (0.16, 0.12, 0.11 vs 0.19, 0.14, 0.12 in stack units), so S/N is 2.0, 5.1 and 4.9. Single-frame "
-               "VARIANCE errors match their own blank-sky scatter (median ratio 1.1): the photometry errors stand.",
-               "Not separately detected in any visit: the one stack over S/N 5 (Nov 2025, 5.1) includes the background "
-               "star, and without it would be about 4. No star marker is drawn."]),
+               "A faint background star (AllWISE J085501.95-071428.1, W2 15.05, about 0.16 mJy) sits inside the "
+               "aperture, about 1.3 pixels from the 2025-26 position, so any signal is blended.",
+               "Noise re-checked 2026-11-14: an earlier build's S/N (8.1 and 7.9) ignored that reprojection "
+               'correlates neighbouring pixels. Measured at about 1000 blank positions per stack, the noise is 1.65 '
+               'to 1.74x higher, matching the scatter between frames, so S/N is 2.0, 5.1 and 4.9. Single-frame '
+               'errors match blank-sky scatter (median ratio 1.1), so the photometry errors stand.',
+               "Not detected on its own in any visit: the one stack over S/N 5 (Nov 2025, 5.1) includes the "
+               "background star and would be about 4 without it. No star marker is drawn."]),
     "rw-aurigae": dict(
         name="RW Aurigae",
         astrometry=dict(ra=76.95608119552952, dec=30.401204589097233, pmra=2.6406431770317083,
@@ -88,11 +85,11 @@ TARGETS = {
                         "would be its blue end only, and A+B blended.",
         claim="Brightness at 0.75 um, one wavelength: 72 mJy in Sep 2025, 183 mJy in Sep 2026.",
         notes=["RW Aur A and B (1.5 arcsec apart) are one blended source: the photometry is A+B.",
-               "One frame per visit at 0.75 um, so no within-visit scatter; March 2026 has no frame near 0.75 um, so "
-               "there is no point for it (that visit's image is at a different wavelength and is not measured).",
-               "RW Aur itself is not independently validated: the SPHEREx calibration was checked against 2MASS/WISE on a "
-               "field star (about 4%, D3), not on RW Aur, whose 2MASS epoch predates its dimming. A field star in the same "
-               "frames stays at about 3.3 mJy, so the 2.5x brightening is the star, not the calibration.",
+               "One frame per visit at 0.75 um, so no within-visit scatter. March 2026 has no frame near 0.75 um, so"
+               " it has no point (its image is at another wavelength).",
+               "The calibration was checked against 2MASS/WISE on a field star (about 4%, D3), not on RW Aur, whose "
+               "2MASS epoch predates its dimming. A field star in the same frames holds at about 3.3 mJy, so the "
+               "2.5x brightening is the star, not the calibration.",
                "Earlier sums of 65 to 90 mJy at 0.90 to 0.94 um were a masking artifact (the saturated peak was left out) "
                "and are not brightness."]),
     "r-draconis": dict(
@@ -104,10 +101,10 @@ TARGETS = {
         spectrum_reason="Saturated: all 14 cached frames have a saturated pixel in the aperture (whole core masked).",
         claim="Images about monthly at matched wavelengths; saturated, so no brightness measurement.",
         notes=["Near the north ecliptic pole SPHEREx sees this star almost continuously; 'visits' here are 30-day bins.",
-               "SPHEREx saturates on this star in every band checked (the whole core is masked), so no brightness is "
-               "reported. The images are shown as a flipbook only.",
-               "Difference images: the saturated core is transparent (unknown); the ring around it mixes residual "
-               "from the saturated star with any real change (R Dra is a variable): not a measurement."]),
+               "SPHEREx saturates on this star in every band checked (the whole core is masked): no brightness is "
+               "reported, images only.",
+               "Difference images: the saturated core is blank, and the ring around it mixes leftovers from the "
+               "saturated star with real change (R Dra varies). Not a measurement."]),
 }
 
 

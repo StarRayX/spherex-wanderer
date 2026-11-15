@@ -64,8 +64,8 @@ _add("luhman-16", "Luhman 16",
      ("Detected in every visit. No drift fit: the visits span about a year, and the expected 3.0 arcsec drift "
       "is under the half pixel (3.1 arcsec) the fit needs."),
      ["Luhman 16 A and B (about 1.5 arcsec apart in this era) are one blended source at 6.15 arcsec per pixel.",
-      "Gaia DR3 has only a position for the pair (2-parameter solution). The proper motion and parallax used to place "
-      "the cutouts are Bedin et al. 2024, not Gaia.",
+      "Gaia DR3 gives only a position for the pair; the motion and parallax used here are from Bedin et al."
+      " 2024.",
       "Frames matched to 1.27 um as for Epsilon Indi B (another L/T brown dwarf pair)."],
      band="SPHEREx-D2", target_um=1.27,
      spectrum_reason="Not requested for this target (opt-in); a spectrum would be of A and B blended.")

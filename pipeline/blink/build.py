@@ -314,11 +314,12 @@ def build_target(slug, ra, dec, astrometry, out_dir, band=None, max_mb=100, fram
                             "a different colour, so its brightness differs from colour alone; drop or label it"))
     off = [v["date"] for v in vis if not v["colour_matched"]]
     if off:
-        notes.append(f"{len(off)} of {len(vis)} visits ({', '.join(off)}) are not at the shared wavelength "
-                     f"({ref:.3f} um, colour_matched false): in a flipbook their brightness changes from colour alone.")
-    notes.append("Detection: forced S/N in a 2 px aperture on the stack against the scatter of the same aperture at blank "
-                 "positions of that stack (reprojection correlates pixels, so a per-pixel noise would overstate S/N); "
-                 f"needs S/N {SNR_MIN:g} and the centre within {MAX_OFFSET_PX} px of the prediction.")
+        notes.append(f"{len(off)} of {len(vis)} visits ({', '.join(off)}) are at a different wavelength from the rest "
+                     f"({ref:.3f} um), so their brightness changes from colour alone.")
+    # Noise comes from the same aperture at blank spots of the stack (reprojection correlates pixels, so a
+    # per-pixel noise would overstate S/N).
+    notes.append(f"Detected means S/N of at least {SNR_MIN:g} in a 2 px aperture on the stacked image (noise from blank "
+                 f"spots in the same stack) and a centre within {MAX_OFFSET_PX} px of the prediction.")
     good =np.array([r for r in pos_rows if np.isfinite(r[1])])
     if a and len(good):
         span = (good[:, 0].max() - good[:, 0].min()) / 365.25
@@ -330,39 +331,39 @@ def build_target(slug, ra, dec, astrometry, out_dir, band=None, max_mb=100, fram
             if abs(motion["measured_arcsec_per_yr"]) < 3 * motion["error_arcsec_per_yr"]:
                 notes.append("Measured drift is below 3 sigma: no motion claim.")
         else:
-            notes.append(f"No motion fit: {len(good)} detected visits, expected drift {drift:.1f} arcsec over the "
-                         f"detected span (need 3 visits and half a pixel, {0.5 * PIXEL_SCALE:.1f} arcsec).")
+            notes.append(f"No motion fit: {len(good)} detected visits and {drift:.1f} arcsec of expected drift; a fit "
+                         f"needs 3 visits and half a pixel ({0.5 * PIXEL_SCALE:.1f} arcsec).")
     if not a:
         notes.append("No Gaia source with a known motion here: fixed sky position, no proper motion applied, no motion fit.")
     miss = [v["date"] for v in vis if v["star_xy"] is None]
     if miss:
         notes.append(f"Not detected in {len(miss)} of {len(vis)} visits ({', '.join(miss)}): no star marker is drawn there.")
     if photometry != "light_curve":
-        notes.append("Each frame saw a different wavelength at the star's pixel (ranges per visit); a brightness change "
-                     "between visits mixes real change with colour. Not a light curve.")
+        notes.append("Each frame saw a different wavelength, so brightness changes between visits mix real change with "
+                     "colour. Not a light curve.")
     sat = [p["date"] for p in phot if p["lower_limit"]]
     if photometry != "aperture":
         phot = None
     elif any(p["masked_pixels"] for p in phot):
-        notes.append("Per visit, only frames with no masked pixel in the aperture are averaged (frames_used); "
-                     f"{len(sat)} visits had none, so their sums are lower limits.")
+        notes.append("Only frames with no masked pixel in the aperture are averaged; "
+                     f"{len(sat)} visits had none, so their values are lower limits.")
     if phot and any(p["scatter_mjy"] and p["scatter_mjy"] > 5 * p["error_mjy"] for p in phot):
-        notes.append("Frame-to-frame scatter within a visit (scatter_mjy) is far above the VARIANCE error: "
-                     "the error bars understate the real uncertainty.")
+        notes.append("Scatter between frames is far above the pipeline's error estimate, so the error bars understate "
+                     "the real uncertainty.")
     worst = max((p["masked_pixels"] / p["aperture_pixels"] for p in phot or []), default=0)
     if worst > 0.2:
-        notes.append(f"Up to {worst:.0%} of aperture pixels are masked (saturated core): these sums do NOT measure "
-                     "brightness and must not be compared between visits.")
+        notes.append(f"Up to {worst:.0%} of aperture pixels are masked (saturated core): these values are not "
+                     "brightness and can't be compared between visits.")
     if photometry == "light_curve":
         from blink.photometry import light_curve
         lc = light_curve(used, *(float(c[0]) for c in pos(mm[len(mm) // 2])), wave_um=target_um)
         phot = {k: v for k, v in lc.items() if k != "rows"}
         phot["rows"] = [{k: v for k, v in r.items() if k != "path"} for r in lc["rows"]]
-        notes.append(f"Photometry: {AP_R:g} px aperture, sky annulus 5-8 px, no aperture correction, only frames within "
-                     f"{lc['tol_um']:.3f} um of {lc['wave_um']:.2f} um; saturated or masked frames are dropped, not guessed.")
+        notes.append(f"Brightness: {AP_R:g} px aperture, sky from 5 to 8 px, no aperture correction, frames within "
+                     f"{lc['tol_um']:.3f} um of {lc['wave_um']:.2f} um only; saturated or masked frames are dropped, not guessed.")
     elif photometry:
-        notes.append(f"Photometry: forced {AP_R:g} px ({AP_R * PIXEL_SCALE:.1f} arcsec) radius aperture sum on each frame, "
-                     "local sky annulus, VARIANCE errors, no aperture correction, mean per visit.")
+        notes.append(f"Brightness: light summed in a {AP_R:g} px ({AP_R * PIXEL_SCALE:.1f} arcsec) circle on each frame, "
+                     "minus the local sky, averaged per visit; no aperture correction.")
     spec, spec_reason = (_spectrum(spec_plan, cache_dir, say, total) if spec_plan else
                          (None, "Not requested (opt-in: only honest for an unsaturated star)."))
     new = set(cache_dir.glob("*.fits")) - before
