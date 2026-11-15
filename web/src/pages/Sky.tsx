@@ -177,6 +177,8 @@ interface AladinView {
   addCatalog(c: unknown): void
   addOverlay(o: unknown): void
   on(event: string, fn: (arg: any) => void): void
+  pix2world(x: number, y: number, frame?: string): [number, number] | undefined
+  world2pix(ra: number, dec: number): [number, number] | undefined
 }
 
 // One animation loop that moves position and zoom together. Position follows the great circle (slerp of unit
@@ -219,6 +221,61 @@ function flyTo(v: AladinView, ra: number, dec: number, fov: number, id: { curren
     if (t < 1) id.current = requestAnimationFrame(step)
   }
   id.current = requestAnimationFrame(step)
+}
+
+// Wheel / trackpad-pinch zoom that keeps the sky point under the cursor fixed (Aladin's own wheel zoom is about the
+// centre). Deltas are batched into one update per frame. After the FoV change the point that was under the cursor
+// has moved; the view centre is rotated by the rotation that carries it back (Rodrigues, on unit vectors, so it is
+// correct across RA 0/360 and at the poles). Returns the detach function.
+function attachCursorZoom(el: HTMLElement, v: AladinView, minFov: number, maxFov: number, onUser: () => void) {
+  // The anchor (sky point under the cursor) is kept for the whole gesture so per-step residuals cannot add up;
+  // it is picked again after a pause or when the cursor moves.
+  let pending = 0, mx = 0, my = 0, raf = 0, last = 0
+  let anchor: [number, number] | undefined, ax0 = 0, ay0 = 0
+  const apply = () => {
+    raf = 0
+    const fov0 = v.getFoV()[0]
+    const fov1 = Math.min(maxFov, Math.max(minFov, fov0 * Math.exp(pending)))
+    pending = 0
+    if (Math.abs(fov1 - fov0) < 1e-12) return
+    const now = performance.now()
+    if (!anchor || now - last > 300 || Math.hypot(mx - ax0, my - ay0) > 3) { anchor = v.pix2world(mx, my, 'icrs'); ax0 = mx; ay0 = my }
+    last = now
+    const w = anchor
+    if (!w || !isFinite(w[0])) return
+    v.setFoV(fov1)
+    // One rotation of the centre is exact only to first order (it also tilts the view's north), so refine a few
+    // times; each pass shrinks the error by roughly an order of magnitude.
+    for (let it = 0; it < 12; it++) {
+      const px = v.world2pix(w[0], w[1])
+      if (px && Math.hypot(px[0] - mx, px[1] - my) < 0.05) return
+      const w2 = v.pix2world(mx, my, 'icrs')
+      if (!w || !w2 || !isFinite(w[0]) || !isFinite(w2[0])) return
+      const a = toVec(w2[0], w2[1]), b = toVec(w[0], w[1])
+      const ax: [number, number, number] = [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]
+      const sn = Math.hypot(ax[0], ax[1], ax[2])
+      if (sn < 1e-9) return
+      const k: [number, number, number] = [ax[0] / sn, ax[1] / sn, ax[2] / sn]
+      const th = Math.atan2(sn, a[0] * b[0] + a[1] * b[1] + a[2] * b[2])
+      const [cr, cd] = v.getRaDec()
+      const c = toVec(cr, cd)
+      const kc: [number, number, number] = [k[1] * c[2] - k[2] * c[1], k[2] * c[0] - k[0] * c[2], k[0] * c[1] - k[1] * c[0]]
+      const kd = k[0] * c[0] + k[1] * c[1] + k[2] * c[2], cs = Math.cos(th), sh = Math.sin(th)
+      const [r, d] = toRaDec([0, 1, 2].map(j => c[j] * cs + kc[j] * sh + k[j] * kd * (1 - cs)) as [number, number, number])
+      v.gotoRaDec(r, d)
+    }
+  }
+  const onWheel = (e: WheelEvent) => {
+    e.preventDefault(); e.stopPropagation()
+    onUser()
+    const rect = el.getBoundingClientRect()
+    mx = e.clientX - rect.left; my = e.clientY - rect.top
+    const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? 100 : 1
+    pending += Math.max(-400, Math.min(400, e.deltaY * unit)) * (e.ctrlKey ? 0.01 : 0.0015)
+    if (!raf) raf = requestAnimationFrame(apply)
+  }
+  el.addEventListener('wheel', onWheel, { passive: false, capture: true })
+  return () => { el.removeEventListener('wheel', onWheel, true); cancelAnimationFrame(raf) }
 }
 
 function writeHud(el: HTMLDivElement | null, ra: number, dec: number, fov: number) {
@@ -289,6 +346,7 @@ export default function Sky({ params, onReady }: PageProps) {
   const wideRef = useRef(true)
   const hud = useRef<HTMLDivElement>(null)
   const anim = useRef(0)
+  const detachZoom = useRef<(() => void) | null>(null)
   const marks = useRef<{ cat: any; src: Map<string, any> } | null>(null)
   const [picked, setPicked] = useState<Meta | null>(null)
   const [tiles, setTiles] = useState(true) // no sky tiles have been drawn yet; on from mount
@@ -573,7 +631,7 @@ export default function Sky({ params, onReady }: PageProps) {
         // the user taking the map over cancels a running fly
         const stop = () => { cancelAnimationFrame(anim.current); hideTip() }
         box.current.addEventListener('pointerdown', stop)
-        box.current.addEventListener('wheel', stop, { passive: true })
+        detachZoom.current = attachCursorZoom(box.current, v, 0.02, WHOLE_SKY_FOV, stop)
         tune(v, first.url)
         const metas = await Promise.all(TARGETS.map(t => loadMeta(t.slug).catch(() => null)))
         const cat = A.catalog({ name: 'Test targets', sourceSize: 22, color: accent(), hoverColor: accent(), selectionColor: NO_RING,
@@ -688,7 +746,7 @@ export default function Sky({ params, onReady }: PageProps) {
         if (!dead) setState('failed')
       }
     })()
-    return () => { dead = true; clearTimeout(slowTimer.current); clearTimeout(tilesTimer.current); cancelAnimationFrame(anim.current) }
+    return () => { dead = true; clearTimeout(slowTimer.current); clearTimeout(tilesTimer.current); cancelAnimationFrame(anim.current); detachZoom.current?.() }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
