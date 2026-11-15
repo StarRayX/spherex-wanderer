@@ -3,6 +3,7 @@ import type { PageProps } from '../lib/router'
 import { loadMeta } from '../lib/targets'
 import type { Meta } from '../lib/types'
 import { fmt } from '../lib/format'
+import PageTabs from '../components/PageTabs'
 import './Method.css'
 
 const B = '/showcase/barnards-star/'
@@ -22,16 +23,25 @@ const LIMITS = [
   'Live mode depends on NASA’s archive answering; it can be slow or busy.',
 ]
 
-export default function Method({ onReady }: PageProps) {
+const METHOD_TABS = [{ id: 'overview', label: 'Overview' }, { id: 'data', label: 'Data and limits' }] as const
+type MethodTab = (typeof METHOD_TABS)[number]['id']
+
+export default function Method({ params, onReady }: PageProps) {
   const [b, setB] = useState<Meta | null>(null)
+  // The tab lives in the URL (#/method/<tab>), so links and the back button keep it.
+  const tab: MethodTab = METHOD_TABS.some(t => t.id === params.slug) ? (params.slug as MethodTab) : 'overview'
+  const setTab = (id: MethodTab) => { location.hash = `#/method/${id}` }
   useEffect(() => {
     loadMeta('barnards-star').then(setB).catch(() => {}).finally(onReady)
   }, [onReady])
 
   return (
     <div className="page">
-      <h1 style={{ fontSize: 'var(--t-xl)', margin: '0 0 var(--s4)' }}>How it works</h1>
+      <h1 style={{ fontSize: 'var(--t-xl)', margin: '0 0 var(--s3)' }}>How it works</h1>
 
+      <PageTabs tabs={METHOD_TABS} value={tab} onChange={setTab} label="Method sections" />
+
+      {tab === 'overview' && <>
       <div className="me-results">
         <div className="me-result">
           {b?.motion ? <span className="num">{fmt(b.motion.measured_arcsec_per_yr, 2)} ± {fmt(b.motion.error_arcsec_per_yr, 2)} arcsec/yr</span> : <span className="skel" />}
@@ -60,7 +70,9 @@ export default function Method({ onReady }: PageProps) {
           </Fragment>
         ))}
       </ol>
+      </>}
 
+      {tab === 'data' && <>
       <div className="card" style={{ marginBottom: 16 }}>
         <h2 className="card-title">Data</h2>
         <p className="check-value">SPHEREx QR2 + QR3</p>
@@ -83,6 +95,7 @@ export default function Method({ onReady }: PageProps) {
           </ul>
         </div>
       </div>
+      </>}
     </div>
   )
 }

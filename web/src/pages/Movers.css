@@ -1,5 +1,5 @@
 /* Moving objects. Solid cards, no borders, no gradients, Space Grotesk for headings and numbers. */
-.mv h1 { font-size: clamp(1.75rem, 4vw, 2.5rem); margin: var(--s1) 0 var(--s2); }
+.mv h1 { font-size: clamp(1.75rem, 4vw, 2.5rem); margin: 0 0 var(--s2); }
 .mv h2 { font-size: var(--t-lg); }
 .mv-lede { font-size: 1.125rem; max-width: 62ch; margin: 0 0 var(--s1); }
 .mv-for { max-width: 62ch; margin: 0 0 var(--s4); }
@@ -68,7 +68,7 @@
 
 /* blink */
 .mv-blink { display: flex; flex-direction: column; gap: var(--s1); }
-.mv-frame { position: relative; aspect-ratio: 1; width: 100%; max-width: 380px; background: var(--sky); border-radius: 12px; overflow: hidden; }
+.mv-frame { position: relative; aspect-ratio: 1; width: 100%; max-width: 380px; background: var(--sky); border-radius: var(--radius); overflow: hidden; }
 .mv-frame img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; image-rendering: pixelated; }
 .mv-frame img.on { opacity: 1; }
 .mv-frame svg { position: absolute; inset: 0; width: 100%; height: 100%; }
@@ -97,7 +97,7 @@
 
 /* epoch chips */
 .mv-epochs { display: flex; flex-wrap: wrap; gap: var(--s1); margin: 0 0 var(--s2); }
-.mv-epochs button { display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border: 0; border-radius: 999px; background: var(--card-2); font-size: var(--t-sm); font-weight: 600; cursor: pointer; }
+.mv-epochs button { display: inline-flex; align-items: center; min-height: var(--ctl-h); padding: 0 14px; border: 0; border-radius: 6px; background: var(--card-2); font-size: var(--t-sm); font-weight: 600; cursor: pointer; }
 .mv-epochs button b { font-family: var(--f-mono); margin-left: 8px; color: var(--muted); }
 .mv-epochs button[aria-pressed="true"] { background: #26324A; }
 .mv-epochs button[aria-pressed="false"] { color: var(--muted); }
@@ -105,7 +105,7 @@
 
 /* floating tooltip */
 .mv-stage { position: relative; outline-offset: 4px; }
-.mv-tip { position: absolute; z-index: 2; width: 214px; pointer-events: none; background: #1B2536; border-radius: 10px; padding: 10px 12px; box-shadow: 0 8px 24px rgba(0, 0, 0, .5); font: 500 var(--t-sm)/1.35 var(--f-text); }
+.mv-tip { position: absolute; z-index: 2; width: 214px; pointer-events: none; background: #1B2536; border-radius: 6px; padding: 10px 12px; box-shadow: 0 8px 24px rgba(0, 0, 0, .5); font: 500 var(--t-sm)/1.35 var(--f-text); }
 .mv-tip p { margin: 0; }
 .mv-tip b { font-family: var(--f-mono); font-weight: 700; }
 .mv-tip-w { font-size: var(--t-md); }
@@ -142,4 +142,4 @@
 .mv-legend { gap: 6px 22px; margin: var(--s1) 0 var(--s0); }
 .mv-legend .mv-dot + .mv-dot { margin-left: -4px; }
 .mv-capline { margin: var(--s0) 0 0; }
-.mv-dl .btn.quiet { min-height: 44px; }
+.mv-dl .btn.quiet { min-height: var(--ctl-h); }

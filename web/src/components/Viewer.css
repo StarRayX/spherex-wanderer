@@ -1,13 +1,63 @@
 /* One control row: play, visit scrubber, then the 2x chip, all 44 px tall. */
 .viewer .controls { gap: 8px; }
-.viewer .controls .icon-btn { width: 44px; height: 44px; }
-.viewer .controls .chip-btn { min-height: 44px; min-width: 44px; flex: none; }
+.viewer .controls .icon-btn { width: var(--ctl-h); height: var(--ctl-h); }
+.viewer .controls .chip-btn { min-height: var(--ctl-h); min-width: 44px; flex: none; }
 .viewer .controls .scrub { min-width: 140px; }
 .viewer-top { flex-wrap: wrap; }
-.viewer-top .chip-btn { margin-left: auto; min-height: 36px; }
+.viewer-top .chip-btn { margin-left: auto; min-height: var(--ctl-h); }
 /* Compact panel: short dates ("Aug '25") and a scrubber that shrinks instead of sliding under the 2x chip. */
 .viewer .controls .scrub { min-width: 0; flex: 1 1 auto; }
 .viewer .controls .stop:not(:first-child):not(:last-child) { align-items: center; }
 /* The control row never wraps: the scrubber gives up width (and hides middle dates) before the 2x chip moves. */
 .viewer .controls { flex-wrap: nowrap; }
 .viewer .controls .stop { min-width: 0; }
+/* The scrubber stops are exactly one control tall, so the controls row matches the buttons beside it
+   (and the side column's sky-map button lines up with them). */
+.viewer .controls .stop { padding: 2px 0; min-height: var(--ctl-h); }
+
+/* ---------- overlay: instrument marks + viewfinder ----------
+   A thin measuring ring and ticks outside the star's glow, Gaia's prediction per visit (older ones fainter),
+   the trail with an arrowhead on its last step, and camera-style corner brackets. Every line has a thin dark edge so it stays visible where it crosses the white star. */
+.viewer .overlay * { vector-effect: non-scaling-stroke; }
+.viewer .overlay .gaia { fill: none; stroke: #fff; stroke-width: 1; stroke-dasharray: none; paint-order: stroke; filter: drop-shadow(0 0 1px rgba(0, 0, 0, .8)); }
+.viewer .overlay .trail-halo { fill: none; stroke: rgba(0, 0, 0, .45); stroke-width: 2.3; stroke-linecap: round; stroke-linejoin: round; }
+.viewer .overlay .trail { fill: none; stroke: var(--cyan); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.viewer .overlay .arrow { fill: var(--cyan); stroke: rgba(0, 0, 0, .45); stroke-width: .4; stroke-linejoin: round; }
+.viewer .overlay .dot { fill: var(--cyan); stroke: rgba(0, 0, 0, .45); stroke-width: .4; }
+.viewer .overlay .reticle circle { fill: none; stroke: var(--cyan); stroke-width: 1.25; filter: drop-shadow(0 0 1px rgba(0, 0, 0, .7)); }
+.viewer .overlay .reticle line { stroke: var(--cyan); stroke-width: 1.25; stroke-linecap: butt; }
+
+.viewer .vf { position: absolute; inset: 12px; pointer-events: none; }
+.viewer .vf i { position: absolute; width: 18px; height: 18px; border: 0 solid rgba(77, 208, 248, .7); }
+.viewer .vf i:nth-child(1) { left: 0; top: 0; border-left-width: 1.5px; border-top-width: 1.5px; }
+.viewer .vf i:nth-child(2) { right: 0; top: 0; border-right-width: 1.5px; border-top-width: 1.5px; }
+.viewer .vf i:nth-child(3) { left: 0; bottom: 0; border-left-width: 1.5px; border-bottom-width: 1.5px; }
+.viewer .vf i:nth-child(4) { right: 0; bottom: 0; border-right-width: 1.5px; border-bottom-width: 1.5px; }
+.viewer .frame-tag { position: absolute; transform: translate(-50%, 6px); padding: 1px 6px; border-radius: 4px; background: rgba(2, 3, 5, .72); border: 1px solid rgba(255, 255, 255, .18); color: #fff; font: 600 11px var(--f-mono); white-space: nowrap; pointer-events: none; transition: left 300ms ease, top 300ms ease; }
+/* The compass, scale bar and notes sit just inside the corner brackets (12 px inset, 18 px arms). */
+.viewer .compass { right: 24px; top: 24px; }
+.viewer .scalebar { left: 26px; bottom: 22px; width: calc(50% - 14px); }
+.viewer .frame-note { left: 26px; right: 26px; top: 26px; }
+/* While a note is showing it spans the top, so the compass moves to the free bottom-right corner. */
+.viewer .frame:has(.frame-note) .compass { top: auto; bottom: 24px; }
+/* Sky panel: 2x and Changes side by side under the controls. */
+.viewer .viewer-tools { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s1); }
+.viewer .viewer-tools .chip-btn { width: 100%; min-height: var(--ctl-h); }
+
+/* Legend icons match the marks. */
+.viewer .legend .lg-ret { background: none; border: 1.25px solid var(--cyan); border-radius: 50%; }
+.viewer .legend .lg-gaia { border: 1px solid rgba(255, 255, 255, .85); }
+
+/* ---------- scrubber: every date centred under its dot ----------
+   Stops share the width equally, so dots sit at segment centres; the track runs from the first dot's centre
+   to the last one's (--n = number of visits). */
+.viewer .controls .stop, .viewer .controls .stop:last-child { flex: 1 1 0; align-items: center; }
+.viewer .controls .scrub::before { left: calc(100% / var(--n, 3) / 2); right: calc(100% / var(--n, 3) / 2); top: 9px; }
+
+/* Zoom switch: 1x | 2x as one joined control. */
+.viewer .zoom-seg { display: inline-flex; flex: none; }
+.viewer .zoom-seg .chip-btn { min-width: 40px; padding: 0 10px; }
+.viewer .zoom-seg .chip-btn:first-child { border-top-right-radius: 0; border-bottom-right-radius: 0; }
+.viewer .zoom-seg .chip-btn:last-child { border-top-left-radius: 0; border-bottom-left-radius: 0; margin-left: -1px; }
+.viewer .viewer-tools .zoom-seg { display: flex; }
+.viewer .viewer-tools .zoom-seg .chip-btn { flex: 1; width: auto; }

@@ -5,6 +5,7 @@ import type { Meta } from '../lib/types'
 import { monthYear } from '../lib/format'
 import { Logo } from '../components/Logo'
 import HeroBlink from '../components/HeroBlink'
+import SpectrumPreview from '../components/SpectrumPreview'
 import './Home.css'
 
 // Fallbacks for the validation card if the Barnard's Star file cannot load (values from the pipeline run, docs/evidence_notes.md).
@@ -29,42 +30,32 @@ export default function Home({ onReady }: PageProps) {
     <div className="home">
       <div className="home-bg" aria-hidden><div className="stars" /></div>
       <div className="home-inner">
-        <div className="brand-line"><Logo height={32} /><span className="wm" aria-label="Wanderer">WANDERER</span></div>
         <div className="hm-hero">
-          <h1>
-            NASA's archive tells you which SPHEREx images caught an asteroid or comet.
-            <span className="h1-2">We give you its measured spectrum as a table.</span>
-          </h1>
+          <div className="hm-copy">
+            <div className="brand-line"><Logo height={32} /><span className="wm" aria-label="Wanderer">WANDERER</span></div>
+            <h1>
+              NASA's archive tells you which SPHEREx images caught an asteroid or comet.
+              <span className="h1-2">We give you its measured spectrum as a table.</span>
+            </h1>
+          </div>
           <HeroBlink />
         </div>
-        <p className="def">Wanderer measures comets and asteroids in NASA SPHEREx images. IRSA's tools list the images; we measure the object in each one.</p>
+        <SpectrumPreview />
         <div className="hm-tools">
           <a className="hm-tool" href="#/movers">
-            <h2>Moving objects</h2>
-            <p>Pick a comet or an asteroid. Get its brightness at every infrared colour SPHEREx saw, with error bars, as a table you can download as CSV, VOTable or JSON.</p>
-            <span className="hm-go">Moving objects {ARROW}</span>
+            <h2>Moving objects <span className="hm-arr" aria-hidden>{ARROW}</span></h2>
+            <p>One comet and ten asteroids, measured at every SPHEREx wavelength.</p>
           </a>
           <a className="hm-tool" href="#/triage">
-            <h2>Vet a field</h2>
-            <p>Shows every change between visits in two pre-run fields, sorted with evidence.</p>
-            <span className="hm-go">Vet a field {ARROW}</span>
+            <h2>Vet a field <span className="hm-arr" aria-hidden>{ARROW}</span></h2>
+            <p>Every change between visits in two fields, each with its cause.</p>
           </a>
         </div>
-
-        <p className="hm-who muted sm">For solar-system researchers, Backyard Worlds and Source Discovery volunteers, and educators.</p>
-
-        <p className="hm-more sm">
-          <a href="#/sky">Sky map</a>
-          <a href="#/target/barnards-star">Test stars</a>
-          <a href="#/any">Any spot</a>
-          <a href="#/method">Method</a>
-        </p>
 
         <a className="hm-valid" href="#/target/barnards-star/visits">
           <div className="hm-valid-text">
             <h2>Validation: Barnard's Star</h2>
-            <p className="hm-num">{measured.toFixed(2)} ± {error.toFixed(2)} arcsec per year, Gaia {gaia.toFixed(2)}</p>
-            <p>This checks the code; it is not new science.</p>
+            <p className="hm-num">Ours: {measured.toFixed(2)} ± {error.toFixed(2)}″/yr<br />Gaia: {gaia.toFixed(2)}″/yr</p>
             <span className="pv-cap">See the images {ARROW}</span>
           </div>
           <div className="pv-strip">

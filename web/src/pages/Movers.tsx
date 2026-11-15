@@ -3,6 +3,7 @@ import type { KeyboardEvent, PointerEvent, ReactNode } from 'react'
 import type { PageProps } from '../lib/router'
 import { getJson, joinUrl } from '../lib/download'
 import { wlColor } from '../lib/wavelength'
+import PageTabs from '../components/PageTabs'
 import './Movers.css'
 
 // Where the precomputed files live. Switch to '/movers' to test with fixtures.
@@ -57,7 +58,7 @@ const reduceMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matche
 
 export default function Movers({ params, onReady }: PageProps) {
   const slug = params.slug
-  return slug ? <Detail key={slug} slug={slug} onReady={onReady} /> : <List onReady={onReady} />
+  return slug ? <Detail key={slug} slug={slug} tabParam={params.tab} onReady={onReady} /> : <List onReady={onReady} />
 }
 
 // ---------- list ----------
@@ -78,8 +79,7 @@ function List({ onReady }: { onReady: () => void }) {
   return (
     <div className="page mv">
       <h1>Moving objects</h1>
-      <p className="mv-lede">Pick an object to see its measured brightness at each SPHEREx wavelength and download the table.</p>
-      <p className="mv-disclaimer">These are brightness measurements, not reflectance spectra. Each row in the downloads is one SPHEREx frame.</p>
+      <p className="mv-lede">Measured brightness at each SPHEREx wavelength, one row per frame. Brightness, not reflectance.</p>
 
       {items === null ? (
         <div className="mv-cards" aria-busy="true" aria-label="Loading objects">
@@ -182,8 +182,14 @@ function Spark({ slug, kind }: { slug: string; kind: string }) {
 // ---------- detail ----------
 type Load = { state: 'loading' } | { state: 'error' } | { state: 'ok'; meta: Meta; rows: Row[]; frames: Frame[] }
 
-function Detail({ slug, onReady }: { slug: string; onReady: () => void }) {
+const DETAIL_TABS = [{ id: 'spectrum', label: 'Spectrum' }, { id: 'images', label: 'Images' }, { id: 'table', label: 'Measurements' }, { id: 'notes', label: 'Method and limits' }] as const
+type DetailTab = (typeof DETAIL_TABS)[number]['id']
+
+function Detail({ slug, tabParam, onReady }: { slug: string; tabParam: string | null; onReady: () => void }) {
   const [d, setD] = useState<Load>({ state: 'loading' })
+  // The tab lives in the URL (#/movers/<slug>/<tab>), so links and the back button keep it.
+  const tab: DetailTab = DETAIL_TABS.some(t => t.id === tabParam) ? (tabParam as DetailTab) : 'spectrum'
+  const setTab = (id: DetailTab) => { location.hash = `#/movers/${encodeURIComponent(slug)}/${id}` }
   const base = joinUrl(MOVERS_BASE, encodeURIComponent(slug))
 
   useEffect(() => {
@@ -242,22 +248,25 @@ function Detail({ slug, onReady }: { slug: string; onReady: () => void }) {
         </div>
       </header>
 
-      <section className="mv-block" aria-labelledby="mv-plot-h">
+      <PageTabs tabs={DETAIL_TABS} value={tab} onChange={setTab} label={`${meta.name} sections`} />
+
+      {tab === 'spectrum' && <section className="mv-block" aria-labelledby="mv-plot-h">
         <h2 id="mv-plot-h" className="card-title">Measured spectrum</h2>
         <p className="mv-sub-t"><b>Brightness, not reflectance.</b>{meta.kind === 'comet' ? ' Comet values depend on the aperture size, the circle we add the light inside.' : ' We did not divide out the Sun.'}</p>
         <p className="caption mv-prose">
           How bright {meta.name} looked at each infrared colour, in <Gloss tip="Microjanskys, a unit of brightness">µJy</Gloss> (microjanskys, a unit of brightness). Each point is one SPHEREx image. Shaded bands mark colours where common ices and gases absorb or glow.
         </p>
         <Plot rows={rows} bands={meta.bands ?? []} />
-      </section>
+      </section>}
 
-      <section className="mv-block" aria-labelledby="mv-blink-h">
+      {tab === 'images' && <section className="mv-block" aria-labelledby="mv-blink-h">
         <h2 id="mv-blink-h" className="card-title">Blink the images</h2>
         <Blink frames={frames} base={base} name={meta.name} />
-      </section>
+      </section>}
 
-      <details className="mv-block mv-sec">
-        <summary>How the numbers were made</summary>
+      {tab === 'notes' && <>
+      <section className="mv-block">
+        <h2 className="card-title">How the numbers were made</h2>
         <dl className="mv-facts mv-facts-col">
           <div><dt>Measurements</dt><dd>{meta.n_rows}</dd></div>
           <div><dt>Wavelength</dt><dd>{f1(meta.wl_min_um, 2)} to {f1(meta.wl_max_um, 2)} µm</dd></div>
@@ -267,19 +276,20 @@ function Detail({ slug, onReady }: { slug: string; onReady: () => void }) {
         </dl>
         <p className="mv-sec-p">{meta.method}</p>
         <p className="muted sm mv-sec-p">Aperture (the circle we add the light inside): {f1(meta.aperture_arcsec, 1)} arcseconds. Sky ring, used to subtract the background: {meta.annulus_arcsec?.[0]} to {meta.annulus_arcsec?.[1]} arcseconds. Orbit source: {meta.ephemeris}.</p>
-      </details>
+      </section>
 
-      <details className="mv-block mv-sec">
-        <summary>Limits</summary>
+      <section className="mv-block">
+        <h2 className="card-title">Limits</h2>
         <ul className="notes-list">
           {(meta.caveats ?? []).map((c, i) => <li key={i}>{c}</li>)}
         </ul>
-      </details>
+      </section>
+      </>}
 
-      <details className="mv-block mv-sec">
-        <summary>All {rows.length} measurements</summary>
+      {tab === 'table' && <section className="mv-block">
+        <h2 className="card-title">All {rows.length} measurements</h2>
         <RowsTable rows={rows} />
-      </details>
+      </section>}
     </div>
   )
 }
@@ -512,7 +522,7 @@ function Blink({ frames, base, name }: { frames: Frame[]; base: string; name: st
         <button className="btn sm quiet" onClick={() => setPlay(p => !p)} aria-pressed={play}>{play ? 'Pause' : 'Play'}</button>
         <input type="range" min={0} max={frames.length - 1} value={i} onChange={e => { setPlay(false); setI(+e.target.value) }} aria-label="Choose an image" />
       </div>
-      <p className="caption">{arcmin ? `Each cutout is about ${arcmin} arcminutes wide. ` : ''}The cross marks where the orbit says the object should be. The colour changes from image to image, so brightness changes too.</p>
+      <p className="caption">{arcmin ? `About ${arcmin}′ across. ` : ''}The cross marks the predicted position. Each frame is a different wavelength.</p>
     </div>
   )
 }
@@ -529,12 +539,13 @@ const COLS: Col[] = [
   { key: 'detector', label: 'Detector' },
   { key: 'flags', label: 'Flags', title: 'SPHEREx quality markers. 0 means none were raised inside the aperture.' },
 ]
-const SHOWN = 50
+const SHOWN = 10 // rows shown first
+const MORE = 25 // rows added per "Show more"
 
 function RowsTable({ rows }: { rows: Row[] }) {
   const [key, setKey] = useState<keyof Row>('wavelength_um')
   const [asc, setAsc] = useState(true)
-  const [all, setAll] = useState(false)
+  const [limit, setLimit] = useState(SHOWN)
 
   const sorted = useMemo(() => {
     const out = rows.slice()
@@ -548,7 +559,7 @@ function RowsTable({ rows }: { rows: Row[] }) {
     return out
   }, [rows, key, asc])
 
-  const shown = all ? sorted : sorted.slice(0, SHOWN)
+  const shown = sorted.slice(0, limit)
   function sortBy(k: keyof Row) {
     if (k === key) setAsc(a => !a)
     else { setKey(k); setAsc(true) }
@@ -556,7 +567,7 @@ function RowsTable({ rows }: { rows: Row[] }) {
 
   return (
     <>
-      <p className="caption">One row per SPHEREx image. Click a heading to sort. S/N is signal to noise: how far above the noise. Flags are SPHEREx quality markers, and 0 means none.</p>
+      <p className="caption">One row per SPHEREx image. Click a heading to sort. Flags 0 means none.</p>
       <div className="mv-scroll" tabIndex={0} role="region" aria-label="Measurement table">
         <table className="mv-table">
           <thead>
@@ -583,7 +594,9 @@ function RowsTable({ rows }: { rows: Row[] }) {
       {rows.length > SHOWN && (
         <p className="mv-more">
           <span className="muted sm">Showing {shown.length} of {rows.length} rows.</span>{' '}
-          <button className="linkbtn" onClick={() => setAll(a => !a)}>{all ? 'Show the first 50' : `Show all ${rows.length}`}</button>
+          {rows.length > limit
+            ? <button className="linkbtn" onClick={() => setLimit(l => l + MORE)}>Show {Math.min(MORE, rows.length - limit)} more</button>
+            : <button className="linkbtn" onClick={() => setLimit(SHOWN)}>Show fewer</button>}
         </p>
       )}
     </>

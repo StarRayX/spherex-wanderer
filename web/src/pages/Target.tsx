@@ -93,16 +93,20 @@ function Overview({ m }: { m: Meta }) {
         <span className="stat-value">{moon === null ? 'n/a' : (moon < 1000 ? Math.round(moon) : Math.round(moon / 100) * 100).toLocaleString('en-US')}<small> years</small></span>
       </div>
 
-      <div className="card wide split">
-        <Viewer meta={m} src={f => imageUrl(m.slug, f)} />
-        <div className="claim-card">
-          <span className={`badge ${info.status}`}><span className="dot" />{STATUS_LABEL[info.status]}</span>
-          <p style={{ marginTop: 16 }}>{tidy(m.target?.claim ?? '')}</p>
-          {a && <p className="mono sm muted">RA {raHms(a.ra)} · Dec {decDms(a.dec)}</p>}
-          <div className="cta">
-            <a className="btn sm" href={`#/sky?target=${m.slug}`}>Show on the sky map</a>
-          </div>
-        </div>
+      <div className="card wide ov-view">
+        <Viewer meta={m} src={f => imageUrl(m.slug, f)} aside={{
+          top: <>
+            <span className={`badge ${info.status}`}><span className="dot" />{STATUS_LABEL[info.status]}</span>
+            <p className="ov-claim">{tidy(m.target?.claim ?? '')}</p>
+          </>,
+          bottom: <>
+            {mo && <p className="ov-result mono">Ours: {fmt(mo.measured_arcsec_per_yr)} ± {fmt(mo.error_arcsec_per_yr)}″/yr<br />Gaia: {fmt(mo.gaia_arcsec_per_yr)}″/yr</p>}
+            {a && <p className="mono sm muted">RA {raHms(a.ra)} · Dec {decDms(a.dec)}</p>}
+            <div className="cta">
+              <a className="btn sm" href={`#/sky?target=${m.slug}`}>Show on the sky map</a>
+            </div>
+          </>,
+        }} />
       </div>
     </div>
   )
@@ -168,7 +172,7 @@ function Colour({ m }: { m: Meta }) {
       {phot.length > 0 && (
         <div className="card wide">
           <h2 className="card-title">Brightness on each visit</h2>
-          <p className="caption">Measured in the same small circle around the star each time. Visits saw different colours, so compare rows only when the wavelengths match.</p>
+          <p className="caption">Same small circle around the star each time. Compare rows only at matching wavelengths.</p>
           <div style={{ overflowX: 'auto' }}>
             <table className="mono sm" style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead><tr style={{ textAlign: 'left', color: 'var(--muted)' }}><th style={{ padding: 8 }}>Visit</th><th style={{ padding: 8 }}>Wavelength</th><th style={{ padding: 8, textAlign: 'right' }}>Brightness</th></tr></thead>
