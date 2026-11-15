@@ -121,7 +121,7 @@ The method has real weaknesses. None of them closes the gap above, but each one 
 ## Team
 
 - Clarence Pagaduan (StarRayX): web frontend, sky map, product direction, docs.
-- Samantha Nicole Bracamonte (snrbracamonte): Python pipeline and tests, live API, API docs, evidence notes, UI polish and QA.
+- Samantha Nicole Bracamonte (snrbracamonte): Python pipeline, live API and docs, UI polish, QA.
 
 Team NYSCP, Manila local event.
 
