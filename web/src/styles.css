@@ -568,3 +568,39 @@ h1, h2 { text-wrap: balance; }
 .t-tabs [role="tab"]:hover { color: var(--ink); }
 .t-tabs [role="tab"][aria-selected="true"] { color: var(--ink); border-bottom-color: var(--cyan); }
 .t-tabs [role="tab"]:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+
+/* Pager under long tables: count on the left, Previous and Next on the right. */
+.pager { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s1) var(--s2); margin-top: var(--s2); }
+.pager-btns { display: flex; gap: var(--s1); margin-left: auto; }
+.btn:disabled { opacity: .4; cursor: default; pointer-events: none; }
+
+/* "... and limits" tabs (Test stars, Moving objects, Vet a field, Method): one format. Full-width cards stacked,
+   Limits last (the tab names read "... and limits"); a short intro line; long lists flow into two columns on wide screens. No fold-outs. */
+.notes-stack { display: grid; gap: var(--s2); }
+.notes-stack .card-title { margin-bottom: var(--s1); }
+.notes-stack .notes-intro { margin: 0 0 var(--s2); max-width: none; color: var(--ink); }
+.notes-stack .notes-intro:last-child { margin-bottom: 0; }
+.notes-stack .notes-list, .notes-stack .refs { font-size: var(--t-sm); }
+@media (min-width: 961px) {
+  .notes-stack .notes-list, .notes-stack .refs { display: block; columns: 2 340px; column-gap: var(--s5); }
+  .notes-stack .notes-list li, .notes-stack .refs li { break-inside: avoid; margin-bottom: var(--s2); max-width: none; }
+}
+
+/* Static starfield behind every page except Home (which has its own drifting stars) and the sky map:
+   two tiles of different sizes so the pattern does not visibly repeat. */
+body:not(.route-home):not(.route-sky)::before {
+  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: .8;
+  background-image:
+    radial-gradient(1.1px 1.1px at 18px 26px, #fff 50%, transparent 51%),
+    radial-gradient(1px 1px at 96px 74px, rgba(255, 255, 255, .7) 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 158px 18px, #4DD0F8 50%, transparent 51%),
+    radial-gradient(1px 1px at 214px 132px, rgba(255, 255, 255, .6) 50%, transparent 51%),
+    radial-gradient(1.2px 1.2px at 64px 168px, #fff 50%, transparent 51%),
+    radial-gradient(1px 1px at 132px 214px, rgba(255, 255, 255, .5) 50%, transparent 51%),
+    radial-gradient(1.3px 1.3px at 37px 301px, rgba(255, 255, 255, .8) 50%, transparent 51%),
+    radial-gradient(1px 1px at 271px 263px, rgba(255, 255, 255, .55) 50%, transparent 51%),
+    radial-gradient(1.6px 1.6px at 301px 88px, #fff 50%, transparent 51%),
+    radial-gradient(1px 1px at 189px 331px, rgba(77, 208, 248, .7) 50%, transparent 51%);
+  background-size: 240px 200px, 240px 200px, 240px 200px, 240px 200px, 240px 200px, 240px 200px,
+    340px 360px, 340px 360px, 340px 360px, 340px 360px;
+}

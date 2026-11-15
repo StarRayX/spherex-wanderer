@@ -196,21 +196,19 @@ function Colour({ m }: { m: Meta }) {
 
 function Notes({ m }: { m: Meta }) {
   return (
-    <div className="grid2">
-      <div className="card wide">
-        <h2 className="card-title">What to know before trusting these numbers</h2>
-        <p>These notes explain what SPHEREx could and could not measure for this star. The details are technical.</p>
-        <details className="tech">
-          <summary>Technical details</summary>
-          <ul className="notes-list">{(m.notes ?? []).map(n => <li key={n}>{tidy(n)}</li>)}</ul>
-        </details>
-      </div>
+    <div className="notes-stack">
       {m.target?.astrometry_source && (
-        <div className="card wide">
+        <section className="card">
           <h2 className="card-title">Where the position comes from</h2>
-          <p className="sm mono" style={{ margin: 0, overflowWrap: 'anywhere' }}>{m.target.astrometry_source}</p>
-        </div>
+          <p className="notes-intro mono" style={{ overflowWrap: 'anywhere' }}>{m.target.astrometry_source}</p>
+        </section>
       )}
+      <section className="card">
+        <h2 className="card-title">Limits</h2>
+        <p className="notes-intro">What SPHEREx could and could not measure for this star, before you trust the numbers.</p>
+        <ul className="notes-list">{(m.notes ?? []).map(n => <li key={n}>{tidy(n)}</li>)}</ul>
+      </section>
+
     </div>
   )
 }

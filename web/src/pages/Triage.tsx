@@ -3,6 +3,7 @@ import type { FormEvent } from 'react'
 import type { PageProps } from '../lib/router'
 import { downloadText, getJson, joinUrl, toCsv } from '../lib/download'
 import PageTabs from '../components/PageTabs'
+import Pager from '../components/Pager'
 import './Triage.css'
 
 // Where the precomputed files live. Switch to '/triage' to test with fixtures.
@@ -212,22 +213,16 @@ function Detail({ slug, tabParam, onReady }: { slug: string; tabParam: string | 
         <Table rows={rows} counts={counts} base={base} slug={meta.slug} />
       </section>}
 
-      {tab === 'notes' && <div className="tg-pair">
-      <section className="card tg-block tg-limits" aria-labelledby="tg-lim-h">
-        <h2 id="tg-lim-h" className="card-title">Limits</h2>
-        <details className="tg-fold" open>
-          <summary>What an empty result does not tell you</summary>
-          {meta.depth_note && <p>{meta.depth_note}</p>}
-          {(meta.caveats ?? []).length > 0 && <ul className="notes-list">{(meta.caveats ?? []).map((c, i) => <li key={i}>{c}</li>)}</ul>}
-        </details>
-      </section>
+      {tab === 'notes' && <div className="notes-stack">
 
-      <section className="card tg-block" aria-labelledby="tg-how-h">
+      <section className="card" aria-labelledby="tg-how-h">
         <h2 id="tg-how-h" className="card-title">How we checked</h2>
-        <details className="tg-fold" open>
-          <summary>Method</summary>
-          <p>{meta.method}</p>
-        </details>
+        <p className="notes-intro">{meta.method}</p>
+      </section>
+      <section className="card" aria-labelledby="tg-lim-h">
+        <h2 id="tg-lim-h" className="card-title">Limits</h2>
+        {meta.depth_note && <p className="notes-intro">{meta.depth_note}</p>}
+        {(meta.caveats ?? []).length > 0 && <ul className="notes-list">{(meta.caveats ?? []).map((c, i) => <li key={i}>{c}</li>)}</ul>}
       </section>
       </div>}
     </div>
@@ -356,11 +351,10 @@ function EvidenceRow({ row }: { row: Row }) {
 }
 
 // ---------- table ----------
-const PAGE = 10 // rows shown first
-const MORE = 25 // rows added per "Show more"
+const PAGE = 10 // rows per page
 function Table({ rows, counts, base, slug }: { rows: Row[]; counts: Counts; base: string; slug: string }) {
   const [filter, setFilter] = useState<VerdictId | 'all'>('all')
-  const [limit, setLimit] = useState(PAGE)
+  const [page, setPage] = useState(0)
   const [open, setOpen] = useState<string | null>(null)
 
   const shownCounts = useMemo(() => {
@@ -379,9 +373,9 @@ function Table({ rows, counts, base, slug }: { rows: Row[]; counts: Counts; base
     <>
       <CountBar counts={shownCounts} />
       <div className="tg-chips" role="group" aria-label="Filter by cause">
-        <button aria-pressed={filter === 'all'} onClick={() => { setFilter('all'); setLimit(PAGE) }}>All <b>{rows.length}</b></button>
+        <button aria-pressed={filter === 'all'} onClick={() => { setFilter('all'); setPage(0) }}>All <b>{rows.length}</b></button>
         {VERDICTS.map(v => (
-          <button key={v.id} aria-pressed={filter === v.id} onClick={() => { setFilter(v.id); setLimit(PAGE) }} title={v.hint}>
+          <button key={v.id} aria-pressed={filter === v.id} onClick={() => { setFilter(v.id); setPage(0) }} title={v.hint}>
             <Swatch v={v.id} />{v.label} <b>{shownCounts[v.id] ?? 0}</b>
           </button>
         ))}
@@ -399,7 +393,7 @@ function Table({ rows, counts, base, slug }: { rows: Row[]; counts: Counts; base
           <table className="tg-table">
             <thead><tr><th scope="col">Cutout</th><th scope="col">Verdict</th><th scope="col">Why</th></tr></thead>
             <tbody>
-              {list.slice(0, limit).map(r => (
+              {list.slice(page * PAGE, (page + 1) * PAGE).map(r => (
                 <Fragment key={r.id}>
                   <tr className={open === r.id ? 'tg-row-open' : undefined}>
                     <td data-l="Cutout"><img src={joinUrl(base, r.thumb)} alt="" width={56} height={56} loading="lazy" /></td>
@@ -415,11 +409,8 @@ function Table({ rows, counts, base, slug }: { rows: Row[]; counts: Counts; base
           </table>
         </div>
       )}
-      <p className="tg-more">
-        <span className="muted sm">Showing {Math.min(limit, list.length)} of {list.length}.</span>{' '}
-        {list.length > limit && <button className="linkbtn" onClick={() => setLimit(l => l + MORE)}>Show {Math.min(MORE, list.length - limit)} more</button>}{' '}
-        {filter !== 'all' && list.length > 0 && <button className="linkbtn" onClick={saveView}>Download this view as CSV</button>}
-      </p>
+      <Pager page={page} size={PAGE} total={list.length} onPage={setPage}
+        extra={filter !== 'all' && list.length > 0 && <button className="linkbtn" onClick={saveView}>Download this view as CSV</button>} />
     </>
   )
 }
