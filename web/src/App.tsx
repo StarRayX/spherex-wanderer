@@ -170,6 +170,10 @@ function Nav({ active }: { active: Key | null }) {
         )}
       </ul>
       <div className="nav-foot">
+        <a className="made src-link" href="https://github.com/StarRayX/spherex-wanderer" target="_blank" rel="noopener noreferrer" title="Source code on GitHub (GPL-3.0)">
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden><path fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" d="M8 7l-5 5 5 5M16 7l5 5-5 5M13.5 4l-3 16" /></svg>
+          <span>Source code</span>
+        </a>
         <p className="made"><img src="/nyscp.svg" alt="" /><span>Made by NYSCP, Manila</span></p>
       </div>
     </nav>

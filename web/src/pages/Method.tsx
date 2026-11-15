@@ -90,6 +90,7 @@ export default function Method({ params, onReady }: PageProps) {
           '2MASS and DSS2 sky images: map backgrounds when SPHEREx tiles are unavailable.',
           'Astropy, pyvo and reproject for the image pipeline.',
         ]} />
+        <p>Every number on this site comes from a script you can rerun. The code is open source under GPL-3.0: <a href="https://github.com/StarRayX/spherex-wanderer" target="_blank" rel="noopener noreferrer">github.com/StarRayX/spherex-wanderer</a>.</p>
       </section>
       <section className="card">
         <h2 className="card-title">Limits</h2>

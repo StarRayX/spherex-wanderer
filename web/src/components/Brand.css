@@ -44,3 +44,7 @@ html:not([data-nav="closed"]) .nav-toggle { animation: tg-in-open .26s cubic-bez
 @media (prefers-reduced-motion: reduce) { .nav-toggle, html[data-nav="closed"] .nav:not(.unweave) .nav-toggle, html:not([data-nav="closed"]) .nav-toggle { animation: none; transition: none; } }
 /* One wordmark everywhere: the same face, weight, case and tracking as the sidebar's WANDERER. */
 .brand-line .wm { font: 700 1.0625rem/1.2 var(--f-display); letter-spacing: .02em; color: var(--ink); }
+/* Source code link in the sidebar foot: same row style as "Made by", quiet until hovered. */
+.nav-foot a.src-link { color: var(--muted); text-decoration: none; border-radius: 12px; }
+.nav-foot a.src-link:hover { color: var(--ink); background: rgba(255, 255, 255, .06); }
+.nav-foot a.src-link svg { flex: none; margin: 0 4px 0 2px; }
