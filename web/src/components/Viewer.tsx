@@ -65,12 +65,16 @@ export default function Viewer({ meta, src, autoplay = true, compact = false, as
   const fov = native * meta.pixel_scale_arcsec
   const scaleArcsec = fov > 200 ? 60 : 30
 
+  const zoomBtn = <button className="chip-btn" onClick={() => setZoom(z => (z === 2 ? 1 : 2))} aria-pressed={zoom === 2} title="Zoom in on the star">2×</button>
+  const changesBtn = diffs.some(d => d.file) && (
+    <button className="chip-btn" onClick={() => setLayer(l => (l === 'changes' ? 'images' : 'changes'))} aria-pressed={layer === 'changes'} title="Show only what changed since the last visit">Changes</button>
+  )
+
   const top = (
       <div className="viewer-top">
         <b>Visit {idx + 1} of {visits.length}</b>
         <span>{monthYear(v.date)}</span>
         <span className="mono">λ {fmt(v.wavelength_um)} µm</span>
-        {compact && (<>{diffs.some(d => d.file) && ( <button className="chip-btn" onClick={() => setLayer(l => (l === 'changes' ? 'images' : 'changes'))} aria-pressed={layer === 'changes'} title="Show only what changed since the last visit">Changes</button> )}</>)}
       </div>
   )
 
@@ -85,11 +89,6 @@ export default function Viewer({ meta, src, autoplay = true, compact = false, as
             <img key={d.file} src={src(d.file!)} alt="" draggable={false} className={diff && diff.file === d.file ? 'on' : ''} />
           ))}
           <svg className="overlay" viewBox={`0 0 ${native} ${native}`} preserveAspectRatio="none" aria-hidden>
-            {/* Faint crosshair through the measured position, across the whole frame. */}
-            {v.star_xy && <g className="xhair">
-              <line x1={-native} x2={2 * native} y1={v.star_xy[1] + 0.5} y2={v.star_xy[1] + 0.5} />
-              <line x1={v.star_xy[0] + 0.5} x2={v.star_xy[0] + 0.5} y1={-native} y2={2 * native} />
-            </g>}
             {/* Gaia's prediction for every visit so far; older ones are fainter. */}
             {visits.slice(0, idx + 1).map((x, i) => (
               <circle key={'g' + i} cx={x.predicted_xy[0] + 0.5} cy={x.predicted_xy[1] + 0.5} r={R_GAIA} className="gaia" style={{ opacity: age(i, idx) }} />
@@ -139,9 +138,14 @@ export default function Viewer({ meta, src, autoplay = true, compact = false, as
             </button>
           ))}
         </div>
-        <button className="chip-btn" onClick={() => setZoom(z => (z === 2 ? 1 : 2))} aria-pressed={zoom === 2} title="Zoom in on the star">2×</button>
-        {!compact && (<>{diffs.some(d => d.file) && ( <button className="chip-btn" onClick={() => setLayer(l => (l === 'changes' ? 'images' : 'changes'))} aria-pressed={layer === 'changes'} title="Show only what changed since the last visit">Changes</button> )}</>)}
+        {!compact && zoomBtn}
+        {!compact && changesBtn}
       </div>
+  )
+
+  // Compact (sky panel): 2x and Changes share a row below the controls, half width each.
+  const tools = compact && (
+      <div className="viewer-tools">{zoomBtn}{changesBtn}</div>
   )
 
   const legend = !compact && (
@@ -167,7 +171,7 @@ export default function Viewer({ meta, src, autoplay = true, compact = false, as
       </div>
     )
   }
-  return <div className="viewer">{top}{frame}{controls}{legend}</div>
+  return <div className="viewer">{top}{frame}{controls}{tools}{legend}</div>
 }
 
 // Overlay sizes, in image pixels (the overlay scales with the image and the 2x zoom).

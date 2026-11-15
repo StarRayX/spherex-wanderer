@@ -17,15 +17,13 @@
 
 /* ---------- overlay: instrument marks + viewfinder ----------
    A thin measuring ring and ticks outside the star's glow, Gaia's prediction per visit (older ones fainter),
-   the trail with an arrowhead on its last step, a faint crosshair through the star, and camera-style corner
-   brackets. Every line has a thin dark edge so it stays visible where it crosses the white star. */
+   the trail with an arrowhead on its last step, and camera-style corner brackets. Every line has a thin dark edge so it stays visible where it crosses the white star. */
 .viewer .overlay * { vector-effect: non-scaling-stroke; }
-.viewer .overlay .xhair line { stroke: #fff; stroke-width: 1; opacity: .12; }
 .viewer .overlay .gaia { fill: none; stroke: #fff; stroke-width: 1; stroke-dasharray: none; paint-order: stroke; filter: drop-shadow(0 0 1px rgba(0, 0, 0, .8)); }
-.viewer .overlay .trail-halo { fill: none; stroke: rgba(0, 0, 0, .5); stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; }
+.viewer .overlay .trail-halo { fill: none; stroke: rgba(0, 0, 0, .45); stroke-width: 2.3; stroke-linecap: round; stroke-linejoin: round; }
 .viewer .overlay .trail { fill: none; stroke: var(--cyan); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
-.viewer .overlay .arrow { fill: var(--cyan); stroke: rgba(0, 0, 0, .5); stroke-width: 1; stroke-linejoin: round; }
-.viewer .overlay .dot { fill: var(--cyan); stroke: rgba(0, 0, 0, .55); stroke-width: 1; }
+.viewer .overlay .arrow { fill: var(--cyan); stroke: rgba(0, 0, 0, .45); stroke-width: .4; stroke-linejoin: round; }
+.viewer .overlay .dot { fill: var(--cyan); stroke: rgba(0, 0, 0, .45); stroke-width: .4; }
 .viewer .overlay .reticle circle { fill: none; stroke: var(--cyan); stroke-width: 1.25; filter: drop-shadow(0 0 1px rgba(0, 0, 0, .7)); }
 .viewer .overlay .reticle line { stroke: var(--cyan); stroke-width: 1.25; stroke-linecap: butt; }
 
@@ -36,9 +34,13 @@
 .viewer .vf i:nth-child(3) { left: 0; bottom: 0; border-left-width: 1.5px; border-bottom-width: 1.5px; }
 .viewer .vf i:nth-child(4) { right: 0; bottom: 0; border-right-width: 1.5px; border-bottom-width: 1.5px; }
 .viewer .frame-tag { position: absolute; transform: translate(-50%, 6px); padding: 1px 6px; border-radius: 4px; background: rgba(2, 3, 5, .72); border: 1px solid rgba(255, 255, 255, .18); color: #fff; font: 600 11px var(--f-mono); white-space: nowrap; pointer-events: none; transition: left 300ms ease, top 300ms ease; }
-/* The compass and scale bar sit inside the brackets. */
-.viewer .compass { right: 36px; top: 32px; }
-.viewer .scalebar { left: 38px; bottom: 30px; width: calc(50% - 26px); }
+/* The compass, scale bar and notes sit just inside the corner brackets (12 px inset, 18 px arms). */
+.viewer .compass { right: 24px; top: 24px; }
+.viewer .scalebar { left: 26px; bottom: 22px; width: calc(50% - 14px); }
+.viewer .frame-note { left: 26px; right: 74px; top: 26px; }
+/* Sky panel: 2x and Changes side by side under the controls. */
+.viewer .viewer-tools { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s1); }
+.viewer .viewer-tools .chip-btn { width: 100%; min-height: var(--ctl-h); }
 
 /* Legend icons match the marks. */
 .viewer .legend .lg-ret { background: none; border: 1.25px solid var(--cyan); border-radius: 50%; }
